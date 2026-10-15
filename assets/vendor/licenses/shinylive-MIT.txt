@@ -1,0 +1,47 @@
+Shinylive – licence notice
+==========================
+Shiny apps run in this site in the way of Shinylive (Posit; https://github.com/posit-dev/shinylive),
+which runs Shiny apps in a web page, with R in webR. The site's files below were written for the
+workbench after Shinylive's code. They are not copies of it, but they follow its design closely –
+the messages between the page, the service worker and the app's frame and their names
+(configureProxyPath, makeRequest, openChannel, serviceworkerStart), the stand-in for the app's
+WebSocket, and the calls into Shiny with which R answers the app's requests – and some parts are
+near to Shinylive's own code:
+
+  isolation-sw.js (its Shiny part)   after src/shinylive-sw.ts
+  assets/js/shiny-socket.js          after src/shinylive-inject-socket.ts and src/messageportwebsocket.ts
+  assets/js/shiny.js                 after src/messageporthttp.ts, src/messageportwebsocket.ts,
+                                     src/messageportwebsocket-channel.ts and src/hooks/useWebR.tsx
+  assets/js/rsession.js              its R functions wb$shiny_run, wb$shiny_reader, wb$shiny_http,
+                                     wb$shiny_ws_open, wb$shiny_ws_msg, wb$shiny_ws_close and
+                                     wb$shiny_tick: after the R code in src/hooks/useWebR.tsx,
+                                     src/messageporthttp.ts and src/messageportwebsocket-channel.ts
+
+(Compared on 15 October 2026 with Shinylive's main branch, commit
+80eb17c461d6bfd60f61d16bef92ad9c83d87434.)
+
+As far as these files derive from Shinylive, Shinylive's licence applies to those parts. Its
+notice, from the file LICENSE of its repository, is reproduced here. (RStudio, PBC is now Posit
+Software, PBC.)
+
+MIT License
+
+Copyright (c) 2022 RStudio, PBC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
