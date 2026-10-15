@@ -35,7 +35,7 @@
   window.addEventListener('storage', (e) => {
     if (warnedTabs || !e.key || !/:(progress|files)$/.test(e.key)) return;
     warnedTabs = true;
-    toast('This practical is also open in another tab or window. Work in one of them, so that answers and files are not overwritten.', 'warn', 9000);
+    toast('This practical is also open in another tab or window. Please work in only one of them, so that your answers and files are not overwritten.', 'warn', 9000);
   });
 
   /* ------------------------------------------------------------------
@@ -177,9 +177,9 @@
     $$('[data-task]').forEach((li) => {
       const id = li.dataset.task;
       const cb = h('input', { type: 'checkbox', 'aria-label': 'Mark as done' });
-      const lab = h('label.task-check', { title: 'Tick when done' }, cb, h('span', 'done'));
+      const lab = h('label.task-check', { title: 'Tick this when you have done it' }, cb, h('span', 'done'));
       li.prepend(lab);
-      if (li.dataset.auto || li.dataset.check) lab.title = 'Ticks itself when you do it – or tick it yourself';
+      if (li.dataset.auto || li.dataset.check) lab.title = 'This ticks itself when you do the step, or you can tick it yourself';
       cb.addEventListener('change', () => setTask(id, cb.checked, false));
       const t = { id, li, cb, spec: li.dataset.auto ? parseSpec(li.dataset.auto) : null, check: li.dataset.check || null };
       taskEls.push(t);
@@ -269,7 +269,7 @@
           body.appendChild(opts);
         }
       } else {
-        const inp = rec.type === 'short' ? h('input', { type: 'text', 'aria-label': 'Your answer', placeholder: q.dataset.placeholder || 'Your answer' }) : h('textarea', { 'aria-label': 'Your answer', placeholder: q.dataset.placeholder || 'Type your answer – it is saved in this browser' });
+        const inp = rec.type === 'short' ? h('input', { type: 'text', 'aria-label': 'Your answer', placeholder: q.dataset.placeholder || 'Your answer' }) : h('textarea', { 'aria-label': 'Your answer', placeholder: q.dataset.placeholder || 'Type your answer here (it is saved in this browser)' });
         inp.value = saved.text || '';
         rec.input = inp;
         body.appendChild(inp);
@@ -416,13 +416,13 @@
         const a = state.answers[x.id] || {};
         const qt = x.q.querySelector('.q-text');
         const num = x.q.querySelector('.q-n');
-        html += `<div class="q"><div class="qt">${esc(num ? num.textContent : '')} ${esc(qt ? qt.textContent : '')}</div>${a.text ? `<div class="a">${esc(a.text)}</div>` : '<div class="a none">(no answer)</div>'}${a.correct ? '<div class="ok">✓ checked correct</div>' : ''}</div>`;
+        html += `<div class="q"><div class="qt">${esc(num ? num.textContent : '')} ${esc(qt ? qt.textContent : '')}</div>${a.text ? `<div class="a">${esc(a.text)}</div>` : '<div class="a none">(no answer)</div>'}${a.correct ? '<div class="ok">✓ Checked and correct</div>' : ''}</div>`;
       });
     });
     html += '</body></html>';
     const fname = 'my-answers' + (name ? '-' + name.replace(/[^a-z0-9]+/gi, '-') : '') + '.html';
     MG.downloadText(html, fname, 'text/html');
-    toast('Saved <b>' + esc(fname) + '</b> – open it in a browser or Word.');
+    toast('Saved <b>' + esc(fname) + '</b>. You can open it in a web browser or in Word.');
     bus.emit('answers:export', {});
   }
   async function copyAnswers() {
@@ -436,7 +436,7 @@
         out += `${x.q.querySelector('.q-n').textContent} ${x.q.querySelector('.q-text') ? x.q.querySelector('.q-text').textContent : ''}\n${a.text || '(no answer)'}\n\n`;
       });
     });
-    (await MG.copyText(out)) ? toast('Answers copied to the clipboard.') : toast('Could not copy.', 'error');
+    (await MG.copyText(out)) ? toast('Your answers have been copied to the clipboard.') : toast('Your answers could not be copied to the clipboard.', 'error');
   }
   function resetProgress() {
     const extra = (MG.page && MG.page.resetNote) || '';

@@ -56,13 +56,17 @@
     const head = kind === 'notebook' ? `---\ntitle: "${title}"\noutput: html_notebook\n---\n` : `---\ntitle: "${title}"\nauthor: "${author}"\ndate: "\`r Sys.Date()\`"\noutput: html_document\n---\n`;
     if (kind === 'notebook')
       return `${head}
-This is an R Notebook. Run a chunk with the ▶ at its top right, or put the cursor in it and press *Ctrl+Shift+Enter*: its output appears under it.
+This is an R Notebook. When you run a chunk of code, its output appears underneath the chunk.
+
+Try running the chunk below. Click the ▶ button at its top right, or put the cursor inside it and press *Ctrl+Shift+Enter*.
 
 \`\`\`{r}
 summary(penguins)
 \`\`\`
 
-Add a chunk with *Ctrl+Alt+I*. When you save the notebook, a web page of it – the text, the code and the outputs as they are now – is saved next to it, with the same name ending in *.nb.html* (**Preview** shows it). Nothing is run again for it.
+You can add a new chunk with *Ctrl+Alt+I*.
+
+When you save the notebook, a web page is saved next to it, with the same name ending in *.nb.html*. The page shows the text, the code and the outputs exactly as they are when you save, and **Preview** opens it. No code is run again to make the page.
 `;
     return `${head}
 \`\`\`{r setup, include=FALSE}
@@ -71,7 +75,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## About this document
 
-This is R Markdown: text, with chunks of R code in it. **Knit** runs all the code, from the top, in a new R – and makes a web page of the text, the code and what the code printed and drew.
+This is an R Markdown document. It mixes ordinary text, written in Markdown, with chunks of R code like the one below. When you click **Knit**, all of the code is run from the beginning in a new R session, and the result is a web page containing the text, the code and everything the code printed or plotted.
 
 \`\`\`{r penguins}
 summary(penguins$body_mass)
@@ -79,7 +83,7 @@ summary(penguins$body_mass)
 
 ## A plot
 
-The code of a chunk with \`echo = FALSE\` is not shown in the page; its output is.
+The chunk below has the option \`echo = FALSE\`, so its code is left out of the web page, but its output (the plot) is still shown.
 
 \`\`\`{r mass-plot, echo=FALSE}
 plot(body_mass ~ flipper_len, data = penguins)
@@ -95,14 +99,14 @@ format: html
 
 ## Quarto
 
-Quarto documents are like R Markdown: text with chunks of code. **Render** runs the code from the top in a new R and makes a web page.
+Quarto documents work much like R Markdown documents: they combine text with chunks of code. When you click **Render**, the code is run from the beginning in a new R session, and the result is a web page.
 
 \`\`\`{r}
 #| label: mass-summary
 summary(penguins$body_mass)
 \`\`\`
 
-Options of a chunk can go in the chunk, as comments that begin with \`#|\`:
+A chunk's options can be written inside the chunk, as comment lines that begin with \`#|\`. In the chunk below, \`echo: false\` hides the code in the web page, so only the plot appears.
 
 \`\`\`{r}
 #| label: mass-plot
@@ -113,7 +117,7 @@ plot(body_mass ~ flipper_len, data = penguins)
   }
   const SHINY_TEMPLATE = `library(shiny)
 
-# The user interface: a slider and a plot
+# The user interface: a slider in a sidebar, and a plot in the main panel
 ui <- fluidPage(
   titlePanel("Penguin body mass"),
   sidebarLayout(
@@ -126,7 +130,8 @@ ui <- fluidPage(
   )
 )
 
-# The server: what the app computes and draws when an input changes
+# The server computes and draws the plot, and draws it again whenever
+# an input (here, the slider) changes
 server <- function(input, output) {
   output$hist <- renderPlot({
     x <- na.omit(penguins$body_mass)
@@ -204,7 +209,7 @@ shinyApp(ui = ui, server = server)
           ['code', 'Insert assignment <-  (Alt+-)', () => this.cm.replaceSelection(' <- ')]
         ]),
         menu('View', () => [
-          ['panes', 'Panes: show all four', () => this.showAllPanes()],
+          ['panes', 'Panes: Show All Panes', () => this.showAllPanes()],
           ['panes', 'Zoom Source', () => this.zoom('source')],
           ['panes', 'Zoom Console', () => this.zoom('console')],
           ['panes', 'Show Files  (Ctrl+5)', () => this.showTab('files', 'files')],
@@ -265,7 +270,7 @@ shinyApp(ui = ui, server = server)
         tb('search', 'Go to file', () => this.openDialog()),
         h('span.rs-tsep'),
         tb('panes', 'Workspace panes', (e) => MG.popmenu(e.currentTarget, [
-          ['panes', 'Show all panes', () => this.showAllPanes()],
+          ['panes', 'Show All Panes', () => this.showAllPanes()],
           ['panes', 'Zoom Source', () => this.zoom('source')],
           ['panes', 'Zoom Console', () => this.zoom('console')]
         ])),
@@ -450,7 +455,10 @@ shinyApp(ui = ui, server = server)
         this._plotResize();
         this.refreshEnv();
         this.refreshPackages();
-      }, (e) => this.cv.note('R could not start: ' + e.message + ' – check the internet connection and reload the page.'));
+      }, (e) => {
+        const why = String((e && e.message) || e).trim();
+        this.cv.note(`R could not start: ${why}${/[.!?]$/.test(why) ? '' : '.'} ${/internet connection/.test(why) ? 'Then reload the page.' : 'Check your internet connection and reload the page.'}`);
+      });
       return S;
     }
     _state(d) {
@@ -487,7 +495,7 @@ shinyApp(ui = ui, server = server)
           this.viewerNow = { app, url: app.url, title: app.title };
           this.viewerStop.hidden = false;
           this.showTab('files', 'viewer');
-          this.cv.hold('The Shiny app is running – press Esc (or Stop) to stop it');
+          this.cv.hold('The Shiny app is running. Press Esc or click Stop to stop it.');
           this.stopBtn.hidden = false;
           bus.emit('rstudio:shiny', { title: app.title, running: true });
         },
@@ -497,7 +505,7 @@ shinyApp(ui = ui, server = server)
           this.viewerStop.hidden = true;
           if (this.viewerNow && this.viewerNow.app === app) {
             this.viewerBox.innerHTML = '';
-            this.viewerBox.appendChild(h('div.rs-empty', 'The app has stopped. Run it again with Run App.'));
+            this.viewerBox.appendChild(h('div.rs-empty', 'The app has stopped. Click Run App to run it again.'));
             this.viewerNow = null;
           }
           if (this.S) this._state({ state: this.S.state });
@@ -528,7 +536,7 @@ shinyApp(ui = ui, server = server)
       bus.emit('rstudio:restart', {});
     }
     async terminate() {
-      if (!(await MG.confirmBox('Terminate R', '<p>The R session is ended at once: everything in its memory is lost (your files stay). A new session starts.</p>', 'Terminate', { danger: true }))) return;
+      if (!(await MG.confirmBox('Terminate R', "<p>This ends the R session immediately. Everything in R's memory will be lost, but your files are not affected. A new session will start straight away.</p>", 'Terminate', { danger: true }))) return;
       this.restart();
     }
     _ended(d) {
@@ -546,7 +554,7 @@ shinyApp(ui = ui, server = server)
       }
     }
     _deadNote() {
-      this.cv.note('R is not running: Session → Restart R starts a new R session.');
+      this.cv.note('R is not running. To start a new R session, choose Session → Restart R.');
     }
 
     /* ================= Console pane ================= */
@@ -592,7 +600,7 @@ shinyApp(ui = ui, server = server)
       this.showTab('console', 'console');
     }
     cannotInterrupt() {
-      MG.confirmBox('Interrupt R', '<p>In this browser R cannot be interrupted: the page is not cross-origin isolated. Terminating R ends what it is doing – and everything in its memory.</p>', 'Terminate R', { danger: true }).then((ok) => ok && this.restart());
+      MG.confirmBox('Interrupt R', "<p>R can't be interrupted in this browser, because the page is not cross-origin isolated. Terminating R will stop what it is doing, but everything in R's memory will be lost as well.</p>", 'Terminate R', { danger: true }).then((ok) => ok && this.restart());
     }
     _sizeConsole() {
       if (!this.S) return;
@@ -612,7 +620,7 @@ shinyApp(ui = ui, server = server)
       if (this.term) return setTimeout(() => this.term.focus(), 30);
       const host = h('div.rs-term');
       this.panes.console.views.terminal.appendChild(host);
-      this.term = new MG.TerminalUI(host, { fs: Object.create(this.fs), hostname: MG.config.hostname || 'workbench', env: {}, welcome: 'Terminal 1 – a shell on the same files as RStudio (Rscript, R CMD BATCH and R work here too).' });
+      this.term = new MG.TerminalUI(host, { fs: Object.create(this.fs), hostname: MG.config.hostname || 'workbench', env: {}, welcome: 'This is Terminal 1, a shell that works on the same files as RStudio. You can also run Rscript, R CMD BATCH and R here.' });
       // (the terminal of RStudio has a folder of its own: cd here does not move the Terminal tab)
       this.term.fs.cwd = MG.app.HOME;
       setTimeout(() => this.term.focus(), 30);
@@ -747,7 +755,7 @@ shinyApp(ui = ui, server = server)
     }
     _histSend(where) {
       const sel = Array.from(this.histList.querySelectorAll('.sel')).map((r) => this.history[+r.dataset.i]);
-      if (!sel.length) return toast('Select one or more commands in the History first (click; Ctrl+click for more).', 'warn');
+      if (!sel.length) return toast('Select one or more commands in the History first. Click a command to select it, and Ctrl+click to select more.', 'warn');
       if (where === 'console') this.consoleType(sel.join('\n'));
       else if (this.cur && this.cur.cmDoc) {
         this.cm.replaceSelection(sel.join('\n') + '\n');
@@ -755,7 +763,7 @@ shinyApp(ui = ui, server = server)
       } else this.newDoc('r', sel.join('\n') + '\n');
     }
     async clearWorkspace() {
-      if (!(await MG.confirmBox('Clear Workspace', '<p>Are you sure you want to remove all objects from the environment? (This runs <code>rm(list = ls())</code>; your files stay.)</p>', 'Yes', { danger: true }))) return;
+      if (!(await MG.confirmBox('Clear Workspace', '<p>Are you sure you want to remove all objects from the environment? (This runs <code>rm(list = ls())</code>. Your files are not affected.)</p>', 'Yes', { danger: true }))) return;
       this.consoleRun('rm(list = ls())');
     }
 
@@ -824,7 +832,7 @@ shinyApp(ui = ui, server = server)
       this.helpAt = -1;
       // Viewer
       this.viewerTitle = h('span', { style: { fontSize: '12px', color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } });
-      this.viewerStop = fb('stopsq', 'Stop', 'Stop the app (Esc in the console)', () => MG.Shiny && MG.Shiny.stop(this.S));
+      this.viewerStop = fb('stopsq', 'Stop', 'Stop the app (or press Esc in the Console)', () => MG.Shiny && MG.Shiny.stop(this.S));
       this.viewerStop.hidden = true;
       const vOpen = fb('external', '', 'Show in a new window', () => this.viewerOpen());
       const vClear = fb('broom', '', 'Clear the viewer', () => this.viewerClear());
@@ -912,7 +920,7 @@ shinyApp(ui = ui, server = server)
       const name = await MG.promptText('New Blank File', 'File name:', 'Untitled' + ext, 'OK');
       if (!name) return;
       const p = this.filesDir + '/' + name.replace(/[\/\\]/g, '_');
-      if (this.fs.exists(p)) return toast('A file with that name exists already.', 'warn');
+      if (this.fs.exists(p)) return toast('A file with that name already exists.', 'warn');
       this.fs.writeText(p, '');
       this.renderFiles();
       this.openFile(p);
@@ -930,10 +938,10 @@ shinyApp(ui = ui, server = server)
         if (!name || name === MG.path.basename(p)) return;
         fs.rename(p, MG.path.dirname(p) + '/' + name.replace(/[\/\\]/g, '_'));
       } else if (what === 'copy' || what === 'move') {
-        const to = await MG.promptText(what === 'copy' ? 'Copy File' : 'Move Files', `To which folder (in your home folder, e.g. ~/results)?`, '~/', 'OK');
+        const to = await MG.promptText(what === 'copy' ? 'Copy File' : 'Move Files', `Enter the folder to ${what} ${sel.length === 1 ? 'the file' : 'the files'} to. It must be in your home folder, for example ~/results.`, '~/', 'OK');
         if (!to) return;
         const dest = fs.resolve(to);
-        if (!dest.startsWith(MG.app.HOME)) return toast('Choose a folder in your home folder.', 'warn');
+        if (!dest.startsWith(MG.app.HOME)) return toast('Please choose a folder inside your home folder.', 'warn');
         fs.mkdirp(dest);
         for (const p of sel) {
           if (what === 'copy' && fs.get(p).kind !== 'dir') fs.copy(p, dest + '/' + MG.path.basename(p));
@@ -983,7 +991,7 @@ shinyApp(ui = ui, server = server)
       d.entry = e;
       if (text === d.saved) return;
       if (d.dirty) {
-        toast(`<b>${esc(d.name)}</b> was changed on disk (by R, the terminal or Files). Your unsaved edits are kept – saving overwrites the other version.`, 'warn', 8000);
+        toast(`<b>${esc(d.name)}</b> has been changed on disk (by R, the terminal or the Files tab). Your unsaved edits have been kept, but if you save them, they will replace the other version.`, 'warn', 8000);
         return;
       }
       const cur = d === this.cur ? this.cm.getCursor() : null;
@@ -1028,7 +1036,7 @@ shinyApp(ui = ui, server = server)
       const p = this.plots[this.plotAt];
       this.plotBox.innerHTML = '';
       if (p) this.plotBox.appendChild(p.plot.canvas);
-      else this.plotBox.appendChild(h('div.rs-empty', 'No plots yet: plot(), hist() or a ggplot draw here.'));
+      else this.plotBox.appendChild(h('div.rs-empty', 'There are no plots yet. Plots made with plot(), hist() or ggplot will appear here.'));
       this.plotPrev.disabled = this.plotAt <= 0;
       this.plotNext.disabled = this.plotAt >= this.plots.length - 1;
       this.plotInfo.textContent = this.plots.length ? `${this.plotAt + 1} / ${this.plots.length}` : '';
@@ -1073,7 +1081,7 @@ shinyApp(ui = ui, server = server)
       document.body.appendChild(a);
       a.click();
       a.remove();
-      toast('Saved Rplot.png to your computer\'s downloads. (In R: <code>png("plot.png"); …; dev.off()</code> or <code>ggsave()</code> write a picture into your files.)', null, 6000);
+      toast('Rplot.png has been downloaded to your computer. (To save a plot into your files from R, use <code>png("plot.png")</code> … <code>dev.off()</code>, or <code>ggsave()</code>.)', null, 6000);
     }
     async plotCopy() {
       const p = this.plots[this.plotAt];
@@ -1081,9 +1089,9 @@ shinyApp(ui = ui, server = server)
       try {
         const blob = await (await fetch(p.plot.png())).blob();
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        toast('The plot was copied to the clipboard.', 'ok');
+        toast('The plot has been copied to the clipboard.', 'ok');
       } catch (e) {
-        toast('This browser did not allow copying the picture: use Save as Image.', 'warn');
+        toast('This browser did not allow the plot to be copied. Please use Save as Image instead.', 'warn');
       }
     }
     plotRemove() {
@@ -1117,7 +1125,7 @@ shinyApp(ui = ui, server = server)
       const q = (this.pkgSearch.value || '').toLowerCase();
       const have = new Map((this.pkgs || []).map((p) => [p.name, p]));
       const user = MG.R.userlib.list();
-      const userRows = user.map((n) => have.get(n) || { name: n, version: '', title: '(installed – loaded into this R when it is first used)', attached: false });
+      const userRows = user.map((n) => have.get(n) || { name: n, version: '', title: '(installed – it is loaded into this R session the first time it is used)', attached: false });
       const sys = (this.pkgs || []).filter((p) => !user.includes(p.name) && (p.priority === 'base' || p.priority === 'recommended' || p.name === 'webr'));
       const more = (this.pkgs || []).filter((p) => !user.includes(p.name) && !(p.priority === 'base' || p.priority === 'recommended' || p.name === 'webr'));
       const t = h('table', h('thead', h('tr', h('th', ''), h('th', 'Name'), h('th', 'Description'), h('th', 'Version'))));
@@ -1153,7 +1161,7 @@ shinyApp(ui = ui, server = server)
         h('label.row', h('span', 'Install from:'), h('span', 'Repository (webR: CRAN packages built for the browser)')),
         h('label.row', h('span', 'Packages'), inp),
         h('p.muted', { style: { fontSize: '12px', margin: '2px 0 0 9.6em' } }, 'Separate multiple packages with a space or comma'),
-        h('label.row', h('span', 'Install to library:'), h('span', '/usr/lib/R/library [Default] – kept in this browser for every R of the workbench')),
+        h('label.row', h('span', 'Install to library:'), h('span', '/usr/lib/R/library [Default] – kept in this browser and available to every R session in the workbench')),
         h('label.check', { style: { marginTop: '6px' } }, deps, 'Install dependencies'),
         h('div.prompt-actions', cancel, go)
       );
@@ -1205,7 +1213,7 @@ shinyApp(ui = ui, server = server)
       this.showTab('files', 'help');
     }
     helpTopic(topic, pkg) {
-      if (!this.S || !this.S.idle) return toast('R is busy: wait until it has finished.', 'warn');
+      if (!this.S || !this.S.idle) return toast('R is still busy. Please wait until it has finished.', 'warn');
       this.S.helpTopic(topic, pkg || '');
     }
     _helpNav(d) {
@@ -1221,7 +1229,7 @@ shinyApp(ui = ui, server = server)
       this.helpBody.innerHTML = '';
       const box = h('div.rs-helphome');
       box.innerHTML = `<h2>R Resources</h2>
-<p>Type a topic in the search box above (or <code>?name</code> in the console) to see R's help for it: what a function does, its arguments, and examples.</p>
+<p>To see R's help on a topic, type it in the search box above, or type <code>?name</code> in the Console. A help page explains what a function does, describes its arguments and gives examples.</p>
 <ul>
 <li><a data-topic="mean">mean</a> · <a data-topic="read.csv">read.csv</a> · <a data-topic="plot">plot</a> · <a data-topic="summary">summary</a> · <a data-topic="penguins">penguins</a></li>
 </ul>
@@ -1244,7 +1252,7 @@ shinyApp(ui = ui, server = server)
     viewerClear() {
       if (MG.Shiny && this.shinyApp) return MG.Shiny.stop(this.S);
       this.viewerBox.innerHTML = '';
-      this.viewerBox.appendChild(h('div.rs-empty', 'Web content shows here: knitted documents, Shiny apps and HTML widgets.'));
+      this.viewerBox.appendChild(h('div.rs-empty', 'Web content appears here, such as knitted documents, Shiny apps and HTML widgets.'));
       this.viewerTitle.textContent = '';
       this.viewerNow = null;
     }

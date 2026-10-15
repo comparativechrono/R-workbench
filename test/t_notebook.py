@@ -129,7 +129,7 @@ check(len(imgs) == 1 and png_size(imgs[0]['png']) == (576, 432) and imgs[0]['wid
 o = cell('a1 <- 1\nprint(bill_length)\na2 <- 2\nprint("after")')
 e = errors(o)
 check(len(e) == 1 and "Error: object 'bill_length' not found" in e[0]['text'], 'an error is shown: ' + json.dumps(e[0]['text'] if e else o))
-check(e and e[0]['hints'] and 'run the cell that makes it' in e[0]['hints'][0], 'with a hint: ' + (e[0]['hints'][0][:90] if e and e[0]['hints'] else ''))
+check(e and e[0]['hints'] and 'Run the cell that creates it' in e[0]['hints'][0], 'with a hint: ' + (e[0]['hints'][0][:90] if e and e[0]['hints'] else ''))
 check('after' not in text(o), 'the lines after the error do not run')
 check(p.js('() => !!T.c.outEl.querySelector(".nb-error") && T.c.el.classList.contains("has-error")'), 'the error is shown as an error')
 o = cell('c(exists("a1"), exists("a2"))')

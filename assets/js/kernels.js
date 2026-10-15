@@ -131,41 +131,41 @@ local({
     m <- regmatches(msg, regexec("could not find function \"([^\"]+)\"", msg))[[1L]]
     if (length(m) == 2L) {
       f <- m[2L]
-      if (f %in% c("%>%", "%<>%", "%T>%")) return(sprintf("%s comes from the magrittr package, which dplyr loads: run  library(dplyr)  first – or use R's own pipe, |>", f))
+      if (f %in% c("%>%", "%<>%", "%T>%")) return(sprintf("%s comes from the magrittr package, which dplyr loads. Run  library(dplyr)  first, or use R's own pipe |> instead.", f))
       p <- unname(wb$pkg_of[f])
       if (!is.na(p)) {
-        if (wb$installed(p)) return(sprintf("%s comes from the %s package: load it first with  library(%s)", f, p, p))
-        return(sprintf("%s comes from the %s package, which is not installed yet: run  install.packages(\"%s\")  once (it comes from the webR repository, repo.r-wasm.org), then load it with  library(%s)", f, p, p, p))
+        if (wb$installed(p)) return(sprintf("%s comes from the %s package, so load the package first with  library(%s)", f, p, p))
+        return(sprintf("%s comes from the %s package, which is not installed yet. Install it once with  install.packages(\"%s\")  (it comes from the webR repository, repo.r-wasm.org), then load it with  library(%s)", f, p, p, p))
       }
       fns <- ls(globalenv())
       same <- fns[tolower(fns) == tolower(f) & fns != f]
-      if (length(same)) return(sprintf("Names are case-sensitive in R: %s is not %s.", f, same[1L]))
-      return(sprintf("There is no function called %s here. Check the spelling (R is case-sensitive). A function of a package needs library() first (and the package installed once with install.packages()); a function of your own needs the cell that makes it to have run.", f))
+      if (length(same)) return(sprintf("Names in R are case-sensitive, so %s is not the same as %s.", f, same[1L]))
+      return(sprintf("There is no function called %s here. Check the spelling (R is case-sensitive). If the function comes from a package, load the package with library() first (it must have been installed once with install.packages()). If it is a function of your own, run the cell that creates it first.", f))
     }
     m <- regmatches(msg, regexec("object '([^']+)' not found", msg))[[1L]]
     if (length(m) == 2L) {
       o <- m[2L]
       cand <- ls(globalenv())
       same <- cand[tolower(cand) == tolower(o) & cand != o]
-      if (length(same)) return(sprintf("Names are case-sensitive in R: %s is not the same as %s.", o, same[1L]))
+      if (length(same)) return(sprintf("Names in R are case-sensitive, so %s is not the same as %s.", o, same[1L]))
       close <- if (length(cand)) cand[utils::adist(o, cand)[1L, ] <= max(1, nchar(o) %/% 4)] else character(0)
       if (length(close)) return(sprintf("Did you mean %s?", paste(utils::head(close, 3L), collapse = ", ")))
-      return(sprintf("There is no %s in the notebook's R: run the cell that makes it first (after a restart, R has forgotten everything). The R console, RStudio and the terminal each have an R of their own, so what you made there is not here. If %s is meant as text, put it in quotes; for a column of a data frame, write df$%s.", o, o, o))
+      return(sprintf("There is no object called %s in the notebooks' R session. Run the cell that creates it first (after a restart, R has forgotten everything). The R console, RStudio and the terminal each have their own R session, so objects you created there are not available here. If %s is meant to be text, put it in quotes. If it is a column of a data frame, write df$%s.", o, o, o))
     }
     m <- regmatches(msg, regexec("there is no package called .([A-Za-z][A-Za-z0-9.]*).", msg))[[1L]]
-    if (length(m) == 2L) return(sprintf("The %s package is not installed in this browser yet. Install it once with  install.packages(\"%s\")  – packages come from the webR repository, repo.r-wasm.org – and then load it with  library(%s). (Not every CRAN package has been built for webR.)", m[2L], m[2L], m[2L]))
-    if (grepl("cannot open|No such file", msg)) return(sprintf("R's working directory is %s: a file name without a folder is looked for there. Your files are in ~ (%s) and your data in ~/data – from a notebook in ~/notebooks, write \"../data/name.csv\" or \"~/data/name.csv\". list.files() shows what is in the working directory.", wb$pretty(getwd()), path.expand("~")))
+    if (length(m) == 2L) return(sprintf("The %s package is not installed in this browser yet. Install it once with  install.packages(\"%s\")  and then load it with  library(%s). Packages come from the webR repository (repo.r-wasm.org), and not every CRAN package has been built for webR.", m[2L], m[2L], m[2L]))
+    if (grepl("cannot open|No such file", msg)) return(sprintf("R's working directory is %s, which is where R looks for a file when you give its name without a folder. Your files are in ~ (%s) and the data files are in ~/data. From a notebook in ~/notebooks, write \"../data/name.csv\" or \"~/data/name.csv\". Use list.files() to see what is in the working directory.", wb$pretty(getwd()), path.expand("~")))
     if (grepl("non-numeric argument to binary operator", msg)) return("One of the values is text, not a number. Convert it with as.numeric(), or look at the types of the columns with str().")
-    if (grepl("subscript out of bounds", msg)) return("R counts from 1 (not 0), and the position must exist: check with length(), nrow() or ncol().")
-    if (grepl("missing value where TRUE/FALSE needed", msg)) return("An if() or while() got NA. Check for missing values with is.na().")
-    if (grepl("argument is of length zero", msg)) return("An if() got an empty value – often a column name that does not exist (df$name gives NULL).")
+    if (grepl("subscript out of bounds", msg)) return("R counts from 1 (not 0), and the position you ask for must exist. Check the size with length(), nrow() or ncol().")
+    if (grepl("missing value where TRUE/FALSE needed", msg)) return("The condition of an if() or while() was NA. Check for missing values with is.na().")
+    if (grepl("argument is of length zero", msg)) return("The condition of an if() was empty. This often happens with a column name that does not exist, because df$name then gives NULL.")
     if (grepl("arguments imply differing number of rows", msg)) return("All the columns of a data frame must have the same length.")
-    if (grepl("unused argument", msg)) return("The function does not take an argument with that name: look at its help with ?name.")
-    if (grepl("invalid argument type", msg) && grepl("(^|\n)[ \t]*![ \t]*[A-Za-z]", code)) return("In Python's Jupyter kernel a line that starts with ! runs a shell command; in R, ! means 'not'. Run shell commands in the Terminal tab.")
+    if (grepl("unused argument", msg)) return("The function does not have an argument with that name. Look at its help page with ?name to see which arguments it takes.")
+    if (grepl("invalid argument type", msg) && grepl("(^|\n)[ \t]*![ \t]*[A-Za-z]", code)) return("In Python's Jupyter kernel, a line that starts with ! runs a shell command, but in R ! means 'not'. Run shell commands in the Terminal tab instead.")
     if (grepl("unexpected", msg)) {
-      if (grepl("(^|\n)[ \t]*%", code)) return("Lines that start with % (and cells that start with %%) are commands of Python's Jupyter kernel (IPython): the R kernel has none. Run shell commands in the Terminal tab.")
-      if (grepl("(^|\n)[ \t]*(import [A-Za-z]|from [A-Za-z_.]+ import|def [A-Za-z_]+\\(|elif )", code)) return("This looks like Python. The notebooks here run R: x <- 5, print(x), library(name).")
-      return("R could not read this code: check that every ( [ { has its ) ] }, that quotes come in pairs and that commas separate the arguments. The mistake is often just before the place marked ^.")
+      if (grepl("(^|\n)[ \t]*%", code)) return("Lines that start with % (and cells that start with %%) are commands for Python's Jupyter kernel (IPython), and the R kernel does not have them. Run shell commands in the Terminal tab instead.")
+      if (grepl("(^|\n)[ \t]*(import [A-Za-z]|from [A-Za-z_.]+ import|def [A-Za-z_]+\\(|elif )", code)) return("This looks like Python, but the notebooks here run R. In R you would write, for example, x <- 5, print(x) or library(name).")
+      return("R could not read this code. Check that every ( [ { has a matching ) ] }, that quotes come in pairs and that the arguments are separated by commas. The mistake is often just before the place marked with ^.")
     }
     ""
   }
@@ -334,15 +334,15 @@ local({
     invisible(NULL)
   }
   e$quit <- e$q <- function(save = "default", status = 0, runLast = TRUE) {
-    stop("quit() does not end the notebook's R. To start R afresh, with nothing in its memory, use the Restart button above the notebook.", call. = FALSE)
+    stop("quit() does not end the notebooks' R session. To start again with an empty memory, use the Restart button above the notebook.", call. = FALSE)
   }
   e$system <- e$system2 <- e$shell <- function(...) {
-    stop("R cannot run other programs here: in the browser it has no shell. Run the command in the Terminal tab.", call. = FALSE)
+    stop("R cannot run other programs here, because in the browser it has no shell. Run the command in the Terminal tab instead.", call. = FALSE)
   }
   # (where the page is not cross-origin isolated, R cannot wait for an answer: readline() says so, and gets "")
   if (!isTRUE(tw$can_block)) e$readline <- function(prompt = "") {
     cat(prompt, "\n", sep = "")
-    message("(readline() cannot wait for your answer in this browser – the page is not cross-origin isolated – so it gets an empty answer, \"\".)")
+    message("(readline() cannot wait for your answer in this browser, because the page is not cross-origin isolated. It returns an empty answer, \"\", instead.)")
     ""
   }
   attach(e, name = "workbench", warn.conflicts = FALSE)
@@ -567,7 +567,7 @@ local({
           C.ok = false;
           C.interrupted = true;
           this._flushPlots('all');
-          this._emit({ type: 'stream', name: 'stderr', text: 'Interrupted: the cell was stopped before it finished (what it had made so far is kept).\n' });
+          this._emit({ type: 'stream', name: 'stderr', text: 'Interrupted: the cell was stopped before it finished. Anything it had created so far is kept.\n' });
           break;
         case 'cwd':
           this.where = { folder: f[0] || '', cwd: f[1] || '' };
@@ -651,7 +651,7 @@ local({
         bus.emit('kernel:status', { lang: 'r', text: '', input: true });
       } else if (d.kind === 'continue') {
         // (R waits for the rest of a command: it should never here – the line was not read whole)
-        this._emit({ type: 'stream', name: 'stderr', text: 'R did not get the whole cell: it was stopped.\n' });
+        this._emit({ type: 'stream', name: 'stderr', text: 'R did not receive the whole cell, so the cell was stopped.\n' });
         C.ok = false;
         if (!C.S.interrupt()) C.S.send(')', { silent: true });
       }
@@ -685,7 +685,7 @@ local({
     _ended(d) {
       const C = this.cur;
       if (C) {
-        this._emit({ type: 'error', ename: 'R stopped', evalue: (d && d.why) || '', traceback: 'R has stopped' + (d && d.why ? ': ' + d.why : '.') + ' Run the cell again to start a new R (its memory is empty).', hints: [] });
+        this._emit({ type: 'error', ename: 'R stopped', evalue: (d && d.why) || '', traceback: 'R has stopped' + (d && d.why ? ': ' + d.why : '.') + ' Run the cell again to start a new R session (it will have an empty memory).', hints: [] });
         this._finish({ ok: false, ended: true });
       }
       this.S = null;

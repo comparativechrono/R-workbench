@@ -101,7 +101,7 @@
       if (!sw || !sw.controller) {
         this.running = false;
         await this._r(`${WB}$shiny_stop(${rstr(this.name)})`).catch(() => {});
-        this.host.failed(sw ? 'The page is not controlled by its service worker yet: reload the page once, then run the app again.' : 'This browser has no service worker here (a private window?): Shiny apps cannot be shown.');
+        this.host.failed(sw ? 'The page is not yet controlled by its service worker, which Shiny apps need. Please reload the page once, then run the app again.' : "Shiny apps can't be shown, because service workers are not available in this browser here (perhaps because this is a private window).");
         return;
       }
       // the service worker passes the requests of the app's frame to this page
@@ -137,7 +137,7 @@
         const r = JSON.parse(json);
         out = { status: r.status || 200, headers: r.headers || {}, body: fromB64(r.body) };
       } catch (e) {
-        out = { status: 500, headers: { 'Content-Type': 'text/plain; charset=UTF-8' }, body: new TextEncoder().encode('The app could not answer: ' + ((e && e.message) || e)) };
+        out = { status: 500, headers: { 'Content-Type': 'text/plain; charset=UTF-8' }, body: new TextEncoder().encode('The app could not respond to this request: ' + ((e && e.message) || e)) };
       }
       // (shiny's own files – its JavaScript, styles, fonts – are the same every time: kept for the app's next page)
       if (key && out.status === 200 && /^\/[^/]+-\d[\w.]*\//.test(m.path)) this.cache.set(key, out);

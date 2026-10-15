@@ -164,7 +164,7 @@
         return b;
       };
       this.tree = h('div.ed-tree', { role: 'tree', 'aria-label': 'Your files' });
-      this.hiddenBtn = btn('eye', '', 'Show hidden files – names that start with a dot, such as .RData and .Rhistory', () => this.toggleHidden());
+      this.hiddenBtn = btn('eye', '', 'Show hidden files (files whose names start with a dot, such as .RData and .Rhistory)', () => this.toggleHidden());
       const treeBar = h(
         'div.ed-treebar',
         h('b', 'Files'),
@@ -353,7 +353,7 @@
         if (!isDir) r.appendChild(h('small.ed-size', MG.humanSize(this.fs.size(c.entry))));
         if (!label && (c.entry.readonly || c.entry.protected)) r.appendChild(h('span.ed-lock', { title: 'read-only', html: MG.icon('lock') }));
         if (c.entry.fresh && Date.now() - (c.entry.mtime || 0) < 60000) r.classList.add('fresh');
-        const more = h('button.ed-more', { type: 'button', tabindex: '-1', title: 'What to do with ' + (label || c.name), 'aria-label': 'Actions for ' + (label || c.name), html: MG.icon('dots') });
+        const more = h('button.ed-more', { type: 'button', tabindex: '-1', title: 'Actions for ' + (label || c.name), 'aria-label': 'Actions for ' + (label || c.name), html: MG.icon('dots') });
         more.addEventListener('click', (e) => {
           e.stopPropagation();
           this._menu(r, c);
@@ -391,7 +391,7 @@
       };
       const homeEntry = this.fs.get(this.home);
       if (homeEntry && row({ path: this.home, name: '~', entry: homeEntry }, 0, 'My files  (~)')) walk(this.home, 1);
-      if (this.fs.list(this.home).length === 0 && this.expanded.has(this.home)) el.appendChild(h('p.ed-hint', 'No files yet: upload some (↑ above), or drag them here from your computer.'));
+      if (this.fs.list(this.home).length === 0 && this.expanded.has(this.home)) el.appendChild(h('p.ed-hint', 'You have no files yet. Upload some with the ↑ button above, or drag them here from your computer.'));
       el.scrollTop = keep;
       // one row is reached with Tab (the others with the arrow keys)
       const rows = el.querySelectorAll('.ed-row');
@@ -501,7 +501,7 @@
           bytes += this.fs.size(e);
         }
         const u = await MG.project.usage();
-        const kept = MG.project.ok ? 'kept in this browser' : 'NOT kept (a private window?) – download them';
+        const kept = MG.project.ok ? 'kept in this browser' : 'NOT kept in this browser (a private window?), so download them';
         this.usageEl.innerHTML = `${MG.icon(MG.project.ok ? 'lock' : 'warning')}<span>${n} file${n === 1 ? '' : 's'}, ${MG.humanSize(bytes)}B · ${kept}${u && u.quota ? ` · room for about ${MG.humanSize(Math.max(0, u.quota - u.usage))}B more` : ''}</span>`;
         this.usageEl.classList.toggle('bad', !MG.project.ok);
       }, 300);
@@ -739,8 +739,8 @@
       P.append(h('span.ed-dir', pretty.slice(0, cut)), h('span.ed-fname', pretty.slice(cut)));
       const o = this.open.get(path);
       if (this.current === path && o) {
-        if (o.gone) P.appendChild(h('span.pill.small.warn', 'deleted – Save writes it again'));
-        else if (o.ro) P.appendChild(h('span.pill.small', { title: o.truncated ? 'A large file: only its beginning is shown' : this._mine(path) ? 'This file cannot be changed (chmod in the Terminal can change that)' : 'Not one of your files' }, o.truncated ? `read-only: the first ${o.truncated.toLocaleString('en-GB')} lines` : 'read-only'));
+        if (o.gone) P.appendChild(h('span.pill.small.warn', 'deleted – Save will recreate it'));
+        else if (o.ro) P.appendChild(h('span.pill.small', { title: o.truncated ? 'This file is large, so only its beginning is shown' : this._mine(path) ? 'This file is read-only. You can change that with chmod in the Terminal.' : 'This is not one of your files. Use Copy into my files to get a copy that you can change.' }, o.truncated ? `read-only, showing the first ${o.truncated.toLocaleString('en-GB')} lines` : 'read-only'));
       } else {
         const e = this.fs.get(path);
         if (e) P.appendChild(h('span.pill.small', MG.humanSize(this.fs.size(e)) + 'B'));
@@ -757,30 +757,30 @@
       const A = [];
       const add = (id, icon, label, short, title, fn) => A.push({ id, icon, label, short, title, fn });
       if (/\.r$/i.test(n)) {
-        add('rstudio', 'panes', 'Open in RStudio', 'RStudio', 'Open the script in RStudio’s Source pane, to run it line by line (Ctrl+Enter)', () => this.toRStudio(p));
-        add('rscript', 'play', 'Run with Rscript', 'Rscript', `Run the whole script in a new R, in the Terminal: Rscript ${n}`, () => this.runInTerminal(p, 'Rscript'));
-        add('source', 'rconsole', 'Source in the R console', 'source()', `Run the whole script in the R console: source(${rstr(f)})`, () => this.sourceInConsole(p));
+        add('rstudio', 'panes', 'Open in RStudio', 'RStudio', 'Open the script in RStudio’s Source pane, where you can run it line by line (Ctrl+Enter)', () => this.toRStudio(p));
+        add('rscript', 'play', 'Run with Rscript', 'Rscript', `Run the whole script in a new R session in the Terminal (Rscript ${n})`, () => this.runInTerminal(p, 'Rscript'));
+        add('source', 'rconsole', 'Source in the R console', 'source()', `Run the whole script in the R console with source(${rstr(f)})`, () => this.sourceInConsole(p));
       } else if (/\.(rmd|qmd)$/i.test(n)) {
         const q = /\.qmd$/i.test(n);
-        add('rstudio', 'panes', 'Open in RStudio', 'RStudio', 'Open the document in RStudio’s Source pane, to run its chunks', () => this.toRStudio(p));
-        add('knit', 'knit', q ? 'Render in RStudio' : 'Knit in RStudio', q ? 'Render' : 'Knit', `Open the document in RStudio and ${q ? 'render' : 'knit'} it: a web page of the text, the code and what the code printed and drew`, () => this.knitInRStudio(p));
+        add('rstudio', 'panes', 'Open in RStudio', 'RStudio', 'Open the document in RStudio’s Source pane, where you can run its chunks', () => this.toRStudio(p));
+        add('knit', 'knit', q ? 'Render in RStudio' : 'Knit in RStudio', q ? 'Render' : 'Knit', `Open the document in RStudio and ${q ? 'render' : 'knit'} it into a web page that shows its text and code, together with the output and plots that the code produces`, () => this.knitInRStudio(p));
       } else if (/\.(md|markdown)$/i.test(n)) {
-        add('rstudio', 'panes', 'Open in RStudio', 'RStudio', 'Open the file in RStudio’s Source pane (its Preview shows it as a web page)', () => this.toRStudio(p));
+        add('rstudio', 'panes', 'Open in RStudio', 'RStudio', 'Open the file in RStudio’s Source pane, where its Preview button shows it as a web page', () => this.toRStudio(p));
       } else if (/\.ipynb$/i.test(n)) {
-        add('notebook', 'notebook', 'Open in the Notebook tab', 'Notebook', 'Open the notebook in the Notebook tab, to run its cells', () => MG.app.openFile(p));
+        add('notebook', 'notebook', 'Open in the Notebook tab', 'Notebook', 'Open the notebook in the Notebook tab, where you can run its cells', () => MG.app.openFile(p));
       } else if (/\.(csv|tsv|tab)$/i.test(n)) {
-        add('import', 'table', 'Import in RStudio (readr)', 'Import', 'RStudio’s Import Dataset dialog: a preview of the data, and the readr code that reads it', () => this.importInRStudio(p, 'readr'));
-        add('read', 'rconsole', 'Read in the R console', 'R console', 'Type the command that reads the table – read.csv() – into the R console', () => this.readInConsole(p));
+        add('import', 'table', 'Import in RStudio (readr)', 'Import', 'Open RStudio’s Import Dataset dialog, which shows a preview of the data and the readr code that reads it', () => this.importInRStudio(p, 'readr'));
+        add('read', 'rconsole', 'Read in the R console', 'R console', 'Type the read.csv() command that reads the table into the R console', () => this.readInConsole(p));
       } else if (/\.xlsx?$/i.test(n)) {
-        add('import', 'table', 'Import in RStudio', 'Import', 'RStudio’s Import Dataset dialog for Excel: a preview of a sheet, and the readxl code that reads it', () => this.importInRStudio(p, 'excel'));
+        add('import', 'table', 'Import in RStudio', 'Import', 'Open RStudio’s Import Dataset dialog for Excel, which shows a preview of a sheet and the readxl code that reads it', () => this.importInRStudio(p, 'excel'));
       } else if (/\.(rdata|rda|rds)$/i.test(n)) {
         const code = this._loadCode(p);
         add('load-rstudio', 'env', 'Load in RStudio', 'RStudio', `Run ${code} in RStudio’s console`, () => this.loadIn('rstudio', p));
         add('load-rcon', 'rconsole', 'Load in the R console', 'R console', `Run ${code} in the R console`, () => this.loadIn('console', p));
       } else if (/\.html?$/i.test(n)) {
-        add('viewer', 'viewer', 'Show in RStudio’s Viewer', 'Viewer', 'Show the page in RStudio’s Viewer, with its scripts: interactive plots and tables work there', () => this.toViewer(p));
+        add('viewer', 'viewer', 'Show in RStudio’s Viewer', 'Viewer', 'Show the page in RStudio’s Viewer, which runs its scripts, so interactive plots and tables work there', () => this.toViewer(p));
       } else if (/\.(sh|bash)$/i.test(n)) {
-        add('bash', 'terminal', 'Run with bash', 'bash', `Run the shell script in the Terminal: bash ${n}`, () => this.runInTerminal(p, 'bash'));
+        add('bash', 'terminal', 'Run with bash', 'bash', `Run the shell script in the Terminal (bash ${n})`, () => this.runInTerminal(p, 'bash'));
       }
       return A;
     }
@@ -813,7 +813,7 @@
         A.appendChild(b);
       });
       if (!this._mine(path) && this.fs.exists(path)) {
-        const b = h('button.tbtn.ed-act', { type: 'button', title: 'Make a copy of this file in your home folder, which you can change', dataset: { act: 'copy' }, html: MG.icon('copy') + '<span class="l">Copy into my files</span><span class="s">Copy</span>' });
+        const b = h('button.tbtn.ed-act', { type: 'button', title: 'Make a copy of this file in your home folder, where you can change it', dataset: { act: 'copy' }, html: MG.icon('copy') + '<span class="l">Copy into my files</span><span class="s">Copy</span>' });
         b.addEventListener('click', () => this.copyHome(path));
         A.appendChild(b);
       }
@@ -909,7 +909,7 @@
         const lab = h('button.ed-tab-l', { type: 'button' }, name);
         lab.addEventListener('click', () => this.show(p));
         t.addEventListener('auxclick', (ev) => ev.button === 1 && this.close(p));
-        const x = h('button.ed-tab-x', { type: 'button', title: o.dirty ? 'Not saved – close' : 'Close', 'aria-label': 'Close ' + name, html: o.dirty ? '●' : '×' });
+        const x = h('button.ed-tab-x', { type: 'button', title: o.dirty ? 'Close (has unsaved changes)' : 'Close', 'aria-label': 'Close ' + name, html: o.dirty ? '●' : '×' });
         x.addEventListener('click', (ev) => {
           ev.stopPropagation();
           this.close(p);
@@ -939,7 +939,7 @@
     _askSave(p) {
       return new Promise((resolve) => {
         let done = false;
-        const m = MG.modal('Save the changes?', `<p><b>${esc(MG.path.basename(p))}</b> has changes that are not saved yet. Save them before you close it?</p><div class="prompt-actions"><button class="btn" data-x="cancel" type="button">Cancel</button><span class="grow"></span><button class="btn" data-x="discard" type="button">Don’t save</button><button class="btn primary" data-x="save" type="button">Save</button></div>`, {
+        const m = MG.modal('Save the changes?', `<p><b>${esc(MG.path.basename(p))}</b> has changes that have not been saved. Do you want to save them before you close it?</p><div class="prompt-actions"><button class="btn" data-x="cancel" type="button">Cancel</button><span class="grow"></span><button class="btn" data-x="discard" type="button">Don’t save</button><button class="btn primary" data-x="save" type="button">Save</button></div>`, {
           onClose: () => {
             if (!done) {
               done = true;
@@ -977,12 +977,12 @@
     _welcome() {
       const w = h('div.ed-welcome');
       w.innerHTML = `<div class="ed-welcome-h">${MG.icon('folder')}<h3>Your files</h3></div>
-        <p class="ed-lead">Your home folder, <code>~</code> – the files that the R console, RStudio, the notebooks and the Terminal read and write.</p>
+        <p class="ed-lead">This is your home folder, <code>~</code>. It holds the files that the R console, RStudio, the notebooks and the Terminal read and write.</p>
         <ul>
-          <li><b>Open a file</b> by clicking it on the left. Scripts and documents open in the editor here; tables, pictures, PDFs and knitted reports are shown. The buttons above a file take it to the other tabs: an R script to RStudio or to <code>Rscript</code>, a table to <code>read.csv()</code>.</li>
-          <li><b>Every R sees the same files.</b> Each R of the workbench works on its own copy of them: before each command it copies in the files that have changed, and afterwards it copies back what it wrote. So a file you save here is there for the next command in any R, and a file that R writes appears here once its command has finished.</li>
-          <li><b>Your files are kept in this browser</b>, on this computer – nothing is sent to a server. Download them as a .zip to keep a copy, or to take them to another computer.</li>
-          <li><b>Add files</b> from your computer with ↑ above the list, or drag them onto this tab. Right-click a file, or click its ⋯, for more.</li>
+          <li><b>Open a file</b> by clicking it on the left. Scripts and documents open here in the editor, and tables, pictures, PDFs and knitted reports are shown in a viewer. The buttons above a file send it to the other tabs, for example an R script to RStudio or to <code>Rscript</code>, or a table to <code>read.csv()</code>.</li>
+          <li><b>Every R session sees the same files.</b> Each R session in the workbench works on its own copy of them. Before each command, it copies in any files that have changed, and afterwards it copies back what it wrote. So a file you save here is available to the next command in any R session, and a file that R writes appears here as soon as its command has finished.</li>
+          <li><b>Your files are kept in this browser</b>, on this computer, and nothing is sent to a server. Download them as a .zip file to keep a copy or to take them to another computer.</li>
+          <li><b>Add files</b> from your computer with the ↑ button above the list, or drag them onto this tab. For more options, right-click a file or click its ⋯ button.</li>
         </ul>`;
       const up = h('button.btn.primary', { type: 'button', html: MG.icon('upload') + '<span>Upload files</span>' });
       up.addEventListener('click', () => this.upload(false));
@@ -1053,7 +1053,7 @@
       const text = o.doc.getValue();
       const old = this.fs.get(p);
       if (old && old.kind === 'dir') {
-        toast('Cannot save: ' + esc(this.fs.pretty(p)) + ' is a folder', 'error');
+        toast('Could not save the file, because ' + esc(this.fs.pretty(p)) + ' is a folder.', 'error');
         return false;
       }
       o.saving = true;
@@ -1101,7 +1101,7 @@
       if (text == null || text === o.saved || this.fs.get(p) !== e) return;
       if (o.dirty) {
         o.conflict = true;
-        if (this.current === p) toast(`<b>${esc(MG.path.basename(p))}</b> was changed elsewhere (by R, the Terminal or RStudio). Your unsaved edits are kept – saving writes over the other version.`, 'warn', 8000);
+        if (this.current === p) toast(`<b>${esc(MG.path.basename(p))}</b> has been changed elsewhere (by R, the Terminal or RStudio). Your unsaved edits have been kept, but if you save them, they will replace the other version.`, 'warn', 8000);
         return;
       }
       const here = this.current === p;
@@ -1201,7 +1201,7 @@
           // (without its scripts: an HTML file could come from anywhere. RStudio's Viewer shows it with them)
           const fr = h('iframe.ed-frame', { sandbox: '', title: name });
           fr.srcdoc = text;
-          V.append(fr, h('p.ed-note.muted', 'Shown without its scripts, for safety: interactive plots and tables do not work here. ', this._actBtn('viewer', 'Show in RStudio’s Viewer', () => this.toViewer(path), '.small'), ' shows it with them.'));
+          V.append(fr, h('p.ed-note.muted', 'For safety, the page is shown here without its scripts, so interactive plots and tables don’t work. To see it with its scripts, use ', this._actBtn('viewer', 'Show in RStudio’s Viewer', () => this.toViewer(path), '.small'), '.'));
         } else if (k === 'table') {
           await this._tableView(path, V, stale);
         } else {
@@ -1249,7 +1249,7 @@
       V.appendChild(box);
       this._grid = new MG.DataGrid(box, { title: MG.path.basename(path), nrow: t.nrow, ncol: columns.length, shown: t.rows.length, columns }, { filters: false });
       const fn = sep === '\t' ? 'read.delim()' : sep === ';' ? 'read.csv2()' : 'read.csv()';
-      V.appendChild(h('div.ed-foot', this._textBtn(path), h('span', `Under each name: the column’s type as R’s ${fn} reads it – int whole numbers, dbl numbers, chr text, lgl TRUE/FALSE. Click a name to sort.`)));
+      V.appendChild(h('div.ed-foot', this._textBtn(path), h('span', `Under each column name is the column’s type, as R’s ${fn} would read it: int for whole numbers, dbl for other numbers, chr for text and lgl for TRUE/FALSE. Click a column name to sort by it.`)));
     }
     /** a file that is not shown: what it is, how R reads it, what can be done with it */
     _card(path, opts, stale) {
@@ -1260,30 +1260,30 @@
       let title, text, code = null;
       if (opts.tooBig && /\.(csv|tsv|tab)$/i.test(n)) {
         title = 'A large table';
-        text = 'It is too large to show here. R reads it as it reads any table – this takes a moment:';
+        text = 'It is too large to show here, but R can read it like any other table (this may take a moment):';
         code = `${v} <- ${/\.csv$/i.test(n) ? 'read.csv' : 'read.delim'}(${f})`;
       } else if (opts.tooBig) {
         title = 'A large file';
-        text = 'It is too large to show here. Look at its first lines in the Terminal, or in R:';
+        text = 'It is too large to show here, but you can look at its first lines in the Terminal or in R:';
         code = `readLines(${f}, n = 20)`;
       } else if (/\.xlsx?$/i.test(n)) {
         title = 'An Excel workbook';
-        text = 'It is not a text file, so it is not shown here. R reads its sheets with the readxl package – RStudio’s Import Dataset dialog shows a preview of the data and writes the code for you:';
+        text = 'It is not a text file, so it can’t be shown here. R reads Excel sheets with the readxl package, and RStudio’s Import Dataset dialog shows you a preview of the data and writes the code for you:';
         code = `library(readxl)\n${v} <- read_excel(${f})`;
       } else if (/\.(rdata|rda)$/i.test(n)) {
         title = 'Saved R objects';
-        text = 'R’s own file of objects, written by save() or save.image() – or by q() when you answered yes. load() puts the objects back into R’s memory, each under its own name:';
+        text = 'This is R’s own file format for saved objects. It is written by save() or save.image(), or by q() when you answer yes to saving the workspace. load() puts the objects back into R’s memory, each under the name it was saved with:';
         code = `load(${f})`;
       } else if (/\.rds$/i.test(n)) {
         title = 'A saved R object';
-        text = 'One R object, written by saveRDS(). readRDS() reads it back, and you give it a name:';
+        text = 'This file holds a single R object, written by saveRDS(). readRDS() reads it back, and you choose the name to give it:';
         code = `${v} <- readRDS(${f})`;
       } else if (/\.zip$/i.test(n)) {
         title = 'A zip archive';
-        text = 'Files packed into one. Unpack it to see and use the files in it.';
+        text = 'One or more files packed into a single file. Unpack it to see and use the files inside.';
       } else {
         title = 'Not a text file';
-        text = 'It is not plain text, so it is not shown here. Download it to open it with a program on your computer.';
+        text = 'It is not plain text, so it can’t be shown here. Download it to open it with a program on your computer.';
       }
       const [icon] = iconOf(n);
       const card = h('div.ed-card', h('div.ed-card-h', h('span.ed-card-ic', { html: MG.icon(icon) }), h('div', h('h3', title), h('p.ed-card-sub', `${n} · ${size}`))), h('p', text));
@@ -1307,7 +1307,7 @@
       try {
         const x = await read(await this.fs.readBytes(path), null, 1);
         if (stale() || !x || !x.sheets || !x.sheets.length) return;
-        card.insertBefore(h('p.ed-sheets', h('b', x.sheets.length === 1 ? 'Its sheet: ' : 'Its sheets: '), x.sheets.join(', ') + (x.sheets.length > 1 ? ' – read_excel() reads the first unless you say which: sheet = "…"' : '')), card.querySelector('.ed-code'));
+        card.insertBefore(h('p.ed-sheets', h('b', x.sheets.length === 1 ? 'Sheet: ' : 'Sheets: '), x.sheets.join(', ') + (x.sheets.length > 1 ? ' (read_excel() reads the first sheet unless you choose another with sheet = "…")' : '')), card.querySelector('.ed-code'));
       } catch (err) {
         /* not a workbook that can be read here: no list */
       }
@@ -1341,7 +1341,7 @@
         this._saveExpanded();
         this.renderTree();
       } catch (e) {
-        toast('Could not unpack it: ' + esc(e.message), 'error');
+        toast('Could not unpack the zip file: ' + esc(e.message), 'error');
       }
     }
     async _ask(title, label, value, ok) {
@@ -1351,11 +1351,11 @@
       base = base || this._baseDir();
       let def = 'script.R';
       for (let i = 2; this.fs.exists(base + '/' + def); i++) def = `script${i}.R`;
-      const name = await this._ask('New file', `The name of the new file, in ${this.fs.pretty(base)}. Its ending says what it is: .R an R script, .Rmd R Markdown, .qmd Quarto, .md Markdown, .csv a table, .txt text.`, def, 'Create');
+      const name = await this._ask('New file', `Enter a name for the new file in ${this.fs.pretty(base)}. The ending of the name says what kind of file it is: .R for an R script, .Rmd for R Markdown, .qmd for Quarto, .md for Markdown, .csv for a table and .txt for plain text.`, def, 'Create');
       if (!name) return;
       const abs = this.fs.resolve(name, base);
       if (!this._mine(abs) || abs === this.home) return toast('New files can only be made in your home folder (~).', 'warn');
-      if (this.fs.exists(abs)) return this.fs.isDir(abs) ? toast(`${esc(name)} is a folder.`, 'warn') : this.openFile(abs);
+      if (this.fs.exists(abs)) return this.fs.isDir(abs) ? toast(`There is already a folder called <b>${esc(name)}</b>.`, 'warn') : this.openFile(abs);
       try {
         this.fs.mkdirp(MG.path.dirname(abs));
         this.fs.writeText(abs, '');
@@ -1368,7 +1368,7 @@
     }
     async newFolder(base) {
       base = base || this._baseDir();
-      const name = await this._ask('New folder', `The name of the new folder, in ${this.fs.pretty(base)}:`, 'new_folder', 'Create');
+      const name = await this._ask('New folder', `Enter a name for the new folder in ${this.fs.pretty(base)}:`, 'new_folder', 'Create');
       if (!name) return;
       const abs = this.fs.resolve(name, base);
       if (!this._mine(abs) || abs === this.home) return toast('Folders can only be made in your home folder (~).', 'warn');
@@ -1385,11 +1385,11 @@
     }
     async rename(p) {
       const old = MG.path.basename(p);
-      const name = await this._ask('Rename', `A new name for ${old}:`, old, 'Rename');
+      const name = await this._ask('Rename', `Enter a new name for ${old}:`, old, 'Rename');
       if (!name || name === old) return;
-      if (/[\/\\]/.test(name)) return toast('A name cannot contain / – to put it into another folder, use Move to… (or drag it onto the folder).', 'warn');
+      if (/[\/\\]/.test(name)) return toast('A name can’t contain a slash (/). To put it into another folder, use Move to… or drag it onto that folder.', 'warn');
       const to = MG.path.dirname(p) + '/' + name;
-      if (this.fs.exists(to)) return toast(`There is already a <b>${esc(name)}</b> here.`, 'warn');
+      if (this.fs.exists(to)) return toast(`There is already a file or folder called <b>${esc(name)}</b> here.`, 'warn');
       if (!this.fs.rename(p, to)) return toast(`${esc(old)} could not be renamed.`, 'warn');
       toast(`Renamed to <b>${esc(name)}</b>.`, 'ok', 1800);
     }
@@ -1407,7 +1407,7 @@
       let to = `${this.home}/${m[1]}${m[2] || ''}`;
       for (let i = 2; this.fs.exists(to); i++) to = `${this.home}/${m[1]}-${i}${m[2] || ''}`;
       this._copyTree(p, to);
-      toast(`Copied to <b>${esc(this.fs.pretty(to))}</b> – your own copy, which you can change.`, 'ok');
+      toast(`Copied to <b>${esc(this.fs.pretty(to))}</b>. This copy is your own, so you can change it.`, 'ok');
       this.reveal(to);
     }
     async copyTo(p) {
@@ -1425,7 +1425,7 @@
         for (const [q, e] of this.fs.entries) if (e.kind === 'dir' && q.startsWith(this.home + '/') && (this.showHidden || !/\/\./.test(q.slice(this.home.length)))) dirs.push(q);
         const ok = dirs.filter((d) => d !== src && !d.startsWith(src + '/')).sort();
         let done = false;
-        const m = MG.modal(title, `<p>${copy ? 'Copy' : 'Move'} <b>${esc(MG.path.basename(src))}</b> into which folder?</p><div class="pick-list"></div>`, {
+        const m = MG.modal(title, `<p>Which folder do you want to ${copy ? 'copy' : 'move'} <b>${esc(MG.path.basename(src))}</b> into?</p><div class="pick-list"></div>`, {
           onClose: () => {
             if (!done) {
               done = true;
@@ -1455,12 +1455,12 @@
         return true;
       }
       if (this.fs.exists(to)) {
-        toast(`There is already a <b>${esc(name)}</b> in ${esc(this.fs.pretty(dir))}.`, 'warn');
+        toast(`There is already a file or folder called <b>${esc(name)}</b> in ${esc(this.fs.pretty(dir))}.`, 'warn');
         return false;
       }
       try {
         if (copy) this._copyTree(src, to);
-        else if (!this.fs.rename(src, to)) throw new Error('it cannot go there');
+        else if (!this.fs.rename(src, to)) throw new Error('it can’t be put in that folder');
       } catch (err) {
         toast(`Could not ${copy ? 'copy' : 'move'} ${esc(name)}: ${esc(err.message)}`, 'warn');
         return false;

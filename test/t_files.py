@@ -26,7 +26,7 @@ def term_idle(timeout=180000):
 p.wait(f'() => document.querySelector(\'{row(HOME + "/data/penguins.csv")}\')', timeout=10000)
 check(True, 'the tree lists ~/data/penguins.csv')
 check(p.js(f'() => !!document.querySelector(\'{row(HOME + "/data/penguins.xlsx")}\')'), 'and ~/data/penguins.xlsx')
-check('Every R sees the same files' in p.js('() => document.querySelector("#edRoot .ed-welcome").textContent'), 'nothing open: the tab says what it is for')
+check('Every R session sees the same files' in p.js('() => document.querySelector("#edRoot .ed-welcome").textContent'), 'nothing open: the tab says what it is for')
 
 # ---- a CSV file: a table of 344 rows, with the column types of read.csv()
 p.p.click(row(HOME + '/data/penguins.csv'))

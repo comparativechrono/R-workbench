@@ -215,7 +215,7 @@ ticked('t-open', 't-run', 't-make', 't-arg', 't-loop', 't-err', 't-batch', 't-r'
 p.p.click('#helpBtn')
 p.wait('() => document.querySelector(".modal h3") && document.querySelector(".modal h3").textContent === "How this page works"', timeout=5000)
 htext = p.js('() => document.querySelector(".modal").textContent')
-check('Each of them is an R of its own' in htext and 'personal or patient data' in htext, 'Help shows how the page works')
+check('Each tab has its own R session' in htext and 'personal or patient data' in htext, 'Help shows how the page works')
 p.p.keyboard.press('Escape')
 p.wait('() => !document.querySelector(".modal")', timeout=5000)
 

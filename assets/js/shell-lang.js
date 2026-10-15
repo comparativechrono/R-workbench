@@ -4571,7 +4571,7 @@
           throw Object.assign(new Ctl('exit', 126), { exec: true });
         }
         const why = MG.shellUtil.absentNote ? MG.shellUtil.absentNote(name) : '';
-        if (io.note && /^\{[A-Za-z_]\w*\}$/.test(name)) io.note(`${name}> FILE and ${name}< FILE – a file descriptor whose number bash chooses and puts into the variable – are not available in this terminal. Choose the number yourself, from 3 to 9:  exec 3> FILE   …   echo text >&3   …   exec 3>&-`);
+        if (io.note && /^\{[A-Za-z_]\w*\}$/.test(name)) io.note(`${name}> FILE and ${name}< FILE (where bash chooses a file descriptor number and stores it in the variable) are not available in this terminal. Choose the number yourself, from 3 to 9:  exec 3> FILE   …   echo text >&3   …   exec 3>&-`);
         else if (io.note && why) io.note(why);
         if (MG.shellUtil.notHere) MG.shellUtil.notHere(name);
         if (stays) return 127;
@@ -4747,12 +4747,12 @@
         if (k > 0 && t && t.size - t.used > 65536) {
           codes[k - 1] = 141;
           if (st.flags.pipefail && io.note && !(this._pipeNoted && Date.now() - this._pipeNoted < 3000)) {
-            io.note('The command before a | was ended by the signal SIGPIPE (status 141): the command after it stopped reading before everything was written. With set -o pipefail the pipeline fails for that – here as on Linux. Let it pass with  … || true , or read to the end.');
+            io.note('The command before a | was ended by the signal SIGPIPE (status 141), because the command after it stopped reading before everything had been written. With set -o pipefail the whole pipeline then fails, here as on Linux. To avoid this, read to the end, or let the failure pass with  … || true');
             this._pipeNoted = Date.now();
           }
         } else if (k > 0 && t && t.size > 4096 && t.size - t.used > 0 && st.flags.pipefail && io.note && this._pipeMaybeDue('| a block')) {
           // (less than a pipe holds was left unread: on Linux the writer is then ended or not, as the timing falls)
-          io.note('On Linux this pipeline can fail under set -o pipefail: the command after a | stopped reading before it had taken everything, and a command that is still writing at that moment is ended with status 141 (SIGPIPE) – whether it is depends on timing. Here the status is 0. To be safe on every computer, read to the end, or let it pass with  … || true');
+          io.note('On Linux this pipeline can fail under set -o pipefail. The command after a | stopped reading before it had taken everything, and a command that is still writing at that moment is ended with status 141 (SIGPIPE). Whether that happens depends on timing; here the status is 0. To be safe on every computer, read to the end, or let the failure pass with  … || true');
         }
         codes.push(code);
         if (last) break;
@@ -5451,7 +5451,7 @@
       if (c && c.shellControl && c.kind === 'exit' && c.typed) {
         // (for the agent, "exit" ends its block of commands: assistant.js looks at this mark)
         this.exitTyped = true;
-        if (io.note && !(this.term && this.term.agentCmd)) io.note('This terminal lives in the web page – there is nothing to log out of.');
+        if (io.note && !(this.term && this.term.agentCmd)) io.note('This terminal runs inside the web page, so there is nothing to log out of.');
       }
       code = this._ended(c, st, io, 'bash: ');
       st.cond = 0;
@@ -5473,7 +5473,7 @@
       let d = was;
       while (d !== '/' && !this.fs.isDir(d)) d = MG.path.dirname(d);
       this.fs.cwd = d;
-      if (io.note) io.note(`${this.fs.pretty(was)} – the folder this terminal was in – is not there any more. The terminal is now in ${this.fs.pretty(d)}.`);
+      if (io.note) io.note(`The folder this terminal was in, ${this.fs.pretty(was)}, no longer exists, so the terminal has moved to ${this.fs.pretty(d)}.`);
     }
     if (this.hooks.afterCommand) this.hooks.afterCommand(text, code);
     return code;
@@ -5558,7 +5558,7 @@
     // (A script with the line ends of Windows. For bash the carriage return is a character of the last word of each
     // line: "$'\r': command not found", "syntax error near unexpected token `$'do\r''", a folder called "out\r".
     // The page behaves the same – and says where the trouble comes from, before the messages start.)
-    if (/\r\n/.test(text) && io.note) io.note(`${path} has the line ends of Windows: a carriage return (shown as ^M or \\r) at the end of each line. bash takes that character for a part of the last word of the line – messages such as  $'\\r': command not found  come from it. Take them away:  sed -i 's/\\r$//' ${path}`);
+    if (/\r\n/.test(text) && io.note) io.note(`${path} has Windows line endings: a carriage return (shown as ^M or \\r) at the end of each line. bash takes that character as part of the last word on the line, and that is where messages such as  $'\\r': command not found  come from. Remove the carriage returns with  sed -i 's/\\r$//' ${path}`);
     // bash reads a script command by command: what comes before a syntax error still runs
     const parent = opts.st || this._top();
     if (!opts.st) this._userVars(parent);
@@ -5974,7 +5974,7 @@
     } else if (ctx.stdin != null) src = { text: typeof ctx.stdin === 'string' ? ctx.stdin : await MG.wasm.readText(ctx.stdin.apath), pos: 0 };
     else if (st.stdin) src = st.stdin;
     if (!src) {
-      ctx.io.note('read: this terminal cannot ask you for input – give the value on the command line or in a variable.');
+      ctx.io.note('read: this terminal cannot ask you for input. Give the value on the command line or in a variable instead.');
       return 1;
     }
     // (read 'a[1]', read 'm[key]': one element of an array – its subscript is worked out as in an assignment)
@@ -6605,7 +6605,7 @@
     }
     if (!out && Date.now() >= limit.at) {
       out = true;
-      ctx.io.note(`timeout: ${name} took ${((Date.now() - t0) / 1000).toFixed(1)} s, longer than the ${secs} s it was given. A program that is running cannot be stopped from outside in this terminal, so it ran to its end – what it wrote is complete. The status is the one a timeout gives.`);
+      ctx.io.note(`timeout: ${name} took ${((Date.now() - t0) / 1000).toFixed(1)} s, longer than the ${secs} s it was given. In this terminal a running program cannot be stopped from outside, so it ran to the end and what it wrote is complete. The exit status is the one that timeout gives when the time runs out.`);
     }
     if (!out) return code;
     if (verbose) ctx.err(`timeout: sending signal ${signal} to command \u2018${name}\u2019\n`);
@@ -7843,7 +7843,7 @@
     } else if (ctx.stdin != null) src = { text: typeof ctx.stdin === 'string' ? ctx.stdin : await MG.wasm.readText(ctx.stdin.apath), pos: 0 };
     else if (st.stdin) src = st.stdin;
     if (!src) {
-      ctx.io.note(`${ctx.name}: this terminal cannot ask you for input – give it a file:  ${ctx.name} -t ${name} < FILE`);
+      ctx.io.note(`${ctx.name}: this terminal cannot ask you for input, so give it a file instead:  ${ctx.name} -t ${name} < FILE`);
       return 1;
     }
     const text = src.text.slice(src.pos);
@@ -8147,7 +8147,7 @@
       // bash without a script: its commands are its input (echo 'ls' | bash) – that of the block it stands in, too
       const script = ctx.stdin != null ? (typeof ctx.stdin === 'string' ? ctx.stdin : await MG.wasm.readText(ctx.stdin.apath)) : MG.shellUtil.inherited(ctx);
       if (script != null) return ctx.shell.exec(script, io, { fromStdin: true, st: stOf(ctx), shopt: shopts, flags: f, errexit: !!f.e, nounset: !!f.u, xtrace: !!f.x, verbose: !!f.v, pipefail: !!f.pipefail, stdin: '', args: fromInput ? args : undefined });
-      ctx.io.note('You are already in a bash-like shell. To run a script:  bash script.sh');
+      ctx.io.note('You are already in a bash-like shell. To run a script, type  bash script.sh');
       return 0;
     }
     const path = args[0];

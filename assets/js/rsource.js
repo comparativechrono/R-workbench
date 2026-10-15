@@ -58,6 +58,11 @@
     if (/\.(csv|tsv)$/i.test(p)) return 'Text File (data)';
     return 'Text File';
   }
+  /** the kind of a document, for a sentence: 'an R script', 'a text file' … */
+  function kindPhrase(d) {
+    const l = labelFor(d);
+    return { 'R Script': 'an R script', 'Python Script': 'a Python script', 'Shell Script': 'a shell script', HTML: 'an HTML file', JSON: 'a JSON file', YAML: 'a YAML file', 'Text File (data)': 'a data file', 'Text File': 'a text file' }[l] || 'this kind of file';
+  }
   const isShiny = (d) => d.kind === 'r' && ((d.path && /(^|\/)(app|server|ui)\.R$/i.test(d.path)) || /\bshinyApp\s*\(/.test(d.cmDoc.getValue()));
 
   /** the lines of the statement that line `at` belongs to: R reads a statement until it is complete (brackets
@@ -79,7 +84,7 @@
     const SP = this.panes.source;
     this.chunkQueue = [];
     this.srcTabsBox = h('div.rs-srctabs', { role: 'tablist', 'aria-label': 'Open documents' });
-    this.srcNote = h('span.rs-srcnote', 'No documents open – File ▸ New File, or click a file in Files');
+    this.srcNote = h('span.rs-srcnote', 'No documents are open. Choose File ▸ New File, or click a file in the Files pane.');
     const mx = h('button.rs-pane-btn', { type: 'button', title: 'Maximise this pane', html: IC('maximize') });
     mx.addEventListener('click', () => this.zoom('source'));
     SP.tabsEl.append(this.srcTabsBox, h('span.rs-tabsgrow'), this.srcNote, mx);
@@ -177,7 +182,7 @@
     if (!d) {
       const e = fs.get(p);
       if (!e) {
-        toast(`There is no file ${esc(fs.pretty(p))}.`, 'warn');
+        toast(`The file ${esc(fs.pretty(p))} does not exist.`, 'warn');
         return null;
       }
       if (e.kind === 'dir') {
@@ -197,7 +202,7 @@
         text = null;
       }
       if (text == null) {
-        toast(`${esc(MG.path.basename(p))} is not a text file: it cannot be opened in the editor.`, 'warn');
+        toast(`${esc(MG.path.basename(p))} is not a text file, so it can't be opened in the editor.`, 'warn');
         return null;
       }
       d = this.docs.find((x) => x.path === p); // (opened meanwhile)
@@ -413,7 +418,7 @@
     if (!p) return false;
     if (!/\.[A-Za-z0-9]+$/.test(MG.path.basename(p))) p += ext;
     if (this.fs.isDir(p)) {
-      toast('That is a folder: choose a file name.', 'warn');
+      toast('That is a folder, not a file. Please choose a file name.', 'warn');
       return false;
     }
     if (this.fs.exists(p) && p !== d.path && !(await MG.confirmBox('Confirm Overwrite', `<p><b>${esc(this.fs.pretty(p))}</b> already exists. Do you want to replace it?</p>`, 'Replace', { danger: true }))) return false;
@@ -493,13 +498,13 @@
       k.disabled = knitting;
       B.append(sep(), k, caret('Knit options', () => [
         ['knit', 'Knit to HTML', () => this.knit(d)],
-        ['knit', 'Knit to PDF', () => this._noFormat('PDF', 'a PDF needs LaTeX (and pandoc)')],
+        ['knit', 'Knit to PDF', () => this._noFormat('PDF', 'a PDF needs LaTeX and pandoc')],
         ['knit', 'Knit to Word', () => this._noFormat('Word', 'a Word document needs pandoc')]
       ]), this._gearBtn(d));
     } else if (d.kind === 'notebook') {
-      B.append(sep(), tb('eye', 'Preview the notebook: its .nb.html, with the outputs as they are (Ctrl+Shift+K)', () => this.preview(d), 'Preview', '.rs-knitbtn'), caret('Preview options', () => [
+      B.append(sep(), tb('eye', 'Preview the notebook as a web page (.nb.html), with its current outputs (Ctrl+Shift+K)', () => this.preview(d), 'Preview', '.rs-knitbtn'), caret('Preview options', () => [
         ['eye', 'Preview Notebook', () => this.preview(d)],
-        ['knit', 'Knit to HTML (runs everything in a new R)', () => this.knit(d, { knit: true })]
+        ['knit', 'Knit to HTML (runs all the code in a new R session)', () => this.knit(d, { knit: true })]
       ]), this._gearBtn(d));
     } else if (d.kind === 'qmd') {
       const r = tb('arrowR', 'Render the document to a web page (Ctrl+Shift+K)', () => this.knit(d), knitting ? 'Rendering…' : 'Render', '.rs-knitbtn');
@@ -523,7 +528,7 @@
       B.append(tb('runline', 'Run the current line or selection (Ctrl+Enter)', () => this.runCurrent(), 'Run', '.green'), tb('rerun', 'Re-run the previous code region', () => this.rerun()));
       if (isShiny(d)) B.append(sep(), tb('play', 'Run the Shiny app (in the Viewer)', () => this.runApp(d), 'Run App', '.green'));
       else
-        B.append(sep(), tb('sourcefile', 'Source the script: run all of it with source() (Ctrl+Shift+S)', () => this.sourceDoc(false, d), 'Source', '.blue'), caret('Source options', () => [
+        B.append(sep(), tb('sourcefile', 'Run the whole script with source() (Ctrl+Shift+S)', () => this.sourceDoc(false, d), 'Source', '.blue'), caret('Source options', () => [
           ['sourcefile', 'Source  (Ctrl+Shift+S)', () => this.sourceDoc(false, d)],
           ['sourcefile', 'Source with Echo  (Ctrl+Shift+Enter)', () => this.sourceDoc(true, d)]
         ]));
@@ -542,7 +547,7 @@
     return b;
   };
   P._noFormat = function (what, why) {
-    MG.confirmBox(`Knit to ${what}`, `<p>Knitting to ${esc(what)} is not available in the browser: ${esc(why)}, programs that cannot run here. Knit to HTML makes a web page of the document – which can be printed to PDF from the browser.</p>`, 'Knit to HTML', { cancel: 'Close' }).then((ok) => ok && this.knit());
+    MG.confirmBox(`Knit to ${what}`, `<p>Knitting to ${esc(what)} is not available in the browser, because ${esc(why)}, which can't run here. You can knit to HTML instead. That turns the document into a web page, which you can print to PDF from your browser.</p>`, 'Knit to HTML', { cancel: 'Close' }).then((ok) => ok && this.knit());
   };
   P._srcStatusUpdate = function () {
     const d = this.cur;
@@ -754,7 +759,7 @@
       doc.replaceRange(y.join('\n'), { line: 1, ch: 0 }, { line: end - 1, ch: doc.getLine(end - 1).length });
     }
     if (type === 'console') this.clearAllOutput(d);
-    toast(type === 'console' ? 'Chunks print in the Console from now on (editor_options: chunk_output_type: console in the header).' : 'The output of chunks shows under each chunk from now on.', null, 4000);
+    toast(type === 'console' ? 'From now on, chunk output will appear in the Console (set by <code>chunk_output_type: console</code> in the header).' : 'From now on, chunk output will appear underneath each chunk.', null, 4000);
   };
   P.clearAllOutput = function (d) {
     d = d || this.cur;
@@ -782,13 +787,13 @@
   P.runCurrent = function () {
     const d = this.cur;
     if (!d || d.type !== 'code') return;
-    if (d.kind === 'text' || d.kind === 'md') return toast('Run sends R code to the Console: this is not an R script or an R Markdown document.', 'warn');
+    if (d.kind === 'text' || d.kind === 'md') return toast('Run sends R code to the Console, so it can only be used in an R script or an R Markdown document.', 'warn');
     const doc = d.cmDoc;
     if (doc.somethingSelected()) {
       const code = doc.getSelection();
       const line = doc.getCursor('from').line;
       const c = isMd(d.kind) ? this._chunkAt(d, line) : null;
-      if (c && c.lang !== 'r') return toast(`Only R runs here: this is a ${esc(c.lang)} chunk.`, 'warn');
+      if (c && c.lang !== 'r') return toast(`This is a ${esc(c.lang)} chunk. Only R code can be run here.`, 'warn');
       if (code.trim()) this._runCode(d, code, c);
       return;
     }
@@ -797,7 +802,7 @@
     if (isMd(d.kind)) {
       c = this._chunkAt(d, cur.line);
       if (!c) return; // (in the text of the document: nothing to run)
-      if (c.lang !== 'r') return toast(`Only R runs here: this is a ${esc(c.lang)} chunk.`, 'warn');
+      if (c.lang !== 'r') return toast(`This is a ${esc(c.lang)} chunk. Only R code can be run here.`, 'warn');
       if (cur.line === c.from) return this.runChunks(d, [c]);
       if (cur.line === c.to) return;
       lo = c.codeFrom;
@@ -833,7 +838,7 @@
     const d = this.cur;
     if (!d || d.type !== 'code') return;
     if (isMd(d.kind)) return this.runChunks(d, MG.Knit.chunks(d.cmDoc.getValue()));
-    if (d.kind !== 'r') return toast('Run All runs an R script.', 'warn');
+    if (d.kind !== 'r') return toast('Run All can only be used in an R script or an R Markdown document.', 'warn');
     const code = d.cmDoc.getValue().replace(/\s+$/, '');
     if (!code.trim()) return;
     this.lastRun = { d, code };
@@ -888,10 +893,10 @@
   /** run chunks of a document, one after another (an error stops them, as in RStudio) */
   P.runChunks = function (d, cs) {
     const list = cs.filter((c) => c.lang === 'r');
-    if (list.length < cs.length) toast('Only R chunks run here: the chunks of other languages are skipped.', 'warn');
+    if (list.length < cs.length) toast('Only R chunks can be run here, so chunks in other languages have been skipped.', 'warn');
     if (!list.length) return;
     const ev = list.some((c) => /\beval\s*=\s*F(ALSE)?\b/.test(c.header) || /^#\|\s*eval:\s*false/m.test(c.code));
-    if (ev) toast('A chunk with eval = FALSE runs when you run it yourself; knitting leaves it out.', null, 4000);
+    if (ev) toast('A chunk with eval = FALSE still runs when you run it yourself, but it is left out when the document is knitted.', null, 4000);
     if (!this._inline(d)) {
       this.lastRun = { d, code: list.map((c) => c.code).join('\n') };
       return this._send(this.lastRun.code);
@@ -976,7 +981,7 @@
     if (o.chars > 200000) {
       if (!o.cut) {
         o.cut = true;
-        o.body.appendChild(h('pre.err', '… there is more output: it is not shown here.'));
+        o.body.appendChild(h('pre.err', '… There is more output, but it is not shown here.'));
       }
       return;
     }
@@ -1054,8 +1059,8 @@
   P.sourceDoc = async function (echo, d) {
     d = d && d.type ? d : this.cur;
     if (!d || d.type !== 'code') return;
-    if (isMd(d.kind)) return toast('An R Markdown or Quarto document is not sourced: Knit (or Render) runs it all, and the Run menu runs its chunks.', 'warn');
-    if (d.kind !== 'r') return toast('Source runs an R script (a .R file).', 'warn');
+    if (isMd(d.kind)) return toast("R Markdown and Quarto documents can't be sourced. Use Knit (or Render) to run the whole document, or the Run menu to run its chunks.", 'warn');
+    if (d.kind !== 'r') return toast('Source only works with an R script (a .R file).', 'warn');
     let p = d.path;
     if (!p) {
       // (as RStudio: an untitled script is written to ~/.active-rstudio-document, and that is sourced)
@@ -1068,7 +1073,7 @@
   P.insertChunk = function (lang) {
     const d = this.cur;
     if (!d || d.type !== 'code') return;
-    if (!isMd(d.kind) && d.kind !== 'md') return toast('Chunks go into R Markdown and Quarto documents.', 'warn');
+    if (!isMd(d.kind) && d.kind !== 'md') return toast('Chunks can only be inserted into R Markdown and Quarto documents.', 'warn');
     const doc = d.cmDoc;
     const cur = doc.getCursor();
     const head = '```{' + (lang || 'r') + '}';
@@ -1108,7 +1113,7 @@
   };
   P.setwdSource = function () {
     const d = this.cur;
-    if (!d || !d.path) return toast('The document has not been saved yet: it has no folder.', 'warn');
+    if (!d || !d.path) return toast('Save the document first – it has no folder until it has been saved.', 'warn');
     this.consoleRun(`setwd(${rstr(this.fs.pretty(MG.path.dirname(d.path)))})`);
   };
   P.chooseDir = async function () {
@@ -1129,8 +1134,8 @@
     if (!d || d.type !== 'code') return toast('Open an R Markdown (.Rmd) or Quarto (.qmd) document to knit it.', 'warn');
     if (d.kind === 'notebook' && !opts.knit) return this.preview(d);
     if (d.kind === 'md') return this.previewMd(d);
-    if (!isMd(d.kind)) return toast(`Knit makes a web page of an R Markdown (.Rmd) or Quarto (.qmd) document: this is ${esc(labelFor(d).toLowerCase())}.`, 'warn');
-    if (this.knitting) return toast('A document is being knitted already: wait until it has finished.', 'warn');
+    if (!isMd(d.kind)) return toast(`Knit turns an R Markdown (.Rmd) or Quarto (.qmd) document into a web page, so it can't be used on ${esc(kindPhrase(d))}.`, 'warn');
+    if (this.knitting) return toast('A document is already being knitted. Please wait until it has finished.', 'warn');
     if ((!d.path || d.dirty) && !(await this.save(d))) return;
     const verb = d.kind === 'qmd' ? 'Rendering' : 'Knitting';
     if (!(await this._needPkgs(['knitr', 'markdown'], verb))) return;
@@ -1146,7 +1151,7 @@
         this.viewFile(r.output);
         bus.emit('rstudio:knit', { path: d.path, output: r.output, kind: d.kind });
       } else {
-        this._job(`\n${verb} stopped at the error above. The document is run from the top in a new R session: everything it uses must be made or loaded by the document itself – an object that exists only in the Console is not there.\n`, 'note');
+        this._job(`\n${verb} stopped at the error above. The document is run from the beginning in a new R session, so it must create or load everything it uses itself. Objects that exist only in the Console are not available to it.\n`, 'note');
         bus.emit('rstudio:knit', { path: d.path, output: null, kind: d.kind, failed: true });
       }
     } finally {
@@ -1178,7 +1183,7 @@
     const miss = pkgs.filter((p) => !MG.R.userlib.list().includes(p));
     if (!miss.length) return true;
     const n = miss.length;
-    const ok = await MG.confirmBox('Install Required Packages', `<p>${esc(what)} needs the package${n > 1 ? 's' : ''} ${miss.map((p) => `<code>${esc(p)}</code>`).join(' and ')}, which ${n > 1 ? 'are' : 'is'} not installed yet. Install ${n > 1 ? 'them' : 'it'} now?</p><p class="muted">It takes a moment, once: every R of the workbench can use ${n > 1 ? 'them' : 'it'} from then on. The Console shows the installing.</p>`, 'Install');
+    const ok = await MG.confirmBox('Install Required Packages', `<p>${esc(what)} needs the package${n > 1 ? 's' : ''} ${miss.map((p) => `<code>${esc(p)}</code>`).join(' and ')}, which ${n > 1 ? 'are' : 'is'} not installed yet. Do you want to install ${n > 1 ? 'them' : 'it'} now?</p><p class="muted">Installing takes a moment, but you only have to do it once. After that, every R session in the workbench can use ${n > 1 ? 'them' : 'it'}. You can follow the installation in the Console.</p>`, 'Install');
     if (!ok) return false;
     if (!this.S || this.S.state === 'ended' || this.S.state === 'failed') {
       this._deadNote();
@@ -1189,7 +1194,7 @@
     await idle;
     const still = pkgs.filter((p) => !MG.R.userlib.list().includes(p));
     if (still.length) {
-      toast(`${esc(still.join(', '))} could not be installed: the Console says why.`, 'error');
+      toast(`${esc(still.join(', '))} could not be installed. See the Console for the reason.`, 'error');
       return false;
     }
     return true;
@@ -1219,8 +1224,8 @@
     const opts = h('div.opts');
     const formats = [
       ['html', 'HTML', 'Recommended format for authoring (you can switch to PDF or Word output anytime).'],
-      ['pdf', 'PDF', 'PDF output needs LaTeX – not available in the browser: here the document is knitted to HTML.'],
-      ['word', 'Word', 'Word output needs pandoc – not available in the browser: here the document is knitted to HTML.']
+      ['pdf', 'PDF', `PDF output needs LaTeX, which is not available in the browser, so here the document will be ${q ? 'rendered' : 'knitted'} to HTML.`],
+      ['word', 'Word', `Word output needs pandoc, which is not available in the browser, so here the document will be ${q ? 'rendered' : 'knitted'} to HTML.`]
     ];
     for (const [k, label, note] of formats) {
       const r = h('input', { type: 'radio', name: 'rs-fmt', value: k });
@@ -1256,12 +1261,12 @@
     }, 40);
   };
   P.newShinyDialog = async function () {
-    const name = await MG.promptText('New Shiny Web Application', 'Application name – a new folder of this name in your home folder holds the app (app.R):', 'myapp', 'Create');
+    const name = await MG.promptText('New Shiny Web Application', 'Enter a name for the application. A new folder with this name will be created in your home folder to hold the app (app.R).', 'myapp', 'Create');
     if (!name) return;
     const safe = name.replace(/[^\w.-]+/g, '_');
     const dir = MG.app.HOME + '/' + safe;
     if (this.fs.exists(dir + '/app.R')) {
-      toast(`There is an app in ~/${esc(safe)} already: it is opened.`, 'warn');
+      toast(`There is already an app in ~/${esc(safe)}, so that one has been opened.`, 'warn');
       return this.openFile(dir + '/app.R');
     }
     this.fs.mkdirp(dir);
@@ -1606,7 +1611,7 @@
       }
       const p = fs.resolve(raw, (this.S && this.S.wd) || MG.app.HOME);
       if (!fs.exists(p) || fs.isDir(p)) {
-        cur = { path: p, error: `There is no file ${raw}.`, rows: [], text: '' };
+        cur = { path: p, error: `The file ${raw} does not exist.`, rows: [], text: '' };
         return show();
       }
       try {
@@ -1660,7 +1665,7 @@
       const c = code();
       m.close();
       const pk = excel ? 'readxl' : kind === 'readr' ? 'readr' : null;
-      if (pk && !(await this._needPkgs([pk], `Importing with ${pk}`))) return;
+      if (pk && !(await this._needPkgs([pk], 'This import'))) return;
       this.consoleRun(c);
       bus.emit('rstudio:import', { kind, path: cur.path, name: nameIn.value.trim() });
     });
@@ -1724,7 +1729,7 @@
     };
     const wb = await xml('xl/workbook.xml');
     const rels = await xml('xl/_rels/workbook.xml.rels');
-    if (!wb) throw new Error('this is not an Excel (.xlsx) workbook');
+    if (!wb) throw new Error('it is not an Excel (.xlsx) workbook');
     const sheets = Array.from(wb.getElementsByTagName('sheet')).map((s) => ({ name: s.getAttribute('name'), rid: s.getAttribute('r:id') }));
     const target = (rid) => {
       const r = rels ? Array.from(rels.getElementsByTagName('Relationship')).find((x) => x.getAttribute('Id') === rid) : null;
@@ -1848,7 +1853,7 @@
           const p = fs.resolve(n, dir);
           if (fs.exists(p) && !fs.isDir(p)) return finish(p);
         }
-        toast('Choose a file in the list.', 'warn');
+        toast('Please choose a file from the list.', 'warn');
       });
       cancel.addEventListener('click', () => finish(null));
       newF.addEventListener('click', async () => {
@@ -1891,7 +1896,7 @@
     B.append(
       h('h4', 'General'),
       cb('Restore .RData into workspace at startup', 'restore', true),
-      h('p.muted', 'Saving the workspace: q() asks whether to save it in ~/.RData (y/n/c).'),
+      h('p.muted', 'When you quit with q(), R asks whether to save the workspace in ~/.RData (y/n/c).'),
       h('h4', 'Code'),
       cb('Insert matching parens/quotes', 'autoClose', true),
       cb('Soft-wrap R Markdown files', 'wrapRmd', true),
@@ -1918,8 +1923,8 @@
     const K = (s) => (mac ? s.replace(/Ctrl\+/g, 'Cmd+').replace(/Alt\+/g, 'Option+') : s);
     const rows = [
       ['Run the current line or selection', 'Ctrl+Enter'],
-      ['Run the current chunk – or, in an R script, Source with Echo', 'Ctrl+Shift+Enter'],
-      ['Run all (the script, or all chunks)', 'Ctrl+Alt+R'],
+      ['Run the current chunk (in an R script: Source with Echo)', 'Ctrl+Shift+Enter'],
+      ['Run all (the whole script, or all the chunks)', 'Ctrl+Alt+R'],
       ['Source the script', 'Ctrl+Shift+S'],
       ['Insert a chunk', 'Ctrl+Alt+I'],
       ['Run the next chunk', 'Ctrl+Alt+N'],
@@ -1938,13 +1943,13 @@
       ['Earlier commands (in the Console)', '↑  ↓'],
       ['Clear the Console', 'Ctrl+L']
     ];
-    MG.modal('Keyboard Shortcuts', `<table class="rs-keys"><tbody>${rows.map(([a, k]) => `<tr><td>${esc(a)}</td><td><kbd>${esc(K(k))}</kbd></td></tr>`).join('')}</tbody></table><p class="muted">Some shortcuts of RStudio on a computer (Ctrl+Shift+N, Ctrl+W, Ctrl+1 …) belong to the browser here: the menus do the same.</p>`).box.classList.add('rs-dialog');
+    MG.modal('Keyboard Shortcuts', `<table class="rs-keys"><tbody>${rows.map(([a, k]) => `<tr><td>${esc(a)}</td><td><kbd>${esc(K(k))}</kbd></td></tr>`).join('')}</tbody></table><p class="muted">Some of RStudio's usual shortcuts (such as Ctrl+Shift+N, Ctrl+W and Ctrl+1) are used by the browser itself, so they don't work here. You can find the same commands in the menus.</p>`).box.classList.add('rs-dialog');
   };
   P.about = function () {
     const v = this.S && this.S.versions;
-    MG.modal('About this RStudio', `<p><b>RStudio, in the R workbench</b>: an emulation of the RStudio IDE, made for teaching in these practicals. It is not RStudio, and is not made or endorsed by Posit, who make RStudio.</p>
-<p>R runs in your browser: ${esc(v ? v.string : 'R')}${v ? `, with webR ${esc(v.webr)}` : ''}. Its packages come from the webR repository (CRAN packages built for the browser).</p>
-<p>What differs from RStudio on a computer: Knit uses knitr and R's markdown package (pandoc is not available in a browser, so documents knit to HTML only); there are no projects, Git or add-ins; the Terminal is a Linux shell simulated in the page.</p>`).box.classList.add('rs-dialog');
+    MG.modal('About this RStudio', `<p>The <b>RStudio</b> tab of the R workbench imitates the RStudio IDE, so that it can be used for teaching in these practicals. It is not RStudio itself, and it is not made or endorsed by Posit, the company that makes RStudio.</p>
+<p>${v ? `This is ${esc(v.string)}, running in your browser with webR ${esc(v.webr)}.` : 'R runs in your browser.'} Packages are installed from the webR repository, which has CRAN packages built to run in the browser.</p>
+<p>It differs from RStudio on your own computer in a few ways. Pandoc is not available in a browser, so Knit uses knitr and R's markdown package instead, and documents can only be knitted to HTML. There are no projects, no Git and no add-ins, and the Terminal is a Linux shell that is simulated in the page.</p>`).box.classList.add('rs-dialog');
   };
 
   /** a question with three answers → 'yes' | 'no' | 'cancel' */

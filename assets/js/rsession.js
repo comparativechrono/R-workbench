@@ -261,7 +261,7 @@ local({
   e$install.packages <- function(pkgs, lib, repos = getOption("repos"), dependencies = NA, ..., quiet = FALSE) {
     pkgs <- unique(as.character(pkgs))
     if (!length(pkgs)) stop("no packages were specified")
-    if (any(grepl("[/\\\\]|\\.(tar\\.gz|tgz|zip)$", pkgs))) stop("installing a package from a file is not possible here: packages come ready-made from the webR repository (install.packages(\"NAME\"))", call. = FALSE)
+    if (any(grepl("[/\\\\]|\\.(tar\\.gz|tgz|zip)$", pkgs))) stop("packages cannot be installed from a file here. They come ready-built from the webR repository, so install them by name with install.packages(\"NAME\").", call. = FALSE)
     lib <- .libPaths()[1L]
     if (!quiet) {
       if (length(pkgs) == 1L) message(sprintf("Installing package into %s\n(as %s is unspecified)", sQuote(lib), sQuote("lib")))
@@ -292,7 +292,7 @@ local({
     invisible(NULL)
   }
   e$update.packages <- function(...) {
-    message("All packages are up to date: they come from the webR repository, which keeps the current versions.")
+    message("All packages are up to date. They are installed from the webR repository, which keeps the current versions.")
     invisible(NULL)
   }
 
@@ -380,7 +380,7 @@ local({
     if (missing(title)) title <- paste(deparse(substitute(x), width.cutoff = 500L), collapse = " ")
     if (!(wb$kind %in% c("console", "rstudio"))) {
       if (identical(wb$kind, "notebook")) return(invisible(print(x)))
-      stop("View() needs a window to show the data in: there is none in a terminal. Use the R console or RStudio tab, or print the data (head(x), str(x)).", call. = FALSE)
+      stop("View() needs a window to show the data in, and there is none in a terminal or when knitting. Use the R console or RStudio tab instead, or look at the data with head(x) or str(x).", call. = FALSE)
     }
     wb$view(x, title)
   }
@@ -445,7 +445,7 @@ local({
   wb$shiny$seq <- 0L
   wb$shiny_run <- function(appDir = getwd(), port = getOption("shiny.port"), launch.browser = TRUE, host = getOption("shiny.host", "127.0.0.1"), workerId = "", quiet = FALSE, display.mode = c("auto", "normal", "showcase"), test.mode = FALSE, ...) {
     if (!(wb$kind %in% c("rstudio", "console")))
-      stop("a Shiny app needs a window to be shown in: run it in RStudio (Run App), or in the R console tab.", call. = FALSE)
+      stop("a Shiny app needs a window to be shown in, so run it in RStudio (with Run App) or in the R console tab.", call. = FALSE)
     options(expressions = max(1000L, getOption("expressions")))
     # (as runApp(): the app works in its folder; the working directory comes back when it stops)
     wb$shiny$owd <- getwd()
@@ -626,7 +626,7 @@ local({
       const base = abs(CFG.webrBase || 'https://webr.r-wasm.org/v0.6.0/');
       modPromise = import(base + 'webr.mjs').catch((e) => {
         modPromise = null;
-        throw new Error('R could not be downloaded from ' + base + ' – check the internet connection. (' + ((e && e.message) || e) + ')');
+        throw new Error('R could not be downloaded from ' + base + ' (' + ((e && e.message) || e) + '). Check your internet connection.');
       });
     }
     return modPromise;

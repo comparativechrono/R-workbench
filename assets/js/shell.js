@@ -155,29 +155,29 @@
      programs that people (and AI models) expect, but that are not here
      ------------------------------------------------------------------ */
   // (what this terminal has: the notes about the programs that are not here say it)
-  const HAS = 'There is the shell with its text tools – awk, sed, grep, sort, cut, diff … – and R: Rscript, R CMD BATCH, R.';
+  const HAS = 'What you can use here is the shell with its text tools (awk, sed, grep, sort, cut, diff and others) and R (Rscript, R CMD BATCH and R).';
   const ABSENT = [
     [/^(python|python2|python3|pip|pip3|ipython|jupyter|perl|ruby|java|julia|node|octave|matlab)$/, `is not installed in this terminal. ${HAS}`],
     // (the programs of bioinformatics, and jq: none of them is here)
     [/^(samtools|bcftools|bgzip|tabix|htsfile|bedtools|seqtk|seqkit|fastp|fastqc|multiqc|cutadapt|trimmomatic|trim_galore|minimap2|bowtie|bowtie2|bowtie2-build|bwa|bwa-mem2|hisat2|hisat2-build|STAR|salmon|kallisto|featureCounts|htseq-count|stringtie|freebayes|gatk|picard|vcftools|plink|plink2|blastn|blastp|makeblastdb|diamond|kalign|muscle|mafft|clustalo|fasttree|FastTree|iqtree|iqtree2|raxml-ng|hmmbuild|hmmsearch|hmmscan|phmmer|nhmmer|prodigal|prokka|kraken2|bracken|macs2|macs3|bustools|mosdepth|lofreq|gffread|wgsim|lastz|needleman_wunsch|smith_waterman|igv|jq)$/, `is not installed in this terminal. ${HAS}`],
-    [/^(rstudio|RStudio)$/, 'is not a program of this terminal: RStudio is the RStudio tab of this page. In the terminal there is R itself: Rscript, R CMD BATCH, R.'],
-    [/^(conda|mamba|micromamba|apt|apt-get|yum|dnf|brew)$/, 'is not available: nothing can be installed in this terminal. R packages are installed in R:  install.packages("NAME")   Type  help  to see the programs that are here.'],
-    [/^(docker|singularity|apptainer|snakemake|nextflow|git|make|module)$/, 'is not available: nothing can be installed in this terminal. Type  help  to see the programs that are here.'],
-    [/^(wget|curl|ssh|scp|rsync|ping|ftp|sftp)$/, 'is not available: this terminal has no network access. The data is in ~/data.'],
-    [/^(top|htop|ps|kill|free|lscpu|df|mount|su|chown|screen|tmux|nohup|watch|crontab|pkill|pgrep|uptime|stty|getconf|lsblk|dmesg|who|w|last|service|systemctl|chgrp|mknod)$/, 'is not available in this terminal: it is a web page, not a whole computer.'],
-    [/^(mkfifo|flock)$/, 'is not available in this terminal: the commands here run one after the other, so there are no named pipes and nothing to lock. Use a file between two commands, or  COMMAND <(OTHER COMMAND)'],
-    [/^install$/, 'is not available in this terminal. For a folder:  mkdir -p FOLDER   For a file with permissions:  cp FILE DESTINATION && chmod 755 DESTINATION'],
-    [/^(iconv|recode)$/, 'is not installed in this terminal: text here is UTF-8, and the programs pass other bytes through as they are.'],
-    [/^(dos2unix|unix2dos)$/, 'is not installed in this terminal (nor on many Linux computers). To take the carriage returns of a Windows file away:  sed -i \'s/\\r$//\' FILE   or   tr -d \'\\r\' < FILE > NEWFILE'],
-    [/^(cal|ncal|banner|figlet|cowsay|fortune)$/, 'is not installed in this terminal. Type  help  to see what is here.'],
-    [/^ln$/, 'is not available in this terminal: there are no links here. Copy the file instead:  cp FILE NEWNAME'],
-    [/^(gzip|gunzip|zcat|gzcat|zgrep|zless|tar|zip|unzip|7z|bzip2|bunzip2|bzcat|xz|unxz|xzcat|pigz|zstd)$/, 'is not installed in this terminal. R reads compressed files as they are – read.csv("table.csv.gz") – and unzip() unpacks a .zip file. (A person at the terminal can save a whole folder as a .zip with  download FOLDER.)'],
-    [/^dc$/, 'is not installed in this terminal. For sums there are bc, $(( 2 + 3 )) and awk.'],
-    [/^(sdiff|diff3)$/, 'is not available in this terminal: it works by starting diff as a second program, which a web page cannot do. Two files side by side:  diff -y A B'],
-    [/^(patch|colordiff|vimdiff|wdiff)$/, 'is not installed in this terminal. To compare files there are diff and cmp.'],
-    [/^strings$/, 'is not installed in this terminal. To look at the bytes of a file there are od -c, hexdump -C and xxd.'],
-    [/^yes$/, 'is not available in this terminal: the commands of a pipeline run one after the other, and yes never ends. For N lines:  seq N | sed "s/.*/y/"   or   printf \'y\\n%.0s\' {1..N}'],
-    [/^(csplit|numfmt|cksum|sum|dd|tsort|fmt|pr)$/, 'is not among the programs of this terminal. Type  help  to see what is here.'],
+    [/^(rstudio|RStudio)$/, 'is not a program in this terminal. RStudio is the RStudio tab on this page, and in the terminal you can use R itself, with Rscript, R CMD BATCH or R.'],
+    [/^(conda|mamba|micromamba|apt|apt-get|yum|dnf|brew)$/, 'is not available, because nothing can be installed in this terminal. To install an R package, use  install.packages("NAME")  in R. Type  help  to see the programs that are available.'],
+    [/^(docker|singularity|apptainer|snakemake|nextflow|git|make|module)$/, 'is not available, because nothing can be installed in this terminal. Type  help  to see the programs that are available.'],
+    [/^(wget|curl|ssh|scp|rsync|ping|ftp|sftp)$/, 'is not available, because this terminal has no network access. The course data is in ~/data.'],
+    [/^(top|htop|ps|kill|free|lscpu|df|mount|su|chown|screen|tmux|nohup|watch|crontab|pkill|pgrep|uptime|stty|getconf|lsblk|dmesg|who|w|last|service|systemctl|chgrp|mknod)$/, 'is not available, because this terminal is part of a web page rather than a whole computer.'],
+    [/^(mkfifo|flock)$/, 'is not available in this terminal. Commands here run one after the other, so there are no named pipes and nothing to lock. To pass data from one command to another, use a file or  COMMAND <(OTHER COMMAND)'],
+    [/^install$/, 'is not available in this terminal. You can create a folder with  mkdir -p FOLDER   or copy a file and set its permissions with  cp FILE DESTINATION && chmod 755 DESTINATION'],
+    [/^(iconv|recode)$/, 'is not installed in this terminal. Text here is UTF-8, and the programs pass any other bytes through unchanged.'],
+    [/^(dos2unix|unix2dos)$/, 'is not installed in this terminal (nor on many Linux computers). To remove the carriage returns from a Windows file, use  sed -i \'s/\\r$//\' FILE   or   tr -d \'\\r\' < FILE > NEWFILE'],
+    [/^(cal|ncal|banner|figlet|cowsay|fortune)$/, 'is not installed in this terminal. Type  help  to see what is available.'],
+    [/^ln$/, 'is not available, because this terminal does not support links. Copy the file instead:  cp FILE NEWNAME'],
+    [/^(gzip|gunzip|zcat|gzcat|zgrep|zless|tar|zip|unzip|7z|bzip2|bunzip2|bzcat|xz|unxz|xzcat|pigz|zstd)$/, 'is not installed in this terminal. R can read compressed files directly, for example read.csv("table.csv.gz"), and unzip() unpacks a .zip file. (A person at the terminal can save a whole folder as a .zip with  download FOLDER.)'],
+    [/^dc$/, 'is not installed in this terminal. For calculations you can use bc, $(( 2 + 3 )) or awk.'],
+    [/^(sdiff|diff3)$/, 'is not available in this terminal, because it works by starting diff as a second program, which a web page cannot do. To compare two files side by side, use  diff -y A B'],
+    [/^(patch|colordiff|vimdiff|wdiff)$/, 'is not installed in this terminal. To compare files, use diff or cmp.'],
+    [/^strings$/, 'is not installed in this terminal. To look at the bytes of a file, use od -c, hexdump -C or xxd.'],
+    [/^yes$/, 'is not available in this terminal. The commands in a pipeline run one after the other here, and yes never ends. To get N lines of y, use  seq N | sed "s/.*/y/"   or   printf \'y\\n%.0s\' {1..N}'],
+    [/^(csplit|numfmt|cksum|sum|dd|tsort|fmt|pr)$/, 'is not one of the programs in this terminal. Type  help  to see what is available.'],
     [/^(alias|unalias)$/, 'is not available in this terminal. Write a function instead:  ll() { ls -l "$@"; }']
   ];
   /* A command failed for a reason of THIS terminal: a program that is not here (python3, samtools), or something a
@@ -580,7 +580,7 @@
             return args.some((a, i) => kinds[i] !== 'skip' && a && !a.startsWith('-') && this.fs.resolve(a) === abs);
           });
           this.fs.rewrite(abs, '');
-          if (reader && io.note) io.note(`${r.target} was emptied before ${unwrap(reader.argv)[0]} read it: bash opens the file after > first. Write to another file, then rename it:  ${unwrap(reader.argv)[0]} … > new.tmp && mv new.tmp ${r.target}`);
+          if (reader && io.note) io.note(`${r.target} was emptied before ${unwrap(reader.argv)[0]} could read it, because bash empties the output file (the one after >) before the command starts. Write to another file and then rename it:  ${unwrap(reader.argv)[0]} … > new.tmp && mv new.tmp ${r.target}`);
         }
       };
       // (new files of every command are there from the start; the first command's files and the second's are emptied)
@@ -811,13 +811,13 @@
           // decides, and so the same script passes on one day and stops on another. Here the status is 0 – and the
           // student is told, because under set -o pipefail the pipeline can fail on Linux.
           const writer = unwrap(pipeline[s - 1].argv)[0] || 'the command before', reader = unwrap(argv)[0];
-          io.note(`On Linux this pipeline can fail under set -o pipefail: ${reader} stopped reading before it had taken everything that ${writer} wrote, and a program that is still writing at that moment is ended with status 141 (SIGPIPE) – whether it is depends on timing. Here the status is 0. To be safe on every computer, use a reader that reads to the end ( … | awk 'NR <= 10' ,  … | sed -n '1,10p' ), or let it pass:  … | ${reader} … || true`);
+          io.note(`On Linux this pipeline can fail under set -o pipefail. ${reader} stopped reading before it had taken everything that ${writer} wrote, and a program that is still writing at that moment is ended with status 141 (SIGPIPE). Whether that happens depends on timing; here the status is 0. To be safe on every computer, use a reader that reads to the end ( … | awk 'NR <= 10' ,  … | sed -n '1,10p' ), or let the failure pass:  … | ${reader} … || true`);
         }
         if (s > 0 && leftEarly) {
           codes[s - 1] = 141;
           if (opts.pipefail && io.note && !(this._pipeNoted && Date.now() - this._pipeNoted < 3000)) {
             const writer = unwrap(pipeline[s - 1].argv)[0] || 'the command before';
-            io.note(`${writer} was ended by the signal SIGPIPE (status 141): ${unwrap(argv)[0]} stopped reading before ${writer} had written everything. With set -o pipefail the pipeline fails for that – here as on Linux. A reader that reads to the end does not have this effect ( … | awk 'NR <= 10' ,  … | sed -n '1,10p' ); or let it pass:  … | ${unwrap(argv)[0]} … || true`);
+            io.note(`${writer} was ended by the signal SIGPIPE (status 141), because ${unwrap(argv)[0]} stopped reading before ${writer} had written everything. With set -o pipefail the whole pipeline then fails, here as on Linux. To avoid this, use a reader that reads to the end ( … | awk 'NR <= 10' ,  … | sed -n '1,10p' ), or let the failure pass:  … | ${unwrap(argv)[0]} … || true`);
             this._pipeNoted = Date.now();
           }
         }
@@ -858,7 +858,7 @@
           piped = await sizeOfInput(stdin);
         } else if (outRef) {
           if (io.bytes) io.out(await MG.wasm.readBytes(outRef.apath));
-          else if (outRef.binary) io.note('Binary output: save it in a file with  > FILE');
+          else if (outRef.binary) io.note('The output is binary, so it is not shown here. Save it in a file with  > FILE');
           else io.out(await MG.wasm.readText(outRef.apath));
         }
         // As in bash, a failed stage does not stop the pipe: the next program gets whatever
@@ -907,7 +907,7 @@
         const mine = this.onPath(name, ctx.env);
         if (mine) return this.runFile(mine, ctx);
         ctx.err(`bash: ${printable(name)}: command not found\n`);
-        ctx.io.note(`PATH is "${ctx.env.PATH}": the folders of the programs – /usr/bin and /bin – are not in it any more, so no program is found (the same happens on Linux). Put them back:  PATH=/usr/local/bin:/usr/bin:/bin   To add a folder of your own, keep the old value:  PATH="$PWD/bin:$PATH"`);
+        ctx.io.note(`PATH is "${ctx.env.PATH}", which no longer includes the folders the programs are in (/usr/bin and /bin), so no program can be found. The same happens on Linux. To put them back, type  PATH=/usr/local/bin:/usr/bin:/bin   To add a folder of your own, keep the old value as well:  PATH="$PWD/bin:$PATH"`);
         return 127;
       }
       // NAME --help, NAME --version: what the terminal's own version of a program can do
@@ -948,15 +948,15 @@
       const noX = name.includes('/') ? null : this.onPath(name, ctx.env, false, true);
       if (noX) {
         ctx.err(`bash: ${noX}: Permission denied\n`);
-        ctx.io.note(`${this.fs.pretty(noX)} is in a folder of PATH, but it is not executable. Make it so:  chmod +x ${MG.typedPath ? MG.typedPath(this.fs.pretty(noX)) : this.fs.pretty(noX)}`);
+        ctx.io.note(`${this.fs.pretty(noX)} is in a folder on your PATH, but it is not executable. Make it executable with  chmod +x ${MG.typedPath ? MG.typedPath(this.fs.pretty(noX)) : this.fs.pretty(noX)}`);
         return 126;
       }
       ctx.err(`bash: ${printable(name)}: command not found\n`);
       notHere(name);
       const why = absentNote(name);
-      if (/^\{[A-Za-z_]\w*\}$/.test(name)) ctx.io.note(`${name}> FILE and ${name}< FILE – a file descriptor whose number bash chooses and puts into the variable – are not available in this terminal. Choose the number yourself, from 3 to 9:  exec 3> FILE   …   echo text >&3   …   exec 3>&-`);
+      if (/^\{[A-Za-z_]\w*\}$/.test(name)) ctx.io.note(`${name}> FILE and ${name}< FILE (where bash chooses a file descriptor number and stores it in the variable) are not available in this terminal. Choose the number yourself, from 3 to 9:  exec 3> FILE   …   echo text >&3   …   exec 3>&-`);
       else if (why) ctx.io.note(why);
-      else if (this.fs.exists(name) && /\.sh$/.test(name)) ctx.io.note(`To run a script in this folder:  bash ${name}   (or ./${name} after chmod +x ${name})`);
+      else if (this.fs.exists(name) && /\.sh$/.test(name)) ctx.io.note(`To run a script in this folder, use  bash ${name}   (or ./${name} after chmod +x ${name})`);
       else {
         const hint = !name || /[\x00-\x1f\x7f]/.test(name) ? null : suggest(name);
         if (hint) ctx.io.note(`Did you mean '${hint}'? Type  help  for the list of programs.`);
@@ -985,7 +985,7 @@
       const absent = (prog, viaEnv) => {
         ctx.err(viaEnv ? envMiss(prog) : `bash: ${typed}: cannot execute: required file not found\n`);
         const why = absentNote(prog.split('/').pop());
-        ctx.io.note(`The first line of ${typed} (${first.trim()}) names the program that is to run it` + (/\s/.test(prog) ? ` – and Linux hands "${prog}" over as ONE word. Write  #!/usr/bin/env -S ${prog}` : ', and that program is not in this terminal.') + (why ? ' ' + why : ''));
+        ctx.io.note(`The first line of ${typed} (${first.trim()}) names the program that should run it` + (/\s/.test(prog) ? `, but Linux passes "${prog}" on as a single word. Write  #!/usr/bin/env -S ${prog}  instead.` : ', and that program is not in this terminal.') + (why ? ' ' + why : ''));
         return 127;
       };
       if (first.endsWith('\r')) {
@@ -993,7 +993,7 @@
         // carriage return for a part of the name; only blanks and tabs separate)
         const k = /^#![ \t]*([^ \t]+)(?:[ \t]+([\s\S]*?))?[ \t]*$/.exec(first);
         let status = 127;
-        const crNote = () => ctx.io.note(`${typed} has the line ends of Windows (a carriage return at the end of each line): Linux takes that character for a part of the name on the first line. Take them away:  sed -i 's/\\r$//' ${typed}`);
+        const crNote = () => ctx.io.note(`${typed} has Windows line endings (a carriage return at the end of each line), and Linux takes that character as part of the program name on the first line. Remove them with  sed -i 's/\\r$//' ${typed}`);
         const kb = k ? k[1].split('/').pop() : '';
         if (k && k[2] && !/(^|\/)(env|bash|sh|dash)$/.test(k[1]) && /^\/(usr\/(local\/)?)?bin\/[^/]+$/.test(k[1]) && (MG.shellBuiltins[kb] || MG.shellTools[kb]) && !(MG.shellLang && MG.shellLang.isShellWord && MG.shellLang.isShellWord(kb))) {
           // #!/usr/bin/awk -f<CR>: the program is there, and gets "-f<CR>" as its option
@@ -1047,8 +1047,8 @@
         const usage = `Usage:\t${prog} [GNU long option] [option] ...\n\t${prog} [GNU long option] [option] script-file ...\n`;
         // (what to write instead: the options on a line of their own – named when the word is made of options of set)
         const asSet = /^[-+][abefhkmnptuvxBCEHPT]+( [-+][abefhkmnptuvxBCEHPT]+)*$/.test(word) ? `set ${word}` : /^[-+][abefhkmnptuvxBCEHPT]*o \w+$/.test(word) ? `set ${word}` : null;
-        const instead = `Keep the first line to  #!${prog}  and ` + (asSet ? `write  ${asSet}  on the next line.` : 'set the options on a line of their own (set -euo pipefail, shopt -s extglob); a # on that first line does not start a comment.');
-        const oneWord = () => /\s/.test(word) && ctx.io.note(`On Linux everything that follows the program on the first line of a script is handed over as ONE word: ${base} gets "${word}" as a single word, and fails. ${instead}`);
+        const instead = `Leave just  #!${prog}  on the first line and ` + (asSet ? `put  ${asSet}  on the next line.` : 'set the options on a separate line (set -euo pipefail, shopt -s extglob). A # on that first line does not start a comment.');
+        const oneWord = () => /\s/.test(word) && ctx.io.note(`On Linux, everything that follows the program on the first line of a script is passed to it as a single word, so ${base} gets "${word}" as one word and fails. ${instead}`);
         if (!/^[-+]/.test(word)) {
           // (#!/bin/bash # comment: the word is taken for the script to run)
           if (this.fs.exists(word)) return asShell();
@@ -1068,7 +1068,7 @@
           const c = letters[k];
           if (c === 'o') {
             ctx.err(dash ? `${prog}: 0: Illegal option -o ${typed}\n` : `${prog}: line 0: ${prog}: ${typed}: invalid option name\n`);
-            ctx.io.note(`On Linux everything that follows the program on the first line of a script is handed over as ONE word: ${base} gets "${word}" as a single option, and its o takes the next word – the name of the script – for the name of the option. ${instead}` + (dash ? '' : ` (#!/usr/bin/env -S bash ${word}  works too: env -S splits the words.)`));
+            ctx.io.note(`On Linux, everything that follows the program on the first line of a script is passed to it as a single word, so ${base} gets "${word}" as one option, and its o takes the next word (the name of the script) as the name of the option. ${instead}` + (dash ? '' : ` (#!/usr/bin/env -S bash ${word}  also works, because env -S splits the words.)`));
             return 2;
           }
           if (!valid.includes(c)) {
@@ -1954,7 +1954,7 @@ Try 'ls --help' for more information.`, 2);
       ctx.err(`${name}: ${question} `);
       if (!piped) {
         ctx.err('\n');
-        if (!noted) ctx.io.note(`${name} asked before going on. This terminal cannot take an answer, so it counted as "no". Without -i ${name} does not ask – or send the answer in:  echo y | ${name} -i …`);
+        if (!noted) ctx.io.note(`${name} asked before going on, but this terminal can't take an answer, so it counted as "no". Without -i, ${name} doesn't ask. Alternatively, pipe the answer in:  echo y | ${name} -i …`);
         noted = true;
         return false;
       }
@@ -2585,7 +2585,7 @@ Try 'ls --help' for more information.`, 2);
 
   B.less = async (ctx) => {
     const input = await inputOf(ctx, ctx.args.filter((a) => !a.startsWith('-')), ctx.name);
-    if (!ctx.isPipedOut) ctx.io.note('(less shows a file one screen at a time; here the whole file is printed – scroll the terminal)');
+    if (!ctx.isPipedOut) ctx.io.note('(less normally shows a file one screen at a time. Here the whole file is printed, so scroll the terminal to read it.)');
     ctx.out(input);
   };
   B.more = B.less;

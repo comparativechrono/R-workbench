@@ -233,7 +233,13 @@
     /** all of the console's text (for "Save console", the AI) */
     text(max) {
       this._flush();
-      const t = this.out.textContent;
+      let t = this.out.textContent;
+      // (without the "Ask the AI assistant" buttons under errors: they are not part of what R printed)
+      if (this.out.querySelector('.rc-askrow')) {
+        const c = this.out.cloneNode(true);
+        c.querySelectorAll('.rc-askrow').forEach((x) => x.remove());
+        t = c.textContent;
+      }
       return max && t.length > max ? t.slice(-max) : t;
     }
 

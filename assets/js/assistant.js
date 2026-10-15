@@ -254,14 +254,14 @@
       (m) => {
         const n = m[1], col = COLS.includes(n);
         return [
-          `R does not know the name ${inline(n)}. The usual reasons:`,
-          `- a typing mistake – names are case-sensitive: ${inline('Penguins')} is not ${inline('penguins')};`,
-          `- the line that makes ${inline(n)} has not been run in *this* R yet, or it failed. Each tab has an R of its own: an object made in RStudio is not in the R console or a notebook, and knitting starts a new R that has only what the document itself makes;`,
+          `R does not know the name ${inline(n)}. This usually happens for one of these reasons:`,
+          `- There may be a typing mistake. Names are case-sensitive, so ${inline('Penguins')} is not the same as ${inline('penguins')}.`,
+          `- The line that creates ${inline(n)} hasn't been run in *this* R session yet, or it failed. Each tab has its own R session, so an object you create in RStudio doesn't exist in the R console or in a notebook. Knitting also starts a new R session, which only has what the document itself creates.`,
           col
-            ? `- ${inline(n)} is a column of the penguins data, not an object of its own: write ${inline('penguins$' + n)}, or use it inside a function that is given the data – ${inline(/^(species|island|sex)$/.test(n) ? `table(penguins$${n})` : `mean(penguins$${n}, na.rm = TRUE)`)}, ${inline(`aes(x = ${n})`)} in ggplot2. With ${inline('filter()')} or ${inline('select()')}, load dplyr first (${inline('library(dplyr)')}): without it, R's own ${inline('filter()')} (from stats) does not know the columns.`
-            : `- a column name used on its own: write ${inline('data$column')}, or use the name inside a function that is given the data.`,
+            ? `- ${inline(n)} is a column of the penguins data, not a separate object. Write ${inline('penguins$' + n)}, or use the name inside a function that is given the data, such as ${inline(/^(species|island|sex)$/.test(n) ? `table(penguins$${n})` : `mean(penguins$${n}, na.rm = TRUE)`)} or ${inline(`aes(x = ${n})`)} in ggplot2. If you use ${inline('filter()')} or ${inline('select()')}, load dplyr first with ${inline('library(dplyr)')}. Without it, R uses the ${inline('filter()')} function from the stats package, which doesn't know about the columns.`
+            : `- You used a column name on its own. Write ${inline('data$column')} instead, or use the name inside a function that is given the data.`,
           '',
-          `To check: ${inline('ls()')} lists the objects this R has; ${inline(`exists("${n}")`)} says whether it knows the name.`
+          `To check, ${inline('ls()')} lists the objects in this R session, and ${inline(`exists("${n}")`)} tells you whether R knows the name.`
         ].join('\n');
       }
     ],
@@ -272,84 +272,84 @@
         return [
           `R does not know the function ${inline(fn)}.`,
           pkg
-            ? `- ${inline(fn)} comes from the package **${pkg}**${f === '%>%' ? " (R's own pipe, `|>`, needs no package)" : ''}. Load it in this R with ${inline(`library(${pkg})`)} – after installing it once with ${inline(`install.packages("${pkg}")`)}.`
-            : `- If it comes from a package, that package is not loaded in this R: ${inline('library(name)')} loads it (install it once first with ${inline('install.packages("name")')}).`,
-          `- Or a typing mistake – function names are case-sensitive: ${inline('Mean()')} is not ${inline('mean()')}.`,
-          '- Or you wrote the function yourself – in another tab (each has an R of its own) or in a line that has not been run.',
+            ? `- ${inline(fn)} comes from the **${pkg}** package${f === '%>%' ? " (R's built-in pipe, `|>`, doesn't need a package)" : ''}. Install the package once with ${inline(`install.packages("${pkg}")`)} if you haven't already, then load it in this R session with ${inline(`library(${pkg})`)}.`
+            : `- If it comes from a package, that package hasn't been loaded in this R session. Load it with ${inline('library(name)')}, after installing it once with ${inline('install.packages("name")')}.`,
+          `- It may be a typing mistake. Function names are case-sensitive, so ${inline('Mean()')} is not the same as ${inline('mean()')}.`,
+          "- If you wrote the function yourself, you may have defined it in another tab (each tab has its own R session), or the lines that define it haven't been run yet.",
           /^[\w.]+$/.test(f) ? `\n${inline('??' + f)} searches the help pages of the installed packages.` : ''
         ].join('\n');
       }
     ],
     [
       /is not available for this version of R|there is no build of it for webR/,
-      'That package has no build for webR (R in the browser), so it cannot be installed here. Look for another package that does the same – or do it with base R.'
+      'That package has no build for webR (the version of R that runs in the browser), so it can’t be installed here. Look for another package that does the same job, or do it with base R.'
     ],
     [
       /there is no package called ['‘’"`]?([\w.]+)/,
       (m) =>
-        `The package **${m[1]}** is not installed in this browser yet. Install it once – in any R of the workbench – with ${inline(`install.packages("${m[1]}")`)}, then load it with ${inline(`library(${m[1]})`)}. Packages come from the webR repository, which has a large part of CRAN. Check the spelling too: package names are case-sensitive (${inline('ggplot2')}, not ${inline('ggplot')}).`
+        `The package **${m[1]}** isn't installed in this browser yet. Install it once with ${inline(`install.packages("${m[1]}")`)} (you can do this in any of the workbench's R sessions), then load it with ${inline(`library(${m[1]})`)}. Packages come from the webR repository, which has a large part of CRAN. Also check the spelling (it is ${inline('ggplot2')}, not ${inline('ggplot')}), and remember that package names are case-sensitive.`
     ],
     [
       /unexpected 'else'/,
-      `R read the ${inline('if')} part as finished before it got to ${inline('else')}. When code runs line by line, ${inline('else')} must be on the same line as the ${inline('}')} that closes the ${inline('if')} part:\n\n\`\`\`r\nif (x > 0) {\n  print("positive")\n} else {\n  print("not positive")\n}\n\`\`\``
+      `R treated the ${inline('if')} part as finished before it got to the ${inline('else')}. When code is run line by line, the ${inline('else')} must be on the same line as the ${inline('}')} that closes the ${inline('if')} part, like this:\n\n\`\`\`r\nif (x > 0) {\n  print("positive")\n} else {\n  print("not positive")\n}\n\`\`\``
     ],
     [
       /unexpected (symbol|numeric constant|string constant)/,
       [
-        'R could not read the line: two things stand next to each other with nothing between them. Look for',
-        `- a missing comma: ${inline('c(1 2)')} → ${inline('c(1, 2)')}; ${inline('mean(x na.rm = TRUE)')} → ${inline('mean(x, na.rm = TRUE)')};`,
-        `- a missing operator: ${inline('2 x')} → ${inline('2 * x')};`,
-        `- a space in a name: ${inline('body mass')} → ${inline('body_mass')};`,
-        '- a bracket or quote that is not closed on the line before.'
+        'R couldn’t make sense of the line, because two things are next to each other with nothing between them. Look for:',
+        `- a missing comma: ${inline('c(1 2)')} → ${inline('c(1, 2)')}, or ${inline('mean(x na.rm = TRUE)')} → ${inline('mean(x, na.rm = TRUE)')}`,
+        `- a missing operator: ${inline('2 x')} → ${inline('2 * x')}`,
+        `- a space in a name: ${inline('body mass')} → ${inline('body_mass')}`,
+        '- a bracket or quote on the line before that hasn’t been closed.'
       ].join('\n')
     ],
     [
       /unexpected input|unexpected invalid token|invalid multibyte/,
-      `R found a character it cannot read. Often it is a curly quote – “ ” or ‘ ’ – copied from a document or a web page: type the quotes again as plain ${inline('"')} or ${inline("'")}. A backslash in a path (${inline('C:\\data')}) is another: R paths use ${inline('/')}.`
+      `R found a character it can't read. Often this is a curly quote (“ ” or ‘ ’) copied from a document or a web page, so type the quotes again as plain ${inline('"')} or ${inline("'")}. Another common cause is a backslash in a path, such as ${inline('C:\\data')}. In R, paths use ${inline('/')} instead.`
     ],
     [
       /unexpected end of input|INCOMPLETE_STRING/,
-      `A bracket or a quote was opened and never closed, so R is still waiting for the rest. Count them: each ${inline('(')} needs a ${inline(')')}, each ${inline('{')} a ${inline('}')}, each ${inline('"')} another ${inline('"')}. (In a console, a ${inline('+')} prompt means R is waiting for more: press Esc to start the line again.)`
+      `A bracket or a quote was opened but never closed, so R is still waiting for the rest. Count them: each ${inline('(')} needs a ${inline(')')}, each ${inline('{')} needs a ${inline('}')} and each ${inline('"')} needs another ${inline('"')}. (In a console, a ${inline('+')} prompt means that R is waiting for more. Press Esc to start the line again.)`
     ],
     [
       /unexpected ('\)'|'\]'|'\}'|','|'='|'<-'|'\|'|'>'|'<'|'\*'|'\/'|'\^'|'&'|'%')/,
-      `R found a bracket, comma or operator where it expected a value – often one too many. Count the brackets: each ${inline('(')} needs exactly one ${inline(')')}. And check the line before: a comma at the end of an argument list (${inline('c(1, 2, )')}) or an operator with nothing after it.`
+      `R found a bracket, comma or operator where it expected a value, often because there is one too many. Count the brackets: each ${inline('(')} needs exactly one ${inline(')')}. Also check the line before for a comma at the end of an argument list (${inline('c(1, 2, )')}) or an operator with nothing after it.`
     ],
     [
       /non-numeric argument to (binary operator|mathematical function)/,
-      `A calculation got text instead of numbers – ${inline('"5" + 1')}, or a column that R read as text because some of its values are not numbers. Look with ${inline('class(x)')} or ${inline('str(data)')}; ${inline('as.numeric(x)')} turns text into numbers (what is not a number becomes NA).`
+      `A calculation was given text instead of numbers. This happens with ${inline('"5" + 1')}, or with a column that R read as text because some of its values are not numbers. Check with ${inline('class(x)')} or ${inline('str(data)')}. ${inline('as.numeric(x)')} turns text into numbers (anything that isn't a number becomes NA).`
     ],
     [
       /argument is not numeric or logical|invalid 'type' \((character|list)\) of argument/,
-      `The function wants numbers, but got text (or a list, or a whole data frame). Give it one numeric column: ${inline('mean(penguins$body_mass, na.rm = TRUE)')}. ${inline('str(data)')} shows which columns are numbers.`
+      `The function needs numbers, but it was given text (or a list, or a whole data frame). Give it a single numeric column, for example ${inline('mean(penguins$body_mass, na.rm = TRUE)')}. ${inline('str(data)')} shows which columns contain numbers.`
     ],
-    [/no applicable method for '([^']+)' applied to an object of class "([^"]+)"/, (m) => `${inline(m[1] + '()')} does not work on this kind of object (${inline(m[2])}). Check what you gave it with ${inline('class(x)')} – often it is another object than you meant, or a package that the function needs is not loaded.`],
-    [/used without hex digits|is an unrecognized escape/, `A backslash in a string starts a special character (${inline('"\\n"')} is a new line), so a Windows path such as ${inline('"C:\\Users\\…"')} does not work. Use ${inline('/')} in paths – here your files are in ${inline('~')}, such as ${inline('"~/data/penguins.csv"')}.`],
-    [/object of type 'closure' is not subsettable/, `You used ${inline('$')} or ${inline('[ ]')} on a function. That happens when your data was never made under that name, so R finds a function of the same name instead – ${inline('data')}, ${inline('df')}, ${inline('c')} and ${inline('t')} are all functions. Make the data first (${inline('df <- read.csv("~/data/penguins.csv")')}), or check the name with ${inline('ls()')}.`],
-    [/\$ operator is invalid for atomic vectors/, `${inline('$')} works on data frames and lists, not on a plain vector. Check what the object is with ${inline('class(x)')} or ${inline('str(x)')}; for a vector, use ${inline('x[2]')} or ${inline('x["name"]')}.`],
-    [/subscript out of bounds/, `You asked for a row, column or element that is not there – ${inline('x[[5]]')} of a list with 3 elements. Check the size with ${inline('length(x)')}, ${inline('dim(x)')} or ${inline('names(x)')}.`],
-    [/undefined columns selected/, `A column name in ${inline('data[ , "name"]')} is not in the data – a typing mistake, or a different case. ${inline('names(data)')} lists the columns. (${inline('data[rows]')} without a comma also gives this: rows go before the comma, ${inline('data[rows, ]')}.)`],
+    [/no applicable method for '([^']+)' applied to an object of class "([^"]+)"/, (m) => `${inline(m[1] + '()')} doesn't work on this kind of object (${inline(m[2])}). Check what you gave it with ${inline('class(x)')}. Often it is a different object from the one you meant, or a package that the function needs hasn't been loaded.`],
+    [/used without hex digits|is an unrecognized escape/, `In a string, a backslash starts a special character (${inline('"\\n"')} is a new line), so a Windows path such as ${inline('"C:\\Users\\…"')} doesn't work. Use ${inline('/')} in paths instead. Your files here are in ${inline('~')}, so a path looks like ${inline('"~/data/penguins.csv"')}.`],
+    [/object of type 'closure' is not subsettable/, `You used ${inline('$')} or ${inline('[ ]')} on a function. This happens when no data has been created under that name, so R finds a function with the same name instead (${inline('data')}, ${inline('df')}, ${inline('c')} and ${inline('t')} are all functions). Create the data first, for example with ${inline('df <- read.csv("~/data/penguins.csv")')}, or check the name with ${inline('ls()')}.`],
+    [/\$ operator is invalid for atomic vectors/, `${inline('$')} works on data frames and lists, but not on a plain vector. Check what the object is with ${inline('class(x)')} or ${inline('str(x)')}. For a vector, use ${inline('x[2]')} or ${inline('x["name"]')} instead.`],
+    [/subscript out of bounds/, `You asked for a row, column or element that doesn't exist, such as ${inline('x[[5]]')} of a list with only 3 elements. Check the size with ${inline('length(x)')}, ${inline('dim(x)')} or ${inline('names(x)')}.`],
+    [/undefined columns selected/, `A column name in ${inline('data[ , "name"]')} isn't in the data. Check for a typing mistake or a difference in upper and lower case. ${inline('names(data)')} lists the columns. (Leaving out the comma, as in ${inline('data[rows]')}, also gives this error. Rows go before the comma: ${inline('data[rows, ]')}.)`],
     [
       /cannot open (file|the connection|compressed file)|No such file or directory|does not exist in current working directory|[Pp]ath ['‘`"].*['’`"] does not exist|file ['‘`"].*['’`"] does not exist/,
       [
-        `R looked for the file in the wrong place – or the name is not quite right. A path without a folder is looked for in R's working directory: ${inline('getwd()')} shows it, and it differs between the tabs (the R console and RStudio start in your home folder ${inline('~')}, a notebook works in its own folder, ${inline('Rscript')} in the terminal's folder).`,
+        `R looked for the file in the wrong place, or the name isn't quite right. If a path has no folder in it, R looks in its working directory. ${inline('getwd()')} shows the working directory, which differs between the tabs: the R console and RStudio start in your home folder (${inline('~')}), a notebook uses the folder it is saved in, and ${inline('Rscript')} uses the terminal's current folder.`,
         '',
-        `The course's data is in ${inline('~/data')}: ${inline('read.csv("~/data/penguins.csv")')} works everywhere. ${inline('list.files("~/data")')} shows what is there, and ${inline('file.exists("~/data/penguins.csv")')} checks a path.`
+        `The course's data is in ${inline('~/data')}, so ${inline('read.csv("~/data/penguins.csv")')} works in every tab. ${inline('list.files("~/data")')} shows what is there, and ${inline('file.exists("~/data/penguins.csv")')} checks whether a path exists.`
       ].join('\n')
     ],
-    [/arguments imply differing number of rows|replacement has \d+ rows?, data has \d+/, `The columns are of different lengths, so they cannot make one table: ${inline('data.frame(x = 1:3, y = 1:2)')} fails. Check each with ${inline('length()')} – and, for a new column, that it has one value for each row (${inline('nrow(data)')}).`],
-    [/missing value where TRUE\/FALSE needed/, `An ${inline('if ( )')} or ${inline('while ( )')} got NA instead of TRUE or FALSE – a value in the condition is missing. Test for it first with ${inline('is.na(x)')}, or use ${inline('isTRUE(x > 3)')}. (The penguins data has missing values: ${inline('na.rm = TRUE')} leaves them out of ${inline('mean()')}, ${inline('sum()')} and the like.)`],
-    [/the condition has length > 1/, `${inline('if ( )')} takes one TRUE or FALSE, but got a whole vector. For one answer about all the values use ${inline('any()')} or ${inline('all()')}; to work value by value, use ${inline('ifelse(x > 3, "big", "small")')}.`],
-    [/argument "([^"]+)" is missing, with no default/, (m) => `The function needs an argument ${inline(m[1])} that it did not get. ${inline('?name')} (with the function's name) shows its arguments – and check that a comma or bracket has not cut the call short.`],
-    [/unused argument/, `A function got an argument it does not have – a typing mistake in the argument's name, or a bracket in the wrong place, so the argument went to another function: ${inline('mean(x), na.rm = TRUE')} instead of ${inline('mean(x, na.rm = TRUE)')}. ${inline('args(name)')} lists the arguments of a function.`],
+    [/arguments imply differing number of rows|replacement has \d+ rows?, data has \d+/, `The columns have different lengths, so they can't be put together into one table. For example, ${inline('data.frame(x = 1:3, y = 1:2)')} fails. Check each one with ${inline('length()')}. For a new column, also check that it has one value for each row (${inline('nrow(data)')}).`],
+    [/missing value where TRUE\/FALSE needed/, `An ${inline('if ( )')} or ${inline('while ( )')} got NA instead of TRUE or FALSE, because a value in the condition is missing. Test for it first with ${inline('is.na(x)')}, or use ${inline('isTRUE(x > 3)')}. (The penguins data has missing values, and ${inline('na.rm = TRUE')} leaves them out of ${inline('mean()')}, ${inline('sum()')} and similar functions.)`],
+    [/the condition has length > 1/, `${inline('if ( )')} needs a single TRUE or FALSE, but it was given a whole vector. To get one answer about all the values, use ${inline('any()')} or ${inline('all()')}. To get a separate answer for each value, use ${inline('ifelse(x > 3, "big", "small")')}.`],
+    [/argument "([^"]+)" is missing, with no default/, (m) => `The function needs an argument called ${inline(m[1])}, but it wasn't given one. ${inline('?name')} (with the function's name) shows its arguments. Also check that a comma or bracket hasn't cut the call short.`],
+    [/unused argument/, `A function was given an argument it doesn't have. This is usually a typing mistake in the argument's name, or a bracket in the wrong place, so that the argument went to a different function: ${inline('mean(x), na.rm = TRUE')} instead of ${inline('mean(x, na.rm = TRUE)')}. ${inline('args(name)')} lists the arguments of a function.`],
     [/Removed \d+ rows? containing (missing|non-finite)/, `This is a warning from ggplot2, not an error: rows with missing values (NA) were left out of the plot. The penguins data has two penguins without measurements. To leave them out yourself, use ${inline('na.omit(penguins)')} or ${inline('subset(penguins, !is.na(body_mass))')}.`],
-    [/NAs introduced by coercion/, `A warning, not an error: some values could not be turned into numbers, and became NA – ${inline('as.numeric("abc")')}. Look at which: ${inline('x[is.na(as.numeric(x))]')}.`],
-    [/R cannot run other programs|could not find function "system2?"/, `R cannot run other programs here: ${inline('system()')} and ${inline('system2()')} do nothing in the browser. Run the command in the Terminal tab instead – or do it in R, with ${inline('list.files()')}, ${inline('file.copy()')}, ${inline('readLines()')} and the like.`],
-    [/a Shiny app needs a window/, 'A Shiny app needs a window to be shown in: run it in RStudio (Run App), or in the R console tab – not in a notebook or with Rscript.'],
-    [/Quitting from lines|Quitting from/, `This error came from knitting. Knit runs the document from the top in a new R, which has only what the document itself makes: every object it uses must be made, every file read and every package loaded (${inline('library()')}) in a chunk above. Run all the chunks in order (Run All) to find the one that fails.`],
-    [/figure margins too large/, 'The plot does not fit in the space it has. Make the Plots pane (or the plot window) bigger, and draw the plot again.'],
-    [/needs pandoc|pandoc|LaTeX/, 'Documents knit to HTML only here: PDF needs LaTeX and Word needs pandoc, and neither runs in a browser. Knit to HTML, and print the page to PDF from the browser if you need a PDF.'],
-    [/non-conformable/, `Two matrices (or a matrix and a vector) do not have sizes that fit together for that operation. Check with ${inline('dim()')}; ${inline('%*%')} is matrix multiplication, ${inline('*')} multiplies value by value.`]
+    [/NAs introduced by coercion/, `This is a warning, not an error. Some values couldn't be turned into numbers, so they became NA (for example, ${inline('as.numeric("abc")')} gives NA). To see which values they were, use ${inline('x[is.na(as.numeric(x))]')}.`],
+    [/R cannot run other programs|could not find function "system2?"/, `R can't run other programs here, because ${inline('system()')} and ${inline('system2()')} do nothing in the browser. Run the command in the Terminal tab instead, or do the same thing in R with functions such as ${inline('list.files()')}, ${inline('file.copy()')} and ${inline('readLines()')}.`],
+    [/a Shiny app needs a window/, 'A Shiny app needs a window to appear in. Run it in RStudio (with Run App) or in the R console tab, but not in a notebook or with Rscript.'],
+    [/Quitting from lines|Quitting from/, `This error came from knitting. Knit runs the whole document again from the beginning in a new R session, which only has what the document itself creates. So every object that the document uses must be created, every file read and every package loaded (with ${inline('library()')}) in an earlier chunk. Run all the chunks in order (Run All) to find the one that fails.`],
+    [/figure margins too large/, 'The plot doesn’t fit in the space it has. Make the Plots pane (or the plot window) bigger, then draw the plot again.'],
+    [/needs pandoc|pandoc|LaTeX/, 'Documents can only be knitted to HTML here. PDF output needs LaTeX and Word output needs pandoc, and neither of them runs in a browser. Knit to HTML instead, and if you need a PDF, print the page to PDF from the browser.'],
+    [/non-conformable/, `The two matrices (or the matrix and the vector) don't have sizes that fit together for that operation. Check their sizes with ${inline('dim()')}. Note that ${inline('%*%')} is matrix multiplication, while ${inline('*')} multiplies element by element.`]
   ];
   const NOT_HERE = /^(python3?|pip3?|curl|wget|git|sudo|apt|apt-get|conda|mamba|brew|java|node|npm|rstudio|quarto|pandoc|make|gcc)$/;
   /** a command line that is R code (typed into the terminal): an assignment, a pipe, or a call such as summary(x) – and
@@ -361,7 +361,7 @@
     if (!first.includes('(') && knownCommand(first)) return false;
     return /<-|\|>|%>%/.test(l) || /^[\w.]+\s*\(/.test(l);
   }
-  const R_IN_TERMINAL = `That is R code, but the terminal speaks bash, not R. Type R code in the R console tab, RStudio's Console or a notebook – or run it from here with ${inline(`Rscript -e '…'`)}, or start R in the terminal with ${inline('R')} (and leave it with ${inline('q()')}).`;
+  const R_IN_TERMINAL = `That is R code, but the terminal understands bash commands, not R. Type R code into the R console tab, RStudio's Console or a notebook. You can also run it from here with ${inline(`Rscript -e '…'`)}, or start R in the terminal by typing ${inline('R')} (and leave it again with ${inline('q()')}).`;
   const SHELL_HELP = [
     [
       /command not found/,
@@ -369,19 +369,19 @@
         if (looksRLine(line)) return null;
         const w = ((/(\S+): command not found/.exec(all) || [])[1] || '').replace(/^bash:\s*/, '');
         return NOT_HERE.test(w)
-          ? `${inline(w)} is not in this workbench: its terminal runs in your browser and has only R (${inline('Rscript')}, ${inline('R')}), the GNU text tools and the shell's own commands – ${inline('help')} lists them.`
-          : `The terminal has no program of that name. Check the spelling – ${inline('help')} lists the programs that are here: R (${inline('Rscript script.R')}, ${inline('R')}), the GNU text tools (${inline('head')}, ${inline('wc')}, ${inline('grep')}, ${inline('awk')} …) and the shell's own commands. A script runs with ${inline('bash script.sh')}.`;
+          ? `${inline(w)} is not available in this workbench. Its terminal runs in your browser and only has R (${inline('Rscript')} and ${inline('R')}), the GNU text tools and the shell's built-in commands, which ${inline('help')} lists.`
+          : `The terminal has no program with that name. Check the spelling. ${inline('help')} lists the programs that are available: R (${inline('Rscript script.R')}, ${inline('R')}), the GNU text tools (${inline('head')}, ${inline('wc')}, ${inline('grep')}, ${inline('awk')} …) and the shell's built-in commands. To run a shell script, use ${inline('bash script.sh')}.`;
       }
     ],
-    [/Execution halted/, 'R stopped the script at an error: the error message is in the lines just above "Execution halted". Fix that line and run the script again.'],
-    [/Fatal error: cannot open file/, `${inline('Rscript')} could not find the script. Check its name and the folder you are in: ${inline('pwd')} shows the folder, ${inline('ls *.R')} lists the R scripts there.`],
-    [/No such file or directory|cannot open|[Cc]ould not open|not found: /, `A file or folder in the command is not where the command looked. Check the folder you are in (${inline('pwd')}) and what is there (${inline('ls')}); a path without a leading ${inline('/')} or ${inline('~')} starts from the current folder. The course's data is in ${inline('~/data')}.`],
-    [/Permission denied/, `To run a script as ${inline('./script.sh')} it must be executable first (${inline('chmod +x script.sh')}) – or run it with ${inline('bash script.sh')}; an R script with ${inline('Rscript script.R')}.`],
-    [/unrecognized option|unrecognised option|invalid option|unknown option|illegal option|unknown argument/i, `The program does not have that option (in this version). Check its real options with ${inline('PROGRAM --help')} – AI tools often invent options that sound right.`],
-    [/syntax error|unexpected token|unexpected EOF|unexpected end of file/i, `The shell could not read the command: look for an unmatched quote or bracket, a ${inline('do')} without ${inline('done')} or an ${inline('if')} without ${inline('fi')}. Characters such as ${inline('(')}, ${inline(')')}, ${inline(';')}, ${inline('&')}, ${inline('|')}, ${inline('<')} and ${inline('>')} must be quoted when they are part of a name – and R code in ${inline(`Rscript -e`)} goes in single quotes.`],
-    [/Is a directory/, `The command expected a file but got a folder. Give the path of a file in it, or use the option for folders (${inline('cp -r')}, ${inline('rm -r')}).`],
-    [/out of memory|Cannot enlarge memory|memory access out of bounds|Array buffer allocation failed/i, 'The program ran out of memory: programs here run inside the browser, which gives each of them a few gigabytes at most. Work on a smaller file, or on part of it.'],
-    [/stopped by force|Stop requested/i, 'The command was stopped before it finished, so the files it was writing may be missing or incomplete: run it again.']
+    [/Execution halted/, 'R stopped the script because of an error. The error message is in the lines just above "Execution halted". Fix the line that caused it, then run the script again.'],
+    [/Fatal error: cannot open file/, `${inline('Rscript')} couldn't find the script. Check its name and the folder you are in: ${inline('pwd')} shows the current folder, and ${inline('ls *.R')} lists the R scripts in it.`],
+    [/No such file or directory|cannot open|[Cc]ould not open|not found: /, `A file or folder in the command isn't where the command looked for it. Check which folder you are in (${inline('pwd')}) and what is in it (${inline('ls')}). A path that doesn't start with ${inline('/')} or ${inline('~')} starts from the current folder. The course's data is in ${inline('~/data')}.`],
+    [/Permission denied/, `To run a script as ${inline('./script.sh')}, you first need to make it executable with ${inline('chmod +x script.sh')}. Alternatively, run it with ${inline('bash script.sh')}, or run an R script with ${inline('Rscript script.R')}.`],
+    [/unrecognized option|unrecognised option|invalid option|unknown option|illegal option|unknown argument/i, `The program doesn't have that option (at least, not in this version). Check which options it really has with ${inline('PROGRAM --help')}. AI tools often invent options that sound right.`],
+    [/syntax error|unexpected token|unexpected EOF|unexpected end of file/i, `The shell couldn't read the command. Look for an unmatched quote or bracket, a ${inline('do')} without a ${inline('done')}, or an ${inline('if')} without a ${inline('fi')}. Characters such as ${inline('(')}, ${inline(')')}, ${inline(';')}, ${inline('&')}, ${inline('|')}, ${inline('<')} and ${inline('>')} must be quoted when they are part of a name, and R code after ${inline(`Rscript -e`)} goes in single quotes.`],
+    [/Is a directory/, `The command expected a file but was given a folder. Give the path of a file inside it, or use the command's option for folders (${inline('cp -r')}, ${inline('rm -r')}).`],
+    [/out of memory|Cannot enlarge memory|memory access out of bounds|Array buffer allocation failed/i, 'The program ran out of memory. Programs here run inside the browser, which gives each of them a few gigabytes at most. Try working on a smaller file, or on part of the file.'],
+    [/stopped by force|Stop requested/i, 'The command was stopped before it finished, so any files it was writing may be missing or incomplete. Run it again.']
   ];
   /** what an error message usually means – Markdown, or null. lang: 'r' (R's messages), 'shell' (a command in the
       terminal: its own messages and R's, for Rscript), or anything else for both. line: the command */
@@ -501,7 +501,7 @@
       ? 'was not found'
       : x.why === 'limit'
         ? x.daily
-          ? 'is over its limit for today' + (short ? '' : (x.limit != null ? `: ${x.limit} requests a day` : '') + (isFinite(x.until) ? `, again after ${hhmm(x.until)}` : ''))
+          ? (short || x.limit == null ? 'is over its limit for today' : `is over its daily limit of ${x.limit} requests`) + (short || !isFinite(x.until) ? '' : ` and can be used again after ${hhmm(x.until)}`)
           : 'is over its limit per minute'
         : x.why === 'noanswer'
           ? 'gave no answer'
@@ -518,11 +518,11 @@
     let status, lead;
     // (a model that answered within the last two minutes, if only with "busy" or "over its limit": the service can be reached)
     const heard = some((x) => x.status && Date.now() - x.at < 120000);
-    if (connection || (some((x) => x.why === 'noanswer') && !some((x) => x.why === 'busy'))) lead = heard ? 'No answer came from the Gemini API, though it can be reached: try again in a moment.' : 'Could not reach the Gemini API: no answer came. Check the internet connection, and try again.';
-    else if (some((x) => x.why === 'busy')) (status = 503), (lead = 'HTTP 503. Google’s servers are busy (“high demand”). That is on Google’s side, not a problem with your key: wait a minute and try again.');
-    else if (waits.length) (status = 429), (lead = 'HTTP 429. Too many requests: the free tier allows only a few requests per minute – wait a minute and try again.');
-    else if (some((x) => x.why === 'limit')) (status = 429), (lead = 'HTTP 429. No requests are left for today: every model that this page asks is over its limit for this key. The free tier allows each model a number of requests per day, counted per project. Go on when the service takes requests again, or use a key from another person or project.');
-    else (status = 404), (lead = 'HTTP 404. None of the models was found – check the model in the AI settings (⚙).');
+    if (connection || (some((x) => x.why === 'noanswer') && !some((x) => x.why === 'busy'))) lead = heard ? 'The Gemini API can be reached, but no answer came back. Try again in a moment.' : 'The Gemini API could not be reached (no answer came back). Check your internet connection and try again.';
+    else if (some((x) => x.why === 'busy')) (status = 503), (lead = 'HTTP 503. Google’s servers are busy (“high demand”). This is a problem on Google’s side, not with your key. Wait a minute and try again.');
+    else if (waits.length) (status = 429), (lead = 'HTTP 429. Too many requests. The free tier only allows a few requests per minute, so wait a minute and try again.');
+    else if (some((x) => x.why === 'limit')) (status = 429), (lead = 'HTTP 429. There are no requests left for today, because every model that this page tries is over its limit for this key. On the free tier, each model allows a certain number of requests per day, counted per project. You can carry on when the service accepts requests again, or use a key from another person or project.');
+    else (status = 404), (lead = 'HTTP 404. None of the models could be found. Check the model name in the AI settings (⚙).');
     return Object.assign(new Error(`${lead} (${all.map((x) => x.model + ' ' + told(x)).join('; ')}.)`), { status, network: !status, retryIn });
   }
   const stopped = () => new DOMException('Stopped', 'AbortError');
@@ -777,9 +777,9 @@
      the panel
      ------------------------------------------------------------------ */
   const CHAT_HELLO =
-    'Ask me about R: your code, an error message, a function, a plot, or how to do something. With your question I get what you tick under the box – the code you are working on, the end of the console, the names of your files. I never read your data files. Code in my answers goes into the R console, RStudio, a notebook or the terminal with one click.\n\n**Check what I give you**: run it, look at the result and make sure you understand it – AI models make mistakes, and sound sure when they do. Never paste personal or patient data here.';
+    'Ask me about R: your code, an error message, a function, a plot, or how to do something. With each question I also receive the things you tick below the message box, such as the code you are working on, the end of the console and the names of your files. I never read your data files. You can send code from my answers to the R console, RStudio, a notebook or the terminal with one click.\n\n**Check what I give you.** Run it, look at the result and make sure you understand it. AI models make mistakes, and they sound just as sure of themselves when they do. Never paste personal or patient data here.';
   const AGENT_HELLO =
-    'Give me a whole task – for example *“Write an R script that works out the mean body mass of each penguin species, run it, and save the table as a CSV file”* – and I will carry it out in the Terminal, one command at a time, in a folder of my own (`~/ai-agent/run-…`). R runs there as `Rscript`. You see every command and its output; **Stop** ends the task.\n\nI may read your files, but what I change outside my folder is undone. Further tasks continue in the same folder until you press **New**. Each run is kept as a record in its folder (`agent-record.md`) – check my results there, not only my report.';
+    'Give me a complete task, for example *“Write an R script that works out the mean body mass of each penguin species, run it, and save the table as a CSV file”*. I will carry it out in the Terminal, one command at a time, working in my own folder (`~/ai-agent/run-…`), where I run R with `Rscript`. You can see every command and its output, and **Stop** ends the task.\n\nI can read your files, but any changes I make outside my folder are undone. Further tasks carry on in the same folder until you press **New**. Each run is saved as a record in its folder (`agent-record.md`), so check my results there rather than relying on my report alone.';
   const CHAT_STARTERS = [
     'How do I read ~/data/penguins.csv into R and take a first look at it?',
     'Plot flipper length against body mass for the penguins, coloured by species, with ggplot2',
@@ -787,18 +787,18 @@
     'What does “Error: object not found” mean, and how do I fix it?'
   ];
   const AGENT_TASKS = [
-    'Write an R script that reads ~/data/penguins.csv, works out the mean body mass of each species and saves the table as a CSV file – then run it with Rscript',
+    'Write an R script that reads ~/data/penguins.csv, works out the mean body mass of each species and saves the table as a CSV file, and then run it with Rscript',
     'Make a scatter plot of flipper length against body mass from ~/data/penguins.csv, coloured by species, and save it as a PNG file',
     'Count the penguins of each species in ~/data/penguins.csv with the terminal’s text tools, then check the numbers with R',
     'Fit a linear model of body mass on flipper length for the penguins, and report the slope and R²'
   ];
   /* the ticks under the box: what goes with a question */
   const CTX = [
-    ['rcon', 'the R console’s last output', 'The end of what the R console tab shows: your commands and what R printed (up to the last 3,000 characters) – which can include values from your data', () => MG.app.rcon],
-    ['rs', 'the code in RStudio', 'The document open in RStudio’s Source, or the lines you selected in it (never a data file); the end of RStudio’s Console (what R printed there can include values from your data); and the names and classes of the objects in its Environment – not their values', () => MG.app.rstudio],
-    ['nb', 'the notebook’s code', 'The code cells of the notebook open in the Notebook tab – not their outputs, and not your data', () => MG.app.nbApp],
-    ['term', 'my terminal commands', 'Your last commands in the Terminal and the end of what they printed – which can include lines of your files', () => MG.app.term],
-    ['files', 'my file names', 'The names and sizes of the files in your home folder – not what is in them', () => true]
+    ['rcon', 'the R console’s last output', 'The end of what the R console tab shows: your commands and what R printed (up to the last 3,000 characters). This can include values from your data.', () => MG.app.rcon],
+    ['rs', 'the code in RStudio', 'The document open in RStudio’s Source pane, or the lines you have selected in it (never a data file). Also the end of RStudio’s Console, where what R printed can include values from your data, and the names and classes of the objects in its Environment (but not their values).', () => MG.app.rstudio],
+    ['nb', 'the notebook’s code', 'The code cells of the notebook that is open in the Notebook tab, but not their outputs or your data', () => MG.app.nbApp],
+    ['term', 'my terminal commands', 'Your most recent commands in the Terminal and the end of what they printed. This can include lines from your files.', () => MG.app.term],
+    ['files', 'my file names', 'The names and sizes of the files in your home folder, but not what is in them', () => true]
   ];
   const PLACE = { console: 'the R console', rstudio: 'RStudio', notebook: 'a notebook', terminal: 'the terminal' };
   /** an error that was asked about (a failed terminal command: by the command) */
@@ -868,21 +868,21 @@
       const tabs = h('div.ai-tabs', { role: 'tablist', 'aria-label': 'Chat or agent' });
       this.tabBtns = {};
       [
-        ['chat', 'Chat', 'sparkle', 'Ask questions about R; code in the answers goes into the R console, RStudio, a notebook or the terminal'],
-        ['agent', 'Agent', 'robot', 'Give a task; the agent runs commands (Rscript for R) in the terminal, in a folder of its own']
+        ['chat', 'Chat', 'sparkle', 'Ask questions about R. Code in the answers can be sent to the R console, RStudio, a notebook or the terminal.'],
+        ['agent', 'Agent', 'robot', 'Give the agent a task. It runs commands in the terminal (Rscript for R), working in its own folder.']
       ].forEach(([k, label, ic, tip]) => {
         const b = h('button.ai-tab', { type: 'button', role: 'tab', title: tip, html: MG.icon(ic) + '<span>' + label + '</span>' });
         b.addEventListener('click', () => this.showTab(k));
         tabs.appendChild(b);
         this.tabBtns[k] = b;
       });
-      this.modeEl = h('button.ai-mode', { type: 'button', title: 'The AI model – click to change it, or to add a key' });
+      this.modeEl = h('button.ai-mode', { type: 'button', title: 'The AI model in use. Click to change it or to add a key.' });
       this.modeEl.addEventListener('click', () => this.settingsDialog());
-      const newBtn = h('button.tbtn', { type: 'button', title: 'Start a new conversation (Agent: the next task works in a new folder)', html: MG.icon('reset') + '<span>New</span>' });
+      const newBtn = h('button.tbtn', { type: 'button', title: 'Start a new conversation (on the Agent tab, the next task will then work in a new folder)', html: MG.icon('reset') + '<span>New</span>' });
       newBtn.addEventListener('click', () => this.newConversation());
       const moreBtn = h('button.tbtn', { type: 'button', title: 'More', 'aria-label': 'More', html: MG.icon('dots') });
       moreBtn.addEventListener('click', () => this.moreMenu(moreBtn));
-      const setBtn = h('button.tbtn', { type: 'button', title: 'AI settings: the service, the model and your key', 'aria-label': 'AI settings', html: MG.icon('gear') });
+      const setBtn = h('button.tbtn', { type: 'button', title: 'AI settings: choose the service and model, and enter your key', 'aria-label': 'AI settings', html: MG.icon('gear') });
       setBtn.addEventListener('click', () => this.settingsDialog());
       const body = h('div.ai-threads');
       ['chat', 'agent'].forEach((k) => {
@@ -940,7 +940,7 @@
       });
       Object.entries(this.threads).forEach(([n, t]) => (t.hidden = n !== k));
       this.root.classList.toggle('agent', k === 'agent');
-      this.input.placeholder = k === 'agent' ? 'A task for the agent – e.g. “Count the penguins of each species in ~/data/penguins.csv with an R script”' : 'Ask about R – your code, an error message, a function, a plot…';
+      this.input.placeholder = k === 'agent' ? 'Give the agent a task, e.g. “Count the penguins of each species in ~/data/penguins.csv with an R script”' : 'Ask about R: your code, an error message, a function, a plot…';
       this.renderSuggestions();
       this.renderCtx();
       if (!quiet) bus.emit('ai:tab', { tab: k });
@@ -961,7 +961,7 @@
     setupActs(prompt) {
       const go = h('button.btn.small.primary', { type: 'button', html: MG.icon('key') + '<span>Connect a model</span>' });
       go.addEventListener('click', () => this.settingsDialog());
-      const cp = h('button.btn.small', { type: 'button', title: 'A prompt with your question and its context, to paste into an AI tool you are allowed to use', html: MG.icon('copy') + '<span>Copy a prompt for another AI tool</span>' });
+      const cp = h('button.btn.small', { type: 'button', title: 'Copy a prompt with your question and its context, to paste into an AI tool that you are allowed to use', html: MG.icon('copy') + '<span>Copy a prompt for another AI tool</span>' });
       cp.addEventListener('click', () => this.copyPrompt(prompt && prompt.question, prompt && prompt.extra));
       return h('div.ai-setup-acts', go, cp);
     }
@@ -969,16 +969,16 @@
       const b = this.addBubble(
         'assistant',
         [
-          '**Connect an AI model to use the assistant.** It needs a key for an AI service – the workbench has none of its own.',
+          '**Connect an AI model to use the assistant.** You need a key for an AI service, because the workbench doesn’t come with one.',
           '',
-          '- **Google Gemini** has a free tier: make a key with a Google account at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (you must be 18 or over). On the free tier Google may use what you send to improve its products.',
-          '- Or a key for **Anthropic (Claude)**, or an **OpenAI-compatible** service – your own, or one you have been given.',
+          '- **Google Gemini** has a free tier. You can create a key with a Google account at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (you must be 18 or over). On the free tier, Google may use what you send to improve its products.',
+          '- You can also use a key for **Anthropic (Claude)** or for an **OpenAI-compatible** service, either your own or one you have been given.',
           '',
-          'The key stays in this browser tab: it is never saved in a file, and it is sent only to the service you choose.',
+          'The key stays in this browser tab. It is never saved in a file, and it is only sent to the service you choose.',
           '',
-          '**Never paste personal or patient data into an AI tool** – here or anywhere else.',
+          '**Never paste personal or patient data into an AI tool**, whether here or anywhere else.',
           '',
-          tab === 'agent' ? '' : 'Without a key you still get short offline help for common error messages: paste an R error message into the box, or use “Ask the AI” under an error.'
+          tab === 'agent' ? '' : 'Without a key, you can still get short offline help with common error messages. Paste an R error message into the box, or use one of the “Ask the AI” buttons that appear under errors.'
         ].join('\n'),
         { intro: true, tab }
       );
@@ -1042,7 +1042,7 @@
           const first = (e.x.warning ? lines.find((l, i) => i > 0 && l.trim()) || lines[0] : lines[0]).replace(/^(Error|Warning)( in .*?)?\s*:\s*/, '').replace(/^In .*? :\s*/, '');
           const what = e.x.warning ? 'the warning' : 'my last error';
           const label = `Explain ${what} (${tabName(e.where)})${first ? ': ' + (first.length > 60 ? first.slice(0, 57) + '…' : first) : ''}`;
-          const b = h('button.chip.ai-errchip' + (e.x.warning ? '.warn' : ''), { type: 'button', title: `Ask about the ${e.x.warning ? 'warning' : 'error'} of the last command in the ${tabName(e.where)} tab`, html: MG.icon('sparkle') + '<span>' + esc(label) + '</span>' });
+          const b = h('button.chip.ai-errchip' + (e.x.warning ? '.warn' : ''), { type: 'button', title: `Ask about the ${e.x.warning ? 'warning' : 'error'} from the last command in the ${tabName(e.where)} tab`, html: MG.icon('sparkle') + '<span>' + esc(label) + '</span>' });
           b.addEventListener('click', () => {
             this.asked.add(e.key);
             e.go();
@@ -1054,7 +1054,7 @@
       const list = this.tab === 'agent' ? AGENT_TASKS : CHAT_STARTERS;
       S.appendChild(h('span.muted.small', this.tab === 'agent' ? 'Try a task:' : 'Try:'));
       list.forEach((p) => {
-        const b = h('button.chip', { type: 'button', title: 'Put this in the box – change it if you like, then press Enter' }, p);
+        const b = h('button.chip', { type: 'button', title: 'Put this into the message box. You can change it before you press Enter.' }, p);
         b.addEventListener('click', () => {
           this.input.value = p;
           this._grow();
@@ -1073,8 +1073,8 @@
           h('span', {
             html:
               c && fs.isDir(c.run)
-                ? `The next task continues in <code>${esc(pretty(c.run))}</code> – <b>New</b> starts a new folder.`
-                : 'The agent works in a new folder, <code>~/ai-agent/run-…</code>. It sends what it reads and what its commands print to the AI service.'
+                ? `The next task will carry on in <code>${esc(pretty(c.run))}</code>. Press <b>New</b> to start in a new folder.`
+                : 'The agent will work in a new folder, <code>~/ai-agent/run-…</code>. Everything it reads and everything its commands print is sent to the AI service.'
           })
         );
         return;
@@ -1099,7 +1099,7 @@
       }
     }
     newConversation() {
-      if (this.busy) return toast('The assistant is busy – press Stop first.', 'warn');
+      if (this.busy) return toast('The assistant is still busy. Press Stop first.', 'warn');
       const tab = this.tab;
       this.msgs[tab] = [];
       this.threads[tab].innerHTML = '';
@@ -1122,7 +1122,7 @@
     downloadConversation() {
       const tab = this.tab;
       const list = this.msgs[tab];
-      if (!list.length) return toast('Nothing to save yet.', 'warn');
+      if (!list.length) return toast('There is nothing to save yet.', 'warn');
       const lines = [`# AI assistant – ${tab === 'agent' ? 'agent tasks' : 'chat'}`, '', `${CFG.courseTitle || 'R workbench'} · ${new Date().toLocaleString('en-GB')} · ${modelOf(this.settings)}`, ''];
       if (tab === 'agent' && this.agentCtx) lines.push(`The agent's commands and their output are in \`${pretty(this.agentCtx.run)}/agent-record.md\`.`, '');
       for (const m of list) lines.push(m.role === 'user' ? '## You' : '## AI', '', m.content, '');
@@ -1224,16 +1224,16 @@
         return b;
       };
       const more = []; // the other ways, in the ⋯ menu
-      if (blk.file) acts.appendChild(btn('save', 'Save as ' + blk.file, () => this.saveAs(blk.file, code), true, 'Save this as a file in your home folder, and open it'));
+      if (blk.file) acts.appendChild(btn('save', 'Save as ' + blk.file, () => this.saveAs(blk.file, code), true, 'Save this as a file in your home folder and open it'));
       if (kind === 'r') {
         const make = {
           console: (p) => btn('rconsole', 'Run in the R console', () => this.toRConsole(code, true), p, 'Run this code in the R console tab'),
-          rstudio: (p) => btn('sourcefile', 'Put into RStudio', () => this.toRStudio(code), p, 'Put this code into the R script open in RStudio, at the cursor – or into a new R script. Then run it with Ctrl+Enter.'),
-          notebook: (p) => btn('notebook', 'Add to notebook', () => this.toNotebook(code, false), p, 'Add this code to the open notebook, as a new cell')
+          rstudio: (p) => btn('sourcefile', 'Put into RStudio', () => this.toRStudio(code), p, 'Put this code into the R script that is open in RStudio, at the cursor (or into a new R script). Then run it with Ctrl+Enter.'),
+          notebook: (p) => btn('notebook', 'Add to notebook', () => this.toNotebook(code, false), p, 'Add this code to the open notebook as a new cell')
         };
         const order = origin === 'rstudio' ? ['rstudio', 'console', 'notebook'] : origin === 'notebook' ? ['notebook', 'console', 'rstudio'] : ['console', 'rstudio', 'notebook'];
         order.forEach((k, i) => acts.appendChild(make[k](i === 0 && !blk.file)));
-        more.push(['keyboard', 'Type it in the R console, without running it', () => this.toRConsole(code, false)], ['runline', 'Run it in RStudio’s Console', () => this.toRStudioConsole(code)], ['play', 'Add it to the notebook and run it', () => this.toNotebook(code, true)]);
+        more.push(['keyboard', 'Type it into the R console without running it', () => this.toRConsole(code, false)], ['runline', 'Run it in RStudio’s Console', () => this.toRStudioConsole(code)], ['play', 'Add it to the notebook and run it', () => this.toNotebook(code, true)]);
         if (!blk.file) more.push(['save', 'Save it as a file…', () => this.saveAsAsk(blk, code)]);
       } else if (kind === 'rmd') {
         acts.appendChild(btn('book', 'Open in RStudio', () => this.rmdToRStudio(code, lang), !blk.file, 'Open this as a new R Markdown (or Quarto) document in RStudio'));
@@ -1242,9 +1242,9 @@
         const cmds = shellCommands(code);
         if (cmds.length) {
           acts.appendChild(btn('terminal', cmds.length > 1 ? `Run in the terminal (${cmds.length} commands)` : 'Run in the terminal', () => this.toTerminal(code, true), !blk.file, 'Run these commands in the Terminal tab'));
-          if (cmds.length === 1 && !cmds[0].includes('\n')) acts.appendChild(btn('keyboard', 'Type in the terminal', () => this.toTerminal(cmds[0], false), false, 'Type the command at the prompt without running it: check it, then press Enter'));
+          if (cmds.length === 1 && !cmds[0].includes('\n')) acts.appendChild(btn('keyboard', 'Type in the terminal', () => this.toTerminal(cmds[0], false), false, 'Type the command at the prompt without running it, so that you can check it before you press Enter'));
         }
-        if (!blk.file) acts.appendChild(btn('save', 'Save as…', () => this.saveAsAsk(blk, code), false, 'Save this as a file in your home folder (a script: bash FILE runs it)'));
+        if (!blk.file) acts.appendChild(btn('save', 'Save as…', () => this.saveAsAsk(blk, code), false, 'Save this as a file in your home folder (you can then run it as a script with bash FILE)'));
       } else if (!blk.file && !PLAIN.test(lang)) {
         acts.appendChild(btn('save', 'Save as…', () => this.saveAsAsk(blk), false, 'Save this as a file in your home folder'));
       }
@@ -1265,7 +1265,7 @@
     /* ---------------- code into the workbench ---------------- */
     async _riskyR(code, what) {
       if (!RISKY_R.test(code)) return true;
-      return ask('Run this code?', `<p>It deletes, moves or renames files – check the names first. A deleted file cannot be brought back.</p><pre class="ai-code">${esc(code)}</pre>`, what || 'Run it');
+      return ask('Run this code?', `<p>This code deletes, moves or renames files, so check the file names first. A deleted file cannot be recovered.</p><pre class="ai-code">${esc(code)}</pre>`, what || 'Run it');
     }
     /** R code into the R console tab: run, or typed at the prompt for the user to check and run (Enter) */
     async toRConsole(code, run) {
@@ -1290,7 +1290,7 @@
       const md = d && /^(rmd|notebook|qmd)$/.test(d.kind || '');
       if (!d || d.type !== 'code' || !d.cmDoc || !(d.kind === 'r' || md)) {
         const nd = RS.newDoc('r', text + '\n');
-        toast(`The code is in a new R script, <b>${esc((nd && nd.name) || 'Untitled')}</b>: run a line with Ctrl+Enter, or all of it with Source.`, 'ok', 5000);
+        toast(`The code has been put into a new R script, <b>${esc((nd && nd.name) || 'Untitled')}</b>. Run a line with Ctrl+Enter, or the whole script with Source.`, 'ok', 5000);
         bus.emit('ai:insert', { target: 'rstudio', doc: 'new' });
         return;
       }
@@ -1310,13 +1310,13 @@
           doc.replaceRange('\n' + text, { line: cur.line, ch: lineText.length });
           from = cur.line + 1;
         }
-        how = `Put into <b>${esc(d.name)}</b> at line ${from + 1}: run it with Ctrl+Enter.`;
+        how = `The code has been put into <b>${esc(d.name)}</b> at line ${from + 1}. Run it with Ctrl+Enter.`;
       } else {
         // (in the text of an R Markdown document: a new chunk, after the line of the cursor – or after the chunk it is in)
         const after = chunk ? chunk.to : cur.line;
         doc.replaceRange('\n\n```{r}\n' + text + '\n```\n', { line: after, ch: doc.getLine(after).length });
         from = after + 3;
-        how = `Put into <b>${esc(d.name)}</b> as a new chunk: run it with the ▶ at the chunk's top right.`;
+        how = `The code has been added to <b>${esc(d.name)}</b> as a new chunk. Run it with the ▶ button at the top right of the chunk.`;
       }
       const to = Math.min(doc.lineCount() - 1, from + lines - 1);
       doc.setCursor({ line: from, ch: 0 });
@@ -1348,7 +1348,7 @@
       for (let i = 0; i < 60 && RS._restoring; i++) await sleep(50);
       const kind = /^(qmd|quarto)$/.test(lang) || /^---[\s\S]*?\nformat:/.test(code) ? 'qmd' : /output:\s*html_notebook/.test(code) ? 'notebook' : 'rmd';
       const d = RS.newDoc(kind, String(code).replace(/\s+$/, '') + '\n');
-      toast(`A new ${kind === 'qmd' ? 'Quarto' : 'R Markdown'} document, <b>${esc((d && d.name) || 'Untitled')}</b>: save it, then Knit${kind === 'qmd' ? ' (Render)' : ''}.`, 'ok', 5000);
+      toast(`This is now open in RStudio as a new ${kind === 'qmd' ? 'Quarto' : 'R Markdown'} document, <b>${esc((d && d.name) || 'Untitled')}</b>. Save it, then ${kind === 'qmd' ? 'render' : 'knit'} it.`, 'ok', 5000);
       bus.emit('ai:insert', { target: 'rstudio', doc: 'new', kind });
     }
     /** R code into a notebook (the open one, if it is an R notebook), run or not */
@@ -1360,8 +1360,8 @@
     }
     /** commands into the terminal: typed at the prompt, or run one after the other (until one fails) */
     async toTerminal(code, run) {
-      if (MG.app.term && MG.app.term.locked) return toast('The agent is using the terminal – wait until it has finished, or press Stop.', 'warn');
-      if (run && RISKY.test(code) && !(await ask('Run these commands?', `<p>They delete, move or overwrite files – check the names first. What is deleted cannot be brought back.</p><pre class="ai-code">${esc(code)}</pre>`, 'Run them'))) return;
+      if (MG.app.term && MG.app.term.locked) return toast('The agent is using the terminal. Wait until it has finished, or press Stop.', 'warn');
+      if (run && RISKY.test(code) && !(await ask('Run these commands?', `<p>These commands delete, move or overwrite files, so check the file names first. Anything that is deleted cannot be recovered.</p><pre class="ai-code">${esc(code)}</pre>`, 'Run them'))) return;
       await MG.app.showWorkbench('terminal');
       const T = await waitFor(() => MG.app.term);
       if (!T) throw new Error('The terminal could not start.');
@@ -1372,12 +1372,12 @@
         return;
       }
       for (let i = 0; i < 100 && T.busy; i++) await sleep(100);
-      if (T.busy) return toast('The terminal is still busy – wait for the command that is running to finish.', 'warn');
+      if (T.busy) return toast('The terminal is still busy. Wait for the command that is running to finish.', 'warn');
       for (let i = 0; i < cmds.length; i++) {
         const st = await (cmds.length === 1 ? T.type(cmds[i], true) : T.exec(cmds[i]));
         const left = cmds.length - i - 1;
         if (st && left) {
-          toast(`Stopped after a command that failed (exit status ${st}): the ${left === 1 ? 'command after it was' : left + ' commands after it were'} not run.`, 'warn', 6000);
+          toast(`A command failed (exit status ${st}), so the ${left === 1 ? 'command after it was' : left + ' commands after it were'} not run.`, 'warn', 6000);
           break;
         }
       }
@@ -1391,11 +1391,11 @@
       const fs = MG.app.fs;
       const path = this.resolvePath(file);
       const e = fs.get(path);
-      if (e && (e.readonly || e.protected)) return toast(esc(pretty(path)) + ' is read-only: save it under another name.', 'error');
-      if (e && e.kind === 'dir') return toast(esc(pretty(path)) + ' is a folder.', 'error');
+      if (e && (e.readonly || e.protected)) return toast(esc(pretty(path)) + ' is read-only, so save it under a different name.', 'error');
+      if (e && e.kind === 'dir') return toast(esc(pretty(path)) + ' is a folder. Choose a different name for the file.', 'error');
       if (e) {
         const old = await fs.readText(path);
-        if (old.trim() !== code.trim() && !(await ask('Replace the file?', `<p><b>${esc(pretty(path))}</b> is there already. Replace what is in it with the assistant’s version?</p>`, 'Replace'))) return;
+        if (old.trim() !== code.trim() && !(await ask('Replace the file?', `<p><b>${esc(pretty(path))}</b> already exists. Do you want to replace its contents with the assistant’s version?</p>`, 'Replace'))) return;
       }
       fs.mkdirp(MG.path.dirname(path));
       fs.writeText(path, code.replace(/\s+$/, '') + '\n', /\.(sh|bash|R)$/i.test(path) && /^#!/.test(code) ? { mode: 'x' } : undefined);
@@ -1408,7 +1408,7 @@
     async saveAsAsk(blk, code) {
       const ext = EXT[blk.lang] || (this.kindOf(blk) === 'r' ? '.R' : this.kindOf(blk) === 'bash' ? '.sh' : '.txt');
       const def = 'ai-' + stamp().slice(11) + ext;
-      const name = await MG.promptText('Save as', 'A file name, or a path – it is saved in your home folder (~).', def, 'Save');
+      const name = await MG.promptText('Save as', 'Enter a file name or a path. The file is saved in your home folder (~).', def, 'Save');
       if (name && name.trim()) await this.saveAs(name.trim(), code != null ? code : blk.code);
     }
 
@@ -1417,7 +1417,7 @@
       const q = (text != null ? text : this.input.value).trim();
       if (!q) return;
       if (this.busy) {
-        toast('The assistant is still busy – wait for it, or press Stop.', 'warn');
+        toast('The assistant is still busy. Wait for it to finish, or press Stop.', 'warn');
         return;
       }
       const tab = this.tab;
@@ -1445,7 +1445,7 @@
       return this.live(q);
     }
     noModel() {
-      toast('Connect an AI model first (⚙ AI settings).', 'warn', 4000);
+      toast('Connect an AI model first, in the AI settings (⚙).', 'warn', 4000);
       const card = this.threads[this.tab].querySelector('.ai-setup');
       if (!card) return this.setupCard(this.tab);
       card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -1477,7 +1477,7 @@
     async askAboutError(d) {
       d = d || {};
       this._toChat();
-      if (this.busy) return toast('The assistant is still answering – try again in a moment.', 'warn');
+      if (this.busy) return toast('The assistant is still answering. Try again in a moment.', 'warn');
       const err = (d.error || d.output || '').trim();
       const short = err.split('\n').slice(-12).join('\n');
       const q = `My command failed:\n$ ${d.line}\n${short}`;
@@ -1485,7 +1485,7 @@
       this.addBubble('user', q);
       if (!this.connected()) {
         const help = offlineHelp(d.line + '\n' + (d.output || '') + '\n' + (d.error || ''), 'shell', d.line);
-        this.offlineReply(help ? `What that message usually means:\n\n${help}` : 'Read the **last lines** of the message first – they usually name the problem – and check the names of the files and the folder you are in (`pwd`, `ls`).', { question: 'Why did this command fail, and how do I fix it?', extra: { error: d } });
+        this.offlineReply(help ? `What that message usually means:\n\n${help}` : 'Read the **last lines** of the message first, because they usually name the problem. Then check the file names and the folder you are in (`pwd`, `ls`).', { question: 'Why did this command fail, and how do I fix it?', extra: { error: d } });
         return;
       }
       this.msgs.chat.push({ role: 'user', content: q });
@@ -1496,7 +1496,7 @@
     async askAboutCell(d) {
       d = d || {};
       this._toChat();
-      if (this.busy) return toast('The assistant is still answering – try again in a moment.', 'warn');
+      if (this.busy) return toast('The assistant is still answering. Try again in a moment.', 'warn');
       const c = d.cell || {};
       const what = d.kind === 'fix' ? 'Explain this error and how to fix it.' : d.kind === 'improve' ? 'How could this code be improved or extended?' : 'Explain what this code does.';
       const src = String(c.code || '');
@@ -1509,8 +1509,8 @@
         const e = c.error;
         if (d.kind === 'fix' && e) {
           const help = offlineHelp(`${e.ename}: ${e.evalue}\n${e.traceback || ''}`, 'r');
-          reply = `**${e.ename}**${e.evalue ? ': ' + e.evalue : ''}\n\n${help || 'Read the error message first: it names the problem. The line it points to is where R noticed it – the mistake can be just above it. `traceback()` shows the functions R was in.'}`;
-        } else reply = 'Explaining or improving code needs an AI model. Connect one (Google Gemini has a free tier), or copy a prompt with this cell into an AI tool you are allowed to use.';
+          reply = `**${e.ename}**${e.evalue ? ': ' + e.evalue : ''}\n\n${help || 'Read the error message first, because it names the problem. The line it points to is where R noticed the problem, but the mistake itself may be just above it. `traceback()` shows which functions R was in when the error happened.'}`;
+        } else reply = 'Explaining or improving code needs an AI model. Connect one (Google Gemini has a free tier), or copy a prompt containing this cell into an AI tool that you are allowed to use.';
         this.offlineReply(reply, { question: what, extra: { cell: c } });
         return;
       }
@@ -1524,20 +1524,20 @@
       const from = MG.app && MG.app.currentBench !== 'assistant' ? MG.app.currentBench : this.cameFrom();
       const where = PLACE[d.where] ? d.where : PLACE[from] ? from : 'console';
       this._toChat();
-      if (this.busy) return toast('The assistant is still answering – try again in a moment.', 'warn');
+      if (this.busy) return toast('The assistant is still answering. Try again in a moment.', 'warn');
       const src = String(d.code || '').replace(/\s+$/, '');
       const err = String(d.error || '').trim();
       const shortCode = src.length > 600 ? src.slice(0, 600) + '\n…' : src;
       const shortErr = err.split('\n').slice(0, 12).join('\n');
-      const q = d.warning ? `My R code gave a warning in ${PLACE[where]}:\n\n${shortCode}\n\n${shortErr}\n\nWhat does it mean – do I need to do something about it?` : `My R code gave an error in ${PLACE[where]}:\n\n${shortCode}\n\n${shortErr}\n\nWhat does it mean, and how do I fix it?`;
+      const q = d.warning ? `My R code gave a warning in ${PLACE[where]}:\n\n${shortCode}\n\n${shortErr}\n\nWhat does it mean, and do I need to do anything about it?` : `My R code gave an error in ${PLACE[where]}:\n\n${shortCode}\n\n${shortErr}\n\nWhat does it mean, and how do I fix it?`;
       this.asked.add(errKey(where, d.code, d.error));
       this.addBubble('user', q);
       const rerr = { where, code: src, error: err, output: String(d.output || ''), warning: !!d.warning };
       if (!this.connected()) {
         const help = offlineHelp(err + '\n' + rerr.output, 'r');
         const none = d.warning
-          ? 'A warning is not an error: R did what you asked, but tells you that something looks odd. Read the message – `In f(…)` says which function warned – and check the result before you use it.'
-          : 'Read the error message first: it names the problem. `Error in f(…)` says which function stopped; the mistake is often in what was given to it. Run the code a line at a time to find the line that fails.';
+          ? 'A warning is not an error: R did what you asked, but it is telling you that something looks odd. Read the message (`In f(…)` tells you which function gave the warning) and check the result before you use it.'
+          : 'Read the error message first, because it names the problem. `Error in f(…)` tells you which function stopped, and the mistake is often in what was given to that function. Run the code one line at a time to find the line that fails.';
         this.offlineReply(help || none, { question: d.warning ? 'What does this R warning mean?' : 'What does this R error mean, and how do I fix it?', extra: { rerr } });
         return;
       }
@@ -1719,7 +1719,7 @@
           }
         );
         // a reply with nothing in it is not kept as a turn of the conversation: it is reported, and the question can be asked again
-        if (!text.trim()) throw Object.assign(new Error(`${res.model} sent an empty reply. Ask again – a second try usually gets an answer.`), { empty: true });
+        if (!text.trim()) throw Object.assign(new Error(`${res.model} sent an empty reply. Please ask again, as a second try usually gets an answer.`), { empty: true });
         paint(null);
         const follow = this.atEnd('chat');
         this.fill(body, text);
@@ -1797,10 +1797,10 @@
           // gave no answer (the error says after how many seconds: retryIn) – up to three times for one reply. It does
           // not help when every model is over its limit for today, or the key is not accepted: the task ends at once.
           const wait = e.name !== 'AbortError' && e.retryIn > 0 ? Math.round(Math.min(90, Math.max(5, e.retryIn))) : 0;
-          if (wait && waited >= 3) e.message += (e.status === 429 ? ' The page waited three times and the limit is still reached – a key that many people are using at once, perhaps.' : e.status ? ' The page waited three times and asked again: the service is still busy.' : ' The page waited three times and asked again: still no answer.') + ' Go on later' + (e.status ? ', or use a key from another person or project (limits are counted per project, not per key).' : '.');
+          if (wait && waited >= 3) e.message += (e.status === 429 ? ' The page waited and tried again three times, but the limit has still been reached. Perhaps many people are using the same key at once.' : e.status ? ' The page waited and tried again three times, but the service is still busy.' : ' The page waited and tried again three times, but there was still no answer.') + ' Please try again later' + (e.status ? ', or use a key from another person or project (limits are counted per project, not per key).' : '.');
           if (!wait || waited >= 3) throw e;
           for (let t = wait; t > 0; t--) {
-            note(`${e.status === 429 ? 'The service allows only a few requests per minute' : e.status ? 'The service is busy' : 'No answer came from the service'} – waiting ${t} s, then asking again (Stop ends the task)…`);
+            note(`${e.status === 429 ? 'The service only allows a few requests per minute' : e.status ? 'The service is busy' : 'No answer came from the service'} – waiting ${t} s before asking again (press Stop to end the task)…`);
             await pause(1000, signal);
           }
           note('');
@@ -1862,9 +1862,9 @@
       const out = [
         `# AI agent – ${where}`,
         '',
-        `The tasks given to the AI agent of the ${CFG.courseTitle || 'R workbench'}, and the steps it ran in the terminal, with their output as the agent saw it (shortened). Every step ran in \`${where}\`, the folder of this file. **Check the results yourself**: an agent can be wrong, and its report can claim more than the outputs show.`,
+        `This file records the tasks given to the AI agent in the ${CFG.courseTitle || 'R workbench'}, the steps it ran in the terminal, and their output as the agent saw it (shortened). Every step ran in \`${where}\`, the folder that contains this file. **Check the results yourself**, because an agent can be wrong and its report can claim more than the output shows.`,
         '',
-        `To run a step again, type \`cd ${where}\` in the Terminal, then its commands.`
+        `To run a step again, type \`cd ${where}\` in the Terminal, followed by the step's commands.`
       ];
       ctx.tasks.forEach((t, i) => {
         out.push('', `## Task ${i + 1}`, '', quote(t.task), '', `*${new Date(t.t).toLocaleString('en-GB')} · ${t.models.join(', ') || modelOf(this.settings)} · ${t.steps.length} step${t.steps.length === 1 ? '' : 's'}*`);
@@ -1901,7 +1901,7 @@
       }
       const T = MG.app.term;
       if (!T) {
-        this.addBubble('assistant', 'The terminal is not ready yet – try again in a moment.', { tab: 'agent' });
+        this.addBubble('assistant', 'The terminal isn’t ready yet. Please try again in a moment.', { tab: 'agent' });
         return;
       }
       this.busy = true;
@@ -1946,7 +1946,7 @@
       const shellState = T.shell.saveState ? T.shell.saveState() : null;
       if (T.shell.freshState) T.shell.freshState();
       const held = new Map(); // the page's copies of program-written files, for a forced stop: see holdBytes
-      if (T.lock) T.lock('The AI agent is using the terminal – Stop it in the AI assistant tab.');
+      if (T.lock) T.lock('The AI agent is using the terminal. You can stop it in the AI assistant tab.');
       this._agentLive = true;
       MG.app.agentBusy = true;
       let reminded = false;
@@ -1975,7 +1975,7 @@
           if (cmd == null || cmds >= AGENT_MAX) {
             // no command: this is the agent's report
             li.remove();
-            final = cmd == null ? text : withoutCode(text) + `\n\n*(Stopped at the limit of ${AGENT_MAX} steps.)*`;
+            final = cmd == null ? text : withoutCode(text) + `\n\n*(Stopped after reaching the limit of ${AGENT_MAX} steps.)*`;
             break;
           }
           // (the description of the step: what stands in front of its block – see AGENT_AHEAD)
@@ -2071,9 +2071,9 @@
             const excerpt = (lines.length > 14 ? ['…'].concat(lines.slice(-14)) : lines).join('\n');
             li.appendChild(h('details.ag-out', h('summary', `output (exit status ${r.code})`), h('pre', excerpt || '(no output)')));
             const notes = [];
-            if (undone.length) notes.push('Changes outside its folder were undone: ' + undone.slice(0, 4).map((k) => pretty(k)).join(', ') + (undone.length > 4 ? ' …' : ''));
-            if (timedOut) notes.push(`Stopped by the page: it ran for more than ${AGENT_SECONDS} seconds.`);
-            if (killed) notes.push('The programs had to be stopped by force, and were started again. What programs wrote in this step is gone; the files they had written before are back as they were.' + (lostOut.length ? ' Lost from your folders (too large to hold a copy of): ' + lostOut.slice(0, 4).map((k) => pretty(k)).join(', ') + (lostOut.length > 4 ? ` and ${lostOut.length - 4} more` : '') + '.' : ''));
+            if (undone.length) notes.push('Changes outside the agent’s folder were undone: ' + undone.slice(0, 4).map((k) => pretty(k)).join(', ') + (undone.length > 4 ? ' …' : ''));
+            if (timedOut) notes.push(`The page stopped this step because it ran for more than ${AGENT_SECONDS} seconds.`);
+            if (killed) notes.push('The programs had to be stopped by force and then restarted. Anything they wrote during this step has been lost, but the files they had written before it are back as they were.' + (lostOut.length ? ' These files in your folders were too large for the page to keep a copy of, and have been lost: ' + lostOut.slice(0, 4).map((k) => pretty(k)).join(', ') + (lostOut.length > 4 ? ` and ${lostOut.length - 4} more` : '') + '.' : ''));
             notes.forEach((t) => li.appendChild(h('small.muted', t)));
             srec.code = r.code;
             srec.out = r.text;
@@ -2093,7 +2093,7 @@
           }
           li.classList.remove('run');
           if (ahead) {
-            li.appendChild(h('small.muted', 'The model wrote more after this step – before the step had run. That text is not shown here: a report can only come after the result.'));
+            li.appendChild(h('small.muted', 'The model wrote more after this step, before the step had run. That text is not shown here, because a report can only be written once the result is known.'));
             result += '\n\n' + AGENT_AHEAD_TOLD;
           }
           if (cmds >= AGENT_MAX) result += `\n\nYou have used all ${AGENT_MAX} steps. Reply now without a code block: what you did, which files you made and what the results show.`;
@@ -2151,7 +2151,7 @@
         'div.ag-file',
         h('span.ag-fname', { html: MG.icon('file') + ' ' + esc(pretty(path)) }),
         h('span.grow'),
-        b('eye', 'Open the record', () => MG.app.editFile(path, { line: 1 }), 'The tasks, the commands and their output, as a Markdown file in the Files tab'),
+        b('eye', 'Open the record', () => MG.app.editFile(path, { line: 1 }), 'Open the record of the tasks, commands and output (a Markdown file) in the Files tab'),
         b('download', '.md', async () => MG.downloadText(await fs.readText(path), `agent-run-${MG.path.basename(run).replace(/^run-/, '')}.md`, 'text/markdown'), 'Download the record'),
         b('folder', 'Folder', () => MG.app.revealFile(run), 'Show the agent’s folder in Files')
       );
@@ -2212,7 +2212,7 @@
         restKey = key;
       }
       try {
-        if (navigator.onLine === false) throw Object.assign(new Error('This browser is offline. Connect it to the internet, and try again.'), { network: true, retryIn: RETRY });
+        if (navigator.onLine === false) throw Object.assign(new Error('This browser is offline. Connect to the internet and try again.'), { network: true, retryIn: RETRY });
         const said = new Map(); // what each model said: in this request, or when it was last asked and is still at rest
         chain.forEach((m) => resting(m) && said.set(m, REST.get(m)));
         const failed = [];
@@ -2291,10 +2291,10 @@
       /* why the answer did not come: the user's Stop, the service's silence, or the connection */
       const lost = (e) => {
         if (signal && signal.aborted) return stopped();
-        if (silent) return Object.assign(new Error(`${model} ${bytes ? 'stopped in the middle of its reply and said nothing more' : 'gave no answer'} for ${Math.round(quiet / 1000)} seconds.`), { network: true, silent: true });
+        if (silent) return Object.assign(new Error(`${model} ${bytes ? 'stopped in the middle of its reply and then sent nothing' : 'gave no answer'} for ${Math.round(quiet / 1000)} seconds.`), { network: true, silent: true });
         if (e.name === 'AbortError') return e;
         const where = gem ? 'the Gemini API' : s.provider === 'anthropic' ? 'the Anthropic API' : base;
-        return Object.assign(new Error(bytes ? `The connection to ${where} broke off in the middle of the reply (${e.message}).` : `Could not reach ${where} (${e.message}). ${s.provider === 'openai' ? 'Check the address; the service must allow requests from web pages (CORS).' : 'Check the internet connection.'}`), { network: true });
+        return Object.assign(new Error(bytes ? `The connection to ${where} broke off in the middle of the reply (${e.message}).` : `Could not reach ${where} (${e.message}). ${s.provider === 'openai' ? 'Check the address. The service must also allow requests from web pages (CORS).' : 'Check your internet connection.'}`), { network: true });
       };
       /* an error that the service reports: as the status of its answer, or (Gemini) inside an answer that had begun */
       const refused = (status, j, statusText, retryHeader) => {
@@ -2312,17 +2312,17 @@
         const why = badKey
           ? 'The API key was not accepted.'
           : status === 404
-            ? `The model name (${model}) may be wrong, or the model has been retired – check it in the AI settings (⚙).`
+            ? `The model name (${model}) may be wrong, or the model may have been retired. Check the name in the AI settings (⚙).`
             : status === 429
               ? gem
                 ? day
-                  ? `${model} is over its limit for today${limit != null ? ` (${limit} requests a day)` : ''}. The free tier allows each model a number of requests per day, counted per project: go on when the service takes requests again, use a key from another person or project, or choose another model in the AI settings (⚙).`
-                  : 'Too many requests: the free tier allows only a few requests per minute and per day – wait a minute and try again.'
-                : 'Too many requests, or no credit left – try again in a minute.'
+                  ? `${model} is over its limit for today${limit != null ? ` (${limit} requests a day)` : ''}. On the free tier, each model allows a certain number of requests per day, counted per project. You can carry on when the service accepts requests again, use a key from another person or project, or choose a different model in the AI settings (⚙).`
+                  : 'Too many requests. The free tier only allows a few requests per minute and per day, so wait a minute and try again.'
+                : 'Too many requests, or there is no credit left. Try again in a minute.'
               : BUSY.includes(status)
                 ? gem
-                  ? `Google’s servers are busy for ${model} (“high demand”). That is on Google’s side, not a problem with your key: wait a minute and try again, or choose another model in the AI settings (⚙).`
-                  : 'The service is busy or had a temporary problem – try again in a minute.'
+                  ? `Google’s servers are busy for ${model} (“high demand”). This is a problem on Google’s side, not with your key. Wait a minute and try again, or choose a different model in the AI settings (⚙).`
+                  : 'The service is busy or had a temporary problem. Try again in a minute.'
                 : '';
         return Object.assign(new Error(`HTTP ${status}. ${why} ${detail}`.trim()), { status, retryAfter, daily: !!day, limit });
       };
@@ -2446,9 +2446,9 @@
       const ok = await MG.copyText(text);
       const m = MG.modal(
         'A prompt for another AI tool',
-        `<p class="small">${ok ? '<b>Copied to the clipboard.</b> ' : ''}Paste it into an AI tool you are allowed to use, and check what it gives you. It describes the workbench and contains what is ticked under the assistant's box (your code, the end of the console, your file names) and your question – not your data. Read it before you paste it, and never paste personal or patient data into an AI tool.</p><textarea class="prompt-text" readonly aria-label="Prompt">${esc(text)}</textarea><div class="prompt-actions"><button class="btn" data-x="copy" type="button">${MG.icon('copy')}<span>Copy</span></button><button class="btn primary" data-x="ok" type="button">Done</button></div>`
+        `<p class="small">${ok ? '<b>Copied to the clipboard.</b> ' : ''}Paste it into an AI tool that you are allowed to use, and check what it gives you. The prompt describes the workbench and contains your question and whatever is ticked below the assistant's message box (your code, the end of the console and your file names), but not your data. Read it before you paste it, and never paste personal or patient data into an AI tool.</p><textarea class="prompt-text" readonly aria-label="Prompt">${esc(text)}</textarea><div class="prompt-actions"><button class="btn" data-x="copy" type="button">${MG.icon('copy')}<span>Copy</span></button><button class="btn primary" data-x="ok" type="button">Done</button></div>`
       );
-      m.box.querySelector('[data-x="copy"]').addEventListener('click', async () => toast((await MG.copyText(text)) ? 'Prompt copied.' : 'Could not copy – select the text and copy it yourself.', null, 2500));
+      m.box.querySelector('[data-x="copy"]').addEventListener('click', async () => toast((await MG.copyText(text)) ? 'Prompt copied.' : 'Could not copy the prompt. Select the text and copy it yourself.', null, 2500));
       m.box.querySelector('[data-x="ok"]').addEventListener('click', () => m.close());
       bus.emit('ai:copyprompt', {});
     }
@@ -2464,18 +2464,18 @@
       }
       const html = `
 <div class="ai-set">
-  <p class="muted small">The assistant uses an AI service of your choice, with a key of your own (or one you have been given). Your messages – with what you tick under the box – go from your browser straight to that service.</p>
+  <p class="muted small">The assistant uses an AI service of your choice, with your own key (or one you have been given). Your messages, together with whatever you tick below the message box, go straight from your browser to that service.</p>
   <label>Service <select data-k="provider"><option value="gemini" ${s.provider === 'gemini' ? 'selected' : ''}>Google Gemini (free tier available)</option><option value="anthropic" ${s.provider === 'anthropic' ? 'selected' : ''}>Anthropic (Claude)</option><option value="openai" ${s.provider === 'openai' ? 'selected' : ''}>OpenAI-compatible service</option></select></label>
   <label data-show="gemini">Model <input data-k="geminiModel" value="${esc(geminiModelOf(s))}" spellcheck="false"></label>
-  <p data-show="gemini" class="muted small">Make a free key with a Google account at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (you must be 18 or over). On the free tier Google may use what you send to improve its products, and human reviewers may read it. Each model allows only a few requests per minute and a limited number per day; when a model is busy or over its limit, the page asks another one, and each answer says which model replied.</p>
+  <p data-show="gemini" class="muted small">You can create a free key with a Google account at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (you must be 18 or over). On the free tier, Google may use what you send to improve its products, and human reviewers may read it. Each model only allows a few requests per minute and a limited number per day. When a model is busy or over its limit, the page asks another one, and each answer shows which model replied.</p>
   <label data-show="anthropic">Model <input data-k="model" value="${esc(anthropicModelOf(s))}" spellcheck="false"></label>
-  <p data-show="anthropic" class="muted small">A key from the Claude Console, <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a> (paid use).</p>
+  <p data-show="anthropic" class="muted small">Create a key in the Claude Console at <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a> (this is a paid service).</p>
   <label data-show="openai">Base URL <input data-k="baseURL" value="${esc(s.baseURL)}" spellcheck="false"></label>
   <label data-show="openai">Model <input data-k="openaiModel" value="${esc(s.openaiModel)}" placeholder="the model name your service uses" spellcheck="false"></label>
-  <p data-show="openai" class="muted small">Any service with an OpenAI-style <code>/chat/completions</code> API that allows requests from web pages (CORS) – a university service, or one on your own computer – with or without a key.</p>
+  <p data-show="openai" class="muted small">Any service with an OpenAI-style <code>/chat/completions</code> API that allows requests from web pages (CORS), such as a university service or one running on your own computer. It may or may not need a key.</p>
   <label>API key <input data-k="key" type="password" value="${esc(this.key)}" autocomplete="off" spellcheck="false" placeholder="paste the key here"></label>
-  <label class="ai-cb"><input type="checkbox" data-k="remember" ${remembered ? 'checked' : ''}> Keep the key until I close this browser tab (otherwise it is forgotten when the page is reloaded)</label>
-  <p class="muted small">The key is kept only in this browser tab – never in a file, and never in the browser's long-term storage. <b>Never paste personal or patient data into an AI tool.</b></p>
+  <label class="ai-cb"><input type="checkbox" data-k="remember" ${remembered ? 'checked' : ''}> Remember the key until I close this browser tab (otherwise it is forgotten when the page is reloaded)</label>
+  <p class="muted small">The key is only kept in this browser tab. It is never saved in a file or in the browser's long-term storage. <b>Never paste personal or patient data into an AI tool.</b></p>
   <div class="prompt-actions"><span class="ai-test-out muted small" aria-live="polite"></span><button class="btn" data-x="forget" type="button">Forget the key</button><button class="btn" data-x="test" type="button">Test</button><button class="btn primary" data-x="save" type="button">Save</button></div>
 </div>`;
       const m = MG.modal('AI settings', html);
@@ -2523,7 +2523,7 @@
         }
         this.renderMode();
         this.refreshIntro();
-        B.querySelector('.ai-test-out').textContent = 'The key is forgotten.';
+        B.querySelector('.ai-test-out').textContent = 'The key has been forgotten.';
       });
       B.querySelector('[data-x="save"]').addEventListener('click', () => {
         const r = read();
@@ -2541,8 +2541,8 @@
         this.refreshIntro();
         this.renderCtx();
         m.close();
-        if (!this.connected()) toast('Saved – add a key to use the assistant.', 'warn');
-        else toast(`The assistant uses ${esc(modelOf(this.settings))}.`, 'ok', 2500);
+        if (!this.connected()) toast('Settings saved. Add a key to use the assistant.', 'warn');
+        else toast(`The assistant will now use ${esc(modelOf(this.settings))}.`, 'ok', 2500);
         bus.emit('ai:settings', { provider: this.settings.provider });
       });
     }

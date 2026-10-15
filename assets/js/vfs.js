@@ -221,7 +221,7 @@
     }
     _refuseNew(abs) {
       // (code: the status of a command of the shell that stops at it)
-      throw Object.assign(new Error(`${this.pretty ? this.pretty(abs) : abs}: Permission denied (the example data is read-only: copy it into your home folder first)`), { eacces: true, code: 1 });
+      throw Object.assign(new Error(`${this.pretty ? this.pretty(abs) : abs}: Permission denied (the example data is read-only, so copy it into your home folder first)`), { eacces: true, code: 1 });
     }
     mkdirp(p) {
       const abs = this.resolve(p);

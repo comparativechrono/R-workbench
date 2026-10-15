@@ -54,7 +54,7 @@
           ['stop', 'Stop current computation (Esc)', () => this.interrupt()],
           ['list', 'List objects (ls())', () => this.run('ls()')],
           ['trash', 'Remove all objects', () => this.run('rm(list = ls())')],
-          ['reset', 'Restart R (a new R: its memory is empty)', () => this.restartDialog()]
+          ['reset', 'Restart R (with an empty memory)', () => this.restartDialog()]
         ]),
         menu('Packages', () => [
           ['download', 'Install package(s)…', () => this.installDialog()],
@@ -78,7 +78,7 @@
         ])
       );
       this.status = h('span.rg-status');
-      this.toolbar = h('div.rg-toolbar', tb('code', '', 'Source R code… (a script: source("file.R"))', () => this.sourceDialog()), tb('upload', '', 'Load workspace (.RData)', () => this.loadWorkspace()), tb('save', '', 'Save workspace (save.image())', () => this.run('save.image()')), h('span.rg-sep'), tb('copy', '', 'Copy', () => document.execCommand && document.execCommand('copy')), h('span.rg-sep'), this.stopBtn, h('span.grow'), this.status);
+      this.toolbar = h('div.rg-toolbar', tb('code', '', 'Source R code… (run a script with source("file.R"))', () => this.sourceDialog()), tb('upload', '', 'Load workspace (.RData)', () => this.loadWorkspace()), tb('save', '', 'Save workspace (save.image())', () => this.run('save.image()')), h('span.rg-sep'), tb('copy', '', 'Copy', () => document.execCommand && document.execCommand('copy')), h('span.rg-sep'), this.stopBtn, h('span.grow'), this.status);
       this.desk = h('div.rg-desk');
       const conBody = h('div.rg-conbody');
       this.conWin = h('div.rg-conwin', h('div.rg-contitle', h('span', 'R Console')), conBody);
@@ -121,14 +121,15 @@
       S.on('wd', () => this._state({ state: S.state }));
       S.on('ended', (d) => this._ended(d));
       S.on('event', (d) => d.event === 'shiny' && this._shiny(d));
-      S.on('installed', (d) => toast(`Installed: <b>${esc([].concat(d.pkgs).join(', '))}</b> – every R of the workbench can now load ${[].concat(d.pkgs).length === 1 ? 'it' : 'them'} with library().`, 'ok', 5000));
+      S.on('installed', (d) => toast(`Installed <b>${esc([].concat(d.pkgs).join(', '))}</b>. You can now load ${[].concat(d.pkgs).length === 1 ? 'it' : 'them'} with library() in any R session in the workbench.`, 'ok', 5000));
       S.start().then(() => {
         // (R's devices have 72 pixels to the inch, the page 96: plots are drawn at 3/4 of their window's size in R's
         // pixels, and shown at the window's size – their text as large as in R's own windows)
         const f = this.figSize();
         S.figSize(f.w * 0.75, f.h * 0.75);
       }, (e) => {
-        this.cv.note('R could not start: ' + e.message + ' – check the internet connection and reload the page.');
+        const why = String((e && e.message) || e).trim();
+        this.cv.note(`R could not start: ${why}${/[.!?]$/.test(why) ? '' : '.'} ${/internet connection/.test(why) ? 'Then reload the page.' : 'Check your internet connection and reload the page.'}`);
       });
       this._sizeSoon();
       return S;
@@ -156,7 +157,7 @@
     cannotInterrupt() {
       const m = MG.modal(
         'Stop R?',
-        `<p>In this browser R cannot be interrupted: the page is not cross-origin isolated (see the README). The only way to stop it is to end this R and start a new one – its variables are lost.</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Let it run</button><button class="btn danger" data-x="yes" type="button">End R and start a new one</button></div>`
+        `<p>R cannot be interrupted in this browser, because the page is not cross-origin isolated (see the README). The only way to stop it is to end this R session and start a new one, which loses all its variables.</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Let it run</button><button class="btn danger" data-x="yes" type="button">End R and start again</button></div>`
       );
       m.box.querySelector('[data-x="no"]').addEventListener('click', () => m.close());
       m.box.querySelector('[data-x="yes"]').addEventListener('click', () => {
@@ -172,7 +173,7 @@
       this.cv.html(this._deadShown);
     }
     restartDialog() {
-      const m = MG.modal('Restart R?', `<p>A new R starts, with nothing in its memory: the objects you made are gone (your files stay). As if you closed R and opened it again.</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Cancel</button><button class="btn primary" data-x="yes" type="button">Restart R</button></div>`);
+      const m = MG.modal('Restart R?', `<p>This starts a new R session with nothing in its memory. The objects you have created will be lost, but your files are not affected. It is the same as closing R and opening it again.</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Cancel</button><button class="btn primary" data-x="yes" type="button">Restart R</button></div>`);
       m.box.querySelector('[data-x="no"]').addEventListener('click', () => m.close());
       m.box.querySelector('[data-x="yes"]').addEventListener('click', () => {
         m.close();
@@ -195,7 +196,7 @@
           win.body.appendChild(h('iframe.rbrowser', { title: 'Shiny app: ' + app.title, src: app.url }));
           win.tool('stopsq', 'Stop the app', () => MG.Shiny.stop(this.S));
           this.shinyWin = win;
-          this.cv.hold('The Shiny app is running – press Esc to stop it');
+          this.cv.hold('The Shiny app is running. Press Esc to stop it.');
           bus.emit('rcon:shiny', { title: app.title, running: true });
         },
         stopped: (app) => {
@@ -212,7 +213,7 @@
       if (this.shinyApp && MG.Shiny) MG.Shiny.stop(this.S, true);
       if (this.S) this.S.close(true);
       this.closeWindows();
-      this.cv.note('— a new R —');
+      this.cv.note('— New R session —');
       this.start();
       bus.emit('rcon:restart', {});
     }
@@ -386,7 +387,7 @@
       const files = [];
       for (const [p, e] of MG.app.fs.entries) if (e.kind !== 'dir' && p.startsWith(MG.app.HOME + '/') && filter.test(p)) files.push(p);
       files.sort();
-      const m = MG.modal(title, files.length ? '<div class="pick-list"></div>' : `<p>There is no such file among your files.</p>`);
+      const m = MG.modal(title, files.length ? '<div class="pick-list"></div>' : `<p>There are no files of this type among your files.</p>`);
       const box = m.box.querySelector('.pick-list');
       if (box)
         files.forEach((p) => {
@@ -411,7 +412,7 @@
       const dirs = [MG.app.HOME];
       for (const [p, e] of MG.app.fs.entries) if (e.kind === 'dir' && p.startsWith(MG.app.HOME + '/') && !/\/\./.test(p)) dirs.push(p);
       dirs.sort();
-      const m = MG.modal('Change working directory', '<p>R’s working directory is the folder where file names without a path are looked for, and written – <code>getwd()</code> shows it, <code>setwd()</code> changes it.</p><div class="pick-list"></div>');
+      const m = MG.modal('Change working directory', '<p>R’s working directory is the folder where R reads and writes files when you give a file name without a path. <code>getwd()</code> shows the working directory, and <code>setwd()</code> changes it.</p><div class="pick-list"></div>');
       const box = m.box.querySelector('.pick-list');
       dirs.forEach((p) => {
         const b = h('button.pick-item', { type: 'button' }, MG.app.fs.pretty(p));
@@ -423,7 +424,7 @@
       });
     }
     async installDialog() {
-      const name = await MG.promptText('Install package(s)', 'The name of the package (several: separate them with commas) – from the webR repository of CRAN packages:', '', 'Install');
+      const name = await MG.promptText('Install package(s)', 'Type the name of the package, or several names separated by commas. Packages are installed from the webR repository of CRAN packages.', '', 'Install');
       if (!name) return;
       const pk = name.split(/[\s,]+/).filter(Boolean);
       this.run(pk.length === 1 ? `install.packages("${pk[0]}")` : `install.packages(c(${pk.map((x) => `"${x}"`).join(', ')}))`);
@@ -448,12 +449,12 @@
         'The R console',
         `<ul>
 <li>Type an R command after the prompt <code>&gt;</code> and press <kbd>Enter</kbd>. R runs it and prints the result.</li>
-<li><code>+</code> instead of <code>&gt;</code>: the command is not finished yet (a bracket or a quote is still open). Finish it, or press <kbd>Esc</kbd> to start again.</li>
-<li><kbd>↑</kbd> and <kbd>↓</kbd> bring back earlier commands; <kbd>Tab</kbd> completes a name; <kbd>Ctrl</kbd>+<kbd>L</kbd> clears the console.</li>
-<li><kbd>Esc</kbd> (or the Stop button) stops a computation that takes too long.</li>
-<li>Plots open in a window of their own (one for each graphics device: <code>dev.new()</code> opens another); <code>?name</code> opens help in a help window; <code>View(data)</code> opens the data in a window. Drag windows by their title, resize them by their corner.</li>
-<li>This is R on its own, as it comes from <a href="https://cran.r-project.org" target="_blank" rel="noopener">CRAN</a>: there is no editor and no list of your variables – <code>ls()</code> lists them. Write longer code in a script (RStudio tab, or Files) and run it with <code>source("script.R")</code>.</li>
-<li>When you leave R (<code>q()</code>) it asks whether to save the workspace – everything in its memory – in a file called <code>.RData</code>.</li>
+<li>If the prompt changes to <code>+</code>, the command is not finished yet, because a bracket or a quote is still open. Finish the command, or press <kbd>Esc</kbd> to start again.</li>
+<li><kbd>↑</kbd> and <kbd>↓</kbd> bring back earlier commands, <kbd>Tab</kbd> completes a name, and <kbd>Ctrl</kbd>+<kbd>L</kbd> clears the console.</li>
+<li><kbd>Esc</kbd> (or the Stop button) stops a computation that is taking too long.</li>
+<li>Plots open in a separate window, with one window for each graphics device (<code>dev.new()</code> opens another). <code>?name</code> opens a help page in a help window, and <code>View(data)</code> opens the data in a window too. You can move a window by dragging its title bar, and resize it by dragging its bottom-right corner.</li>
+<li>This is the standard R console, as you get it when you install R from <a href="https://cran.r-project.org" target="_blank" rel="noopener">CRAN</a>. This tab has no script editor and no list of your variables, but <code>ls()</code> lists them. Write longer code in a script (in the RStudio tab or in Files) and run it with <code>source("script.R")</code>.</li>
+<li>When you quit R with <code>q()</code>, it asks whether to save the workspace (everything in its memory) in a file called <code>.RData</code>.</li>
 </ul>`
       );
     }

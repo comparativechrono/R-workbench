@@ -191,13 +191,13 @@
     try {
       const r = await fetch(url, Object.assign({}, opts, ctrl ? { signal: ctrl.signal } : {}));
       if (!r.ok) {
-        const err = new Error('HTTP ' + r.status + ' for ' + url);
+        const err = new Error('Could not fetch ' + url + ' (HTTP ' + r.status + ')');
         err.status = r.status;
         throw err;
       }
       return r;
     } catch (e) {
-      if (e.name === 'AbortError') throw new Error('Timed out fetching ' + url);
+      if (e.name === 'AbortError') throw new Error('Timed out while fetching ' + url);
       throw e;
     } finally {
       if (t) clearTimeout(t);

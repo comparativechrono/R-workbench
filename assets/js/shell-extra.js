@@ -269,7 +269,7 @@
   function unsavedNote(ctx) {
     const ed = MG.app && MG.app.editor;
     const d = ed && ed.dirtyPaths ? ed.dirtyPaths() : [];
-    if (d.length) ctx.io.note(`Unsaved changes in the editor: ${d.map((p) => ctx.fs.pretty(p)).join(', ')}. Commands use the saved files – press Ctrl+S in the Files tab to save.`);
+    if (d.length) ctx.io.note(`There are unsaved changes in the editor: ${d.map((p) => ctx.fs.pretty(p)).join(', ')}. Commands use the saved version of a file, so press Ctrl+S in the Files tab to save your changes.`);
   }
   MG.unsavedNote = unsavedNote;
 
@@ -846,7 +846,7 @@
     const sh = ctx.shell, now = Date.now(), limit = sh._deadline ? sh._deadline() : null;
     const over = !!limit && now + total * 1000 > limit.at;
     const wait = Math.min(total * 1000, over ? limit.at - now : Infinity);
-    if (wait > 10000) ctx.io.note('sleep: in this terminal a sleep ends after 10 seconds');
+    if (wait > 10000) ctx.io.note('sleep: in this terminal, sleep waits for 10 seconds at most.');
     // (measured with the clock that "time" uses: a sleep never ends before its time – time sleep 0.2 says 0.200 or more)
     const start = performance.now(), span = Math.min(10000, Math.max(0, wait));
     while (performance.now() - start < span) {
@@ -1454,7 +1454,7 @@
       text = null;
     }
     // eslint-disable-next-line no-control-regex
-    if (text == null || /[\x00-\x08\x0e-\x1f]/.test(text)) ctx.io.note(`${name}: binary output (${bytes.length} bytes) – save it in a file with  > FILE`);
+    if (text == null || /[\x00-\x08\x0e-\x1f]/.test(text)) ctx.io.note(`${name}: the output is binary (${bytes.length} bytes), so it is not shown here. Save it in a file with  > FILE`);
     else ctx.out(text);
   }
   const sizeArg = (v, name, what) => {
@@ -2963,7 +2963,7 @@
     }
     if (missing == null && (!files.length || ctx.stdin != null || (ctx.inherit && ctx.inherit.pos < ctx.inherit.text.length))) {
       if (ctx.stdin == null && !(ctx.inherit && ctx.inherit.pos < ctx.inherit.text.length)) {
-        ctx.io.note('bc: this terminal cannot ask you for input – give the sum like this:  echo "scale=2; 10 / 3" | bc');
+        ctx.io.note('bc: this terminal cannot ask you for input, so pass the calculation in like this:  echo "scale=2; 10 / 3" | bc');
         return 0;
       }
       src += new TextDecoder().decode(await stdinBytes(ctx));
@@ -3030,7 +3030,7 @@
     if (buf.trim()) ctx.err(`(standard_in) ${lineNo + 1}: syntax error\n`);
     else if (cutOff != null) {
       ctx.err(`(standard_in) ${lineNo + 1}: syntax error\n`);
-      ctx.io.note('bc carries out a line when the line has ended: the last line needs a newline at its end. echo adds one; printf needs \\n:  printf \'1+1\\n\' | bc');
+      ctx.io.note('bc only works out a line once the line has ended, so the last line needs a newline at the end. echo adds one, but with printf you have to add \\n yourself:  printf \'1+1\\n\' | bc');
     }
     // (a file that is not there: what stood before it has been carried out; bc says so and ends)
     if (missing != null) {
@@ -3068,7 +3068,7 @@
     if (ctx.fs.isDir(abs)) throw userErr(`${ctx.name}: ${f} is a directory`);
     if (!ctx.fs.isDir(MG.path.dirname(abs))) throw userErr(`${ctx.name}: ${MG.path.dirname(f)}: No such directory (make it with  mkdir -p ${MG.path.dirname(f)})`);
     if (MG.app && MG.app.editFile) await MG.app.editFile(abs, { create: true });
-    ctx.io.note(`${f} is open in the editor of the Files tab. Save with Ctrl+S (⌘+S on a Mac).`);
+    ctx.io.note(`${f} is now open for editing in the Files tab. Save it with Ctrl+S (⌘+S on a Mac).`);
     return 0;
   };
   ['nano', 'vim', 'vi', 'emacs', 'edit', 'code', 'gedit', 'pico'].forEach((n) => (B[n] = edit));
@@ -3282,18 +3282,18 @@ Show a file in the Files tab (an HTML report, a table, a text).`
     // (R and Rscript are registered by shell-r.js: listed when they are there)
     const R = [];
     if (T.Rscript) R.push("  Rscript script.R          run an R script              Rscript -e 'CODE'   run a line of R");
-    if (T.R) R.push('  R CMD BATCH script.R      run an R script: what it prints goes into script.Rout', '  R                         R itself');
+    if (T.R) R.push('  R CMD BATCH script.R      run an R script and save what it prints in script.Rout', "  R                         start R's console in the terminal (type q() to quit)");
     ctx.out(
       [
-        'Programs in this terminal – every one runs here, in your browser',
+        'Programs in this terminal – all of them run here, in your browser',
         '',
         ...(R.length ? ['R (webR: R compiled to WebAssembly):', ...R, ''] : []),
         'GNU text tools (the real programs, compiled to WebAssembly):',
         `  cat head tail wc sort uniq cut tr tee paste join comm seq fold shuf md5sum date (coreutils ${v.coreutils})`,
         `  grep egrep fgrep (grep ${v.grep}; grep -P: grep ${v['grep-perl']})   sed (sed ${v.sed})   awk gawk (gawk ${v.gawk})   diff cmp (diffutils ${v.diffutils})`,
         '',
-        'Try them on the penguins of the course: ~/data/penguins.csv (a header line, then one line for each penguin):',
-        '  head -n 5 ~/data/penguins.csv                      the names of the columns and the first four penguins',
+        "Try them out on the course's penguin data in ~/data/penguins.csv (a header line, then one line for each penguin):",
+        '  head -n 5 ~/data/penguins.csv                      the column names and the first four penguins',
         '  wc -l ~/data/penguins.csv                          how many lines the file has',
         '  cut -d, -f1 ~/data/penguins.csv | sort | uniq -c   how many penguins of each species',
         '  grep Gentoo ~/data/penguins.csv | wc -l            how many lines mention Gentoo',
@@ -3303,17 +3303,17 @@ Show a file in the Files tab (an HTML report, a table, a text).`
         '  ls cd pwd pushd popd dirs mkdir cp mv rm rmdir touch tree find du stat file chmod',
         '  basename dirname realpath readlink mktemp   xargs env printenv timeout sleep getopt',
         '  sha256sum sha1sum sha384sum sha512sum   split truncate   tac rev nl column expand unexpand',
-        '  od hexdump xxd base64   the bytes of a file      bc, expr   sums:  echo "scale=3; 10/3" | bc',
+        '  od hexdump xxd base64   look at the bytes of a file      bc, expr   calculations:  echo "scale=3; 10/3" | bc',
         '  open FILE   show a file (an HTML report, a table)       nano FILE   edit a file in the Files tab',
         '  download FILE   save a copy on your computer',
         '',
         'The shell is bash-like: | && || ; > >> < 2> 2>&1, quotes, $VAR and ${VAR}, $( ), $(( )), * ? globs,',
         '  if / for / while / case, [ ] and [[ ]], functions, here-documents, <( ), getopts, xargs, printf, read.',
         '  Scripts: bash script.sh   (set -euo pipefail stops a script at the first error)',
-        '  Not there: background jobs (&), curl and wget, sudo, installing programs. Every program runs on one thread.',
+        '  Not available: background jobs (&), curl and wget, sudo, or installing programs. Every program runs on a single thread.',
         '',
-        'Tips: ↑/↓ recall commands · Tab completes names · Ctrl+C stops · PROGRAM --help or man PROGRAM for its options',
-        '  (ls, find, stat, bc … are the terminal\'s own: NAME --help says which options of the GNU program they have)',
+        'Tips: ↑/↓ recall commands · Tab completes names · Ctrl+C stops a command · PROGRAM --help or man PROGRAM shows its options',
+        "  (ls, find, stat, bc and some others are the terminal's own versions: NAME --help shows which of the GNU program's options they have)",
         ''
       ].join('\n')
     );
