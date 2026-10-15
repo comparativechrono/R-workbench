@@ -153,7 +153,7 @@
       const ks = meta.kernelspec || {};
       const what = langName(lang);
       const kern = ks.display_name && ks.display_name !== what ? ` (its kernel is “${ks.display_name}”)` : '';
-      warning = `This notebook's code is in ${what}${kern}, not R. The notebooks here run R only, so its code cells cannot run – but you can read it, with the outputs it was saved with.`;
+      warning = `This notebook's code is in ${what}${kern}, not R. The notebooks here run R only, so its code cells cannot be run, but you can still read it, along with the outputs it was saved with.`;
     }
     const cells = nb.cells.map((c) => ({
       id: c.id || uid(),
@@ -209,11 +209,11 @@
       type: 'error',
       ename: 'Error',
       evalue: `%%${name} is not R`,
-      traceback: `Error: the cell begins with %%${name} – a cell magic, which R does not have.`,
+      traceback: `Error: the cell begins with %%${name}, which is a cell magic. R does not have cell magics.`,
       hints: [
         shell
-          ? `%%${name} cells run shell commands in Python's Jupyter kernel (IPython). This notebook's kernel is R: run shell commands in the Terminal tab – or work with files from R, with list.files(), file.copy() and the like.`
-          : `Cell magics such as %%${name} belong to Python's Jupyter kernel (IPython); the R kernel has none. Take out the first line to run the rest as R code.`
+          ? `%%${name} cells run shell commands in Python's Jupyter kernel (IPython), but this notebook's kernel is R. Run shell commands in the Terminal tab instead, or work with files from R, using functions such as list.files() and file.copy().`
+          : `Cell magics such as %%${name} belong to Python's Jupyter kernel (IPython), and the R kernel does not have any. Remove the first line to run the rest of the cell as R code.`
       ]
     };
   }
@@ -307,7 +307,7 @@
       });
       c.aiBtn = ai;
       tools.appendChild(ai);
-      tb('dots', 'More: run, change, move, copy or delete this cell', (e) => {
+      tb('dots', 'More actions for this cell: run, change type, move, copy or delete', (e) => {
         const items = [];
         if (!this.foreign) {
           items.push(['fastforward', 'Run the cells above this one', () => this.runAbove(c)]);
@@ -397,7 +397,7 @@
       c.countEl.textContent = c.type === 'code' ? (c.count ? `[${c.count}]` : '[ ]') : '';
       if (md && c.rendered) {
         const src = c.cm.getValue();
-        c.mdView.innerHTML = src.trim() ? renderMarkdown(src) : '<p class="nb-md-empty">Empty text cell – double-click to write (Markdown: # heading, **bold**, - list).</p>';
+        c.mdView.innerHTML = src.trim() ? renderMarkdown(src) : '<p class="nb-md-empty">Empty text cell. Double-click to write in it (Markdown: # heading, **bold**, - list).</p>';
         c.mdView.hidden = false;
         c.edBox.hidden = true;
       } else {
@@ -637,7 +637,7 @@
           res = await this.kernel.run(code, handlers, this.folder);
         } catch (e) {
           const why = (e && e.message) || String(e);
-          this._append(c, { type: 'error', ename: 'R could not start', evalue: why, traceback: `R could not start: ${why}`, hints: ['R is downloaded into the browser the first time: check the internet connection, then press Restart to try again.'] });
+          this._append(c, { type: 'error', ename: 'R could not start', evalue: why, traceback: `R could not start: ${why}`, hints: ['R is downloaded into the browser the first time it is used. Check your internet connection, then press Restart to try again.'] });
           res = { ok: false };
         }
       }
@@ -674,7 +674,7 @@
     _askInput(c, req) {
       const box = h('div.nb-input');
       const field = h('input.nb-input-f', { type: 'text', spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Your answer to R: ' + req.prompt.trim() });
-      const tip = req.kind === 'browser' ? 'debugging – n: next line · c: carry on · Q: stop · Enter sends' : 'Enter sends your answer';
+      const tip = req.kind === 'browser' ? 'Debugging: n runs the next line, c continues and Q stops. Press Enter to send.' : 'Press Enter to send your answer';
       box.append(h('span.nb-input-p', req.prompt), field, h('span.nb-input-h', tip));
       c.outEl.appendChild(box);
       req.box = box;
@@ -712,7 +712,7 @@
         if (c.chars > MAX_TEXT) {
           if (c.cut) return;
           c.cut = true;
-          o = { type: 'stream', name: 'stderr', text: '\n… the cell printed more than this: the rest is not shown.\n' };
+          o = { type: 'stream', name: 'stderr', text: '\n… the cell printed more than this, so the rest is not shown.\n' };
         }
       }
       const prev = c.outputs[c.outputs.length - 1];
@@ -800,7 +800,7 @@
         this.written = F.get(this.path);
         this.dirty = false;
         this.app.saveState(this, 'saved');
-        if (user) toast(`Saved <b>${esc(F.pretty(this.path))}</b> (it is kept in this browser; Download makes a copy on your computer).`, 'ok', 2500);
+        if (user) toast(`Saved <b>${esc(F.pretty(this.path))}</b>. It is kept in this browser, and Download saves a copy on your computer.`, 'ok', 2500);
         bus.emit('nb:saved', { path: this.path });
       } catch (e) {
         this.app.saveState(this, 'error');
@@ -880,7 +880,7 @@
       bus.on('r:installed', (d) => {
         if (d.kind !== 'notebook') return;
         const pk = [].concat(d.pkgs || []);
-        if (pk.length) toast(`Installed <b>${esc(pk.join(', '))}</b>: library(${esc(pk[0])}) loads it – here and in every other R of the workbench.`, 'ok', 5000);
+        if (pk.length) toast(`Installed <b>${esc(pk.join(', '))}</b>. Load it with library(${esc(pk[0])}), here or in any other R session in the workbench.`, 'ok', 5000);
       });
     }
 
@@ -903,11 +903,11 @@
       });
       this.titleEl.addEventListener('change', () => this.rename(this.titleEl.value));
       this.saveEl = h('span.nb-save');
-      this.kernelEl = h('button.nb-kernel', { type: 'button', title: 'The notebook\'s R – click for options' });
+      this.kernelEl = h('button.nb-kernel', { type: 'button', title: 'The notebooks\' R session (click for options)' });
       this.kernelEl.addEventListener('click', (e) => this.kernelMenu(e.currentTarget));
       this.statusEl = h('span.nb-status', { 'aria-live': 'polite' });
-      this.runBtn = btn('play', 'Run', 'Run the selected cell and go to the next (Shift+Enter)', () => this.view && this.view.current && this.view.runCell(this.view.current, { advance: true }));
-      this.stopBtn = btn('stopsq', 'Stop', 'Stop the cell that is running: interrupts R, which keeps its variables (I I)', () => this.stop(), '.nb-stopbtn');
+      this.runBtn = btn('play', 'Run', 'Run the selected cell and move to the next one (Shift+Enter)', () => this.view && this.view.current && this.view.runCell(this.view.current, { advance: true }));
+      this.stopBtn = btn('stopsq', 'Stop', 'Stop the running cell (I I). This interrupts R, which keeps its variables.', () => this.stop(), '.nb-stopbtn');
       this.stopBtn.hidden = true;
       const bar = h('div.nb-bar', this.listBtn, h('div.nb-namebox', this.titleEl, this.saveEl), h('span.grow'), this.statusEl, this.kernelEl);
       const bar2 = h(
@@ -918,9 +918,9 @@
         this.runBtn,
         (this.runAllBtn = btn('fastforward', 'Run all', 'Run every cell from the top', () => this.view && this.view.runAll())),
         this.stopBtn,
-        btn('reset', 'Restart', 'Restart R: a new R, with nothing in its memory (0 0)', () => this.askRestart()),
+        btn('reset', 'Restart', 'Restart R with an empty memory (0 0)', () => this.askRestart()),
         h('span.grow'),
-        btn('list', 'Variables', 'Variables: what the notebooks\' R has in its memory now', () => this.showVars(), '.nb-varsbtn'),
+        btn('list', 'Variables', 'Show the variables in the notebooks\' R session', () => this.showVars(), '.nb-varsbtn'),
         btn('download', 'Download', 'Download this notebook (.ipynb, R script or web page)', (e) => this.downloadMenu(e.currentTarget)),
         btn('help', '', 'Help for notebooks (H)', () => this.help())
       );
@@ -1037,13 +1037,13 @@
       try {
         doc = parseIpynb(text);
       } catch (e) {
-        toast(`<b>${esc(file.name)}</b> is not a notebook this page can read.`, 'error');
+        toast(`<b>${esc(file.name)}</b> could not be read as a notebook.`, 'error');
         return null;
       }
       const stem = file.name.replace(/\.ipynb$/i, '').replace(/[\/\\]/g, '_');
       const path = this.freeName(this.dir, stem);
       this.fs.writeText(path, text);
-      toast(`Opened <b>${esc(file.name)}</b> – saved as ${esc(this.fs.pretty(path))}.${doc.foreign ? '' : ' Run its cells to recreate the results.'}`, 'ok', 6000);
+      toast(`Opened <b>${esc(file.name)}</b> and saved it as ${esc(this.fs.pretty(path))}.${doc.foreign ? '' : ' Run its cells to recreate the results.'}`, 'ok', 6000);
       return this.open(path);
     }
     openFromComputer() {
@@ -1127,7 +1127,7 @@
       const e = this.fs.get(v.path);
       if (!e || e === v.written) return;
       if (v.dirty) {
-        toast(`<b>${esc(this.fs.pretty(v.path))}</b> was changed elsewhere while you were editing it here. Your version is kept: rename this one (click its name) if you want both.`, 'warn', 9000);
+        toast(`<b>${esc(this.fs.pretty(v.path))}</b> was changed somewhere else while you were editing it here. Your version is kept. If you want to keep both versions, rename this one by clicking its name.`, 'warn', 9000);
         v.written = e;
         return;
       }
@@ -1144,7 +1144,7 @@
         v.destroy();
         this.view = null;
         await this.open(nv.path, { noStart: true });
-        toast('The notebook was changed in another tab of the workbench: this is the new version.', null, 4000);
+        toast('This notebook was changed in another tab of the workbench, so the new version is now shown.', null, 4000);
       } else v.destroy();
     }
 
@@ -1189,7 +1189,7 @@
       items.push(['fastforward', 'Restart R and run all cells', () => this.askRestart(true)]);
       items.push(['trash', 'Clear all outputs', () => v.clearAll()]);
       items.push(['list', 'Variables', () => this.showVars()]);
-      items.push(['info', 'About the notebooks\' R', () => this.about()]);
+      items.push(['info', 'About the notebooks\' R session', () => this.about()]);
       MG.popmenu(anchor, items);
     }
     _kernelPill() {
@@ -1199,20 +1199,20 @@
       if (v.foreign) {
         el.dataset.state = 'foreign';
         el.innerHTML = `<span class="nb-lang">${esc(v.langName)}</span><span class="nb-ktext">cannot run here</span>`;
-        el.title = `A ${v.langName} notebook: the notebooks here run R only – click for options`;
+        el.title = `This is a ${v.langName} notebook, but the notebooks here run R only.\nClick for options.`;
         return;
       }
       const K = MG.kernels.peek('r');
-      let state = 'off', text = 'R · not started', tip = 'R starts when a notebook is open, or when you run a cell';
+      let state = 'off', text = 'R · not started', tip = 'R starts when a notebook is opened or when you run a cell.';
       if (K) {
         if (K.state === 'ready') {
           state = K.waitingInput ? 'input' : K.busy ? 'busy' : 'idle';
           text = `R ${(K.versions && K.versions.r) || ''}`.trim();
-          tip = `${K.describe()} – ${state === 'input' ? 'waiting for an answer' : state}`;
+          tip = `${K.describe()}. ${state === 'input' ? 'R is waiting for an answer.' : state === 'busy' ? 'R is busy.' : 'R is idle.'}`;
         } else if (K.state === 'loading') {
           state = 'loading';
           text = `R · ${(K.statusText || 'starting…').replace(/…$/, '')}…`;
-          tip = 'R is starting: the first time, it is downloaded into the browser';
+          tip = 'R is starting. The first time, it has to be downloaded into the browser.';
         } else if (K.state === 'failed') {
           state = 'bad';
           text = 'R could not start';
@@ -1220,27 +1220,27 @@
         } else if (K.state === 'ended') {
           state = 'bad';
           text = 'R has stopped';
-          tip = 'Run a cell, or Restart, to start a new R';
+          tip = 'Run a cell or press Restart to start a new R session.';
         }
       }
       const dot = { idle: 'ok', busy: 'busy', input: 'busy', loading: 'busy', bad: 'bad' }[state] || 'off';
       el.dataset.state = state;
       el.innerHTML = `<span class="kdot ${dot}"></span><span class="nb-ktext">${esc(text)}</span>${MG.icon('chevD')}`;
-      el.title = tip + ' – click for options';
+      el.title = tip + '\nClick for options.';
     }
     saveState(v, state) {
       if (v !== this.view) return;
       this.saveEl.dataset.state = state;
       this.saveEl.textContent = state === 'saved' ? 'Saved' : state === 'unsaved' ? 'Editing…' : 'Not saved';
-      this.saveEl.title = state === 'saved' ? 'Saved among your files (kept in this browser)' : '';
+      this.saveEl.title = state === 'saved' ? 'Saved with your files, which are kept in this browser' : '';
     }
     status(html) {
       this.statusEl.innerHTML = html || '';
     }
     /** the cells of a notebook in another language do not run here */
     foreignNote(v, always) {
-      const msg = `This is a ${esc(v.langName)} notebook: its code cannot run here, where notebooks run R. Open it in Jupyter (or another program with a ${esc(v.langName)} kernel) to run it.`;
-      if (always) MG.modal(`A ${v.langName} notebook`, `<p>${msg}</p><p>You can still read it, see the outputs it was saved with, and edit its text; it is saved as a ${esc(v.langName)} notebook.</p>`);
+      const msg = `This is a ${esc(v.langName)} notebook. The notebooks here run R, so its code cannot be run here. To run it, open it in Jupyter (or another program with a ${esc(v.langName)} kernel).`;
+      if (always) MG.modal(`A ${v.langName} notebook`, `<p>${msg}</p><p>You can still read it, see the outputs it was saved with and edit its text. It will be saved as a ${esc(v.langName)} notebook.</p>`);
       else toast(msg, 'warn', 6000);
       return Promise.resolve();
     }
@@ -1296,7 +1296,7 @@
         // (R is still starting: the cells waiting for it do not run)
         this.stopQueue();
         K.cancelWaiting();
-        toast('Cancelled: the cells will not run. (R is still starting.)', null, 3500);
+        toast('Cancelled. The cells that were waiting will not run, but R is still starting.', null, 3500);
         return;
       }
       if (K.state !== 'ready') return;
@@ -1306,7 +1306,7 @@
       }
       const m = MG.modal(
         'Stop the running cell?',
-        `<p>In this browser R cannot be interrupted: the page is not cross-origin isolated. The cell can only be stopped by restarting R, which forgets all its variables (your files stay).</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Let it run</button><button class="btn danger" data-x="yes" type="button">Restart R</button></div>`
+        `<p>In this browser, R cannot be interrupted, because the page is not cross-origin isolated. The only way to stop the cell is to restart R, which loses all its variables (your files are not affected).</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Let it run</button><button class="btn danger" data-x="yes" type="button">Restart R</button></div>`
       );
       m.box.querySelector('[data-x="no"]').addEventListener('click', () => m.close());
       m.box.querySelector('[data-x="yes"]').addEventListener('click', () => {
@@ -1318,7 +1318,7 @@
     async askRestart(runAll) {
       const ok = await MG.confirmBox(
         runAll ? 'Restart R and run all cells?' : 'Restart R?',
-        `<p>A new R starts with nothing in its memory: every variable is forgotten (your files stay)${runAll ? ', and then the cells run from the top' : ' – run your cells again from the top afterwards'}. Your other notebooks share this R, so they start afresh too.</p>`,
+        `<p>R will restart with an empty memory, so all its variables will be lost (your files are not affected).${runAll ? ' Then all the cells will run again, from the top.' : ' Afterwards, run your cells again from the top.'} Your other notebooks share this R session, so their variables will be lost too.</p>`,
         runAll ? 'Restart and run all' : 'Restart'
       );
       if (ok) this.restart(runAll);
@@ -1336,7 +1336,7 @@
       return p.then(
         () => {
           if (runAll && v && !v.foreign) return v.runAll();
-          toast('R restarted: its memory is empty. Run your cells again from the top (Run all).', null, 4000);
+          toast('R has been restarted with an empty memory. Run your cells again from the top (Run all).', null, 4000);
         },
         () => {}
       );
@@ -1353,13 +1353,13 @@
       }
       const row = (msg) => `<tr><td colspan="3" class="muted">${msg}</td></tr>`;
       const rows = !K || K.state !== 'ready'
-        ? row('R has not started yet: it starts when a notebook is open.')
+        ? row('R has not started yet. It starts when a notebook is opened.')
         : vars === null
-          ? row('R is busy running a cell: the variables are listed when it has finished.')
+          ? row('R is busy running a cell. The variables will be listed when it has finished.')
           : vars.length
             ? vars.map((x) => `<tr><td><code>${esc(x.name)}</code></td><td>${esc(x.type)}</td><td>${esc(x.desc)}</td></tr>`).join('')
-            : row('Nothing yet – run a cell that makes a variable, such as <code>x &lt;- c(5, 3, 8)</code>.');
-      MG.modal('Variables', `<p class="muted small">What the notebooks' R has in its memory now: the variables made by the cells you have run since R started – in any of your notebooks, as they share one R. The R console, RStudio and the terminal have their own.</p><div class="nb-varsbox"><table class="table small nb-vars"><tr><th>Name</th><th>Type</th><th>Value</th></tr>${rows}</table></div>`);
+            : row('There are no variables yet. Run a cell that creates one, such as <code>x &lt;- c(5, 3, 8)</code>.');
+      MG.modal('Variables', `<p class="muted small">These are the variables in the notebooks' R session at the moment. They were created by the cells you have run since R started, in any of your notebooks, because all your notebooks share one R session. The R console, RStudio and the terminal each have their own session.</p><div class="nb-varsbox"><table class="table small nb-vars"><tr><th>Name</th><th>Type</th><th>Value</th></tr>${rows}</table></div>`);
     }
     askAI(kind, info) {
       MG.app.showWorkbench('assistant').then(() => setTimeout(() => bus.emit('nb:ask', { kind, cell: info }), 60));
@@ -1368,26 +1368,26 @@
       MG.modal(
         'Notebooks',
         `<div class="nb-help">
-<p>A notebook mixes <b>code cells</b>, with R code, and <b>text cells</b>, written in Markdown. Run a code cell and what R makes of it – text, tables, plots – appears under the cell, and is kept with the notebook.</p>
+<p>A notebook combines <b>code cells</b>, which contain R code, and <b>text cells</b>, which are written in Markdown. When you run a code cell, its results (text, tables and plots) appear under the cell and are saved with the notebook.</p>
 <h4>Running code</h4>
 <ul>
-<li><kbd>Shift</kbd>+<kbd>Enter</kbd> runs a cell and moves to the next; <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs it and stays there; <kbd>Alt</kbd>+<kbd>Enter</kbd> runs it and adds a new cell below. <b>Run all</b> runs every cell from the top.</li>
-<li>The number beside a cell, such as <code>[3]</code>, tells the order in which the cells were run; <code>[*]</code> means the cell is running, or waiting for its turn.</li>
-<li>An error stops the cell at the line where it happened, and the cells waiting after it do not run.</li>
-<li><b>Stop</b> interrupts R: the cell stops and R keeps its variables. <b>Restart</b> gives you a new R with an empty memory – run your cells again from the top.</li>
+<li><kbd>Shift</kbd>+<kbd>Enter</kbd> runs a cell and moves to the next one, <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs it and stays on it, and <kbd>Alt</kbd>+<kbd>Enter</kbd> runs it and adds a new cell below. <b>Run all</b> runs every cell, starting from the top.</li>
+<li>The number beside a cell, such as <code>[3]</code>, shows the order in which the cells were run. <code>[*]</code> means that the cell is running or waiting for its turn.</li>
+<li>An error stops the cell at the line where it happened, and any cells that were waiting to run after it are not run.</li>
+<li><b>Stop</b> interrupts R: the cell stops, but R keeps its variables. <b>Restart</b> starts a new R session with an empty memory, so you will need to run your cells again from the top.</li>
 </ul>
-<h4>Keys while you are not typing in a cell (press <kbd>Esc</kbd> first)</h4>
+<h4>Keyboard shortcuts when you are not typing in a cell (press <kbd>Esc</kbd> first)</h4>
 <p><kbd>Enter</kbd> edit the cell · <kbd>A</kbd> / <kbd>B</kbd> new cell above / below · <kbd>D</kbd> <kbd>D</kbd> delete it · <kbd>M</kbd> make it a text cell · <kbd>Y</kbd> make it a code cell · <kbd>↑</kbd> <kbd>↓</kbd> go up or down · <kbd>I</kbd> <kbd>I</kbd> stop R · <kbd>0</kbd> <kbd>0</kbd> restart R · <kbd>H</kbd> this help</p>
-<h4>The notebooks' R</h4>
+<h4>The notebooks' R session</h4>
 <ul>
-<li>All your notebooks share <b>one R</b>: a variable made in one notebook can be used in another. It is separate from the R console, RStudio and the terminal – each of them has an R of its own, so what you make there is not here, nor the other way round.</li>
-<li>They do share your <b>files</b>. R works in the notebook's folder: <code>getwd()</code> shows it, and <code>setwd()</code> moves R for the cells that follow. Your files are in <code>~</code>, the data in <code>~/data</code>.</li>
-<li>They share the <b>packages</b> too: install one once with <code>install.packages("name")</code> (packages come from the webR repository), then load it with <code>library(name)</code> in any R of the workbench.</li>
-<li>Plots appear under the cell, 7 × 5 inches; for another size, run <code>options(repr.plot.width = 9, repr.plot.height = 4)</code> first. <code>?mean</code> shows a help page under the cell, <code>View(df)</code> shows a table, and <code>readline()</code> asks for your answer in a box under the cell.</li>
+<li>All your notebooks share <b>one R session</b>, so a variable created in one notebook can be used in another. This session is separate from the ones in the R console, RStudio and the terminal, which each have their own. Objects you create there are not available here, and the other way round.</li>
+<li>All these R sessions do share your <b>files</b>, though. R works in the notebook's folder: <code>getwd()</code> shows which folder that is, and <code>setwd()</code> changes it for the cells that follow. Your files are in <code>~</code> and the data files are in <code>~/data</code>.</li>
+<li>They also share the <b>packages</b>. Install a package once with <code>install.packages("name")</code> (packages come from the webR repository), and then you can load it with <code>library(name)</code> in any R session in the workbench.</li>
+<li>Plots appear under the cell at a size of 7 × 5 inches. For a different size, run <code>options(repr.plot.width = 9, repr.plot.height = 4)</code> first. <code>?mean</code> shows a help page under the cell, <code>View(df)</code> shows the data as a table, and <code>readline()</code> asks for your answer in a box under the cell.</li>
 </ul>
 <h4>The file</h4>
-<p>Each notebook is an <code>.ipynb</code> file (most are in <code>~/notebooks</code>), saved as you work, outputs included. Download it to open it in Jupyter, JupyterLab, VS Code or Google Colab with an R kernel – or download it as an R script.</p>
-<p class="muted">Jupyter's Python kernel has extras that R's does not: there, <code>%%bash</code> cells and <code>!</code> lines run shell commands. Here, shell commands go in the Terminal tab.</p>
+<p>Each notebook is an <code>.ipynb</code> file (most of them are in <code>~/notebooks</code>), which is saved automatically as you work, including the outputs. You can download it and open it in Jupyter, JupyterLab, VS Code or Google Colab with an R kernel, or download it as an R script.</p>
+<p class="muted">Jupyter's Python kernel has some extras that the R kernel does not have: in Python notebooks, <code>%%bash</code> cells and lines that start with <code>!</code> run shell commands. Here, run shell commands in the Terminal tab instead.</p>
 </div>`
       );
     }
@@ -1397,15 +1397,15 @@
       const where = K && K.S && K.S.wd ? MG.app.fs.pretty(K.S.wd) : null;
       const pk = MG.R && MG.R.userlib ? MG.R.userlib.list() : [];
       MG.modal(
-        'The notebooks\' R',
+        'The notebooks\' R session',
         `<div class="nb-help">
-<p>${v ? `<b>R ${esc(v.r)}</b> (webR ${esc(v.webr)})` : '<b>R</b> (webR)'} – R compiled to WebAssembly, running in your browser. Nothing is installed on your computer, and your code and data are not sent anywhere.</p>
+<p>${v ? `<b>R ${esc(v.r)}</b> (webR ${esc(v.webr)})` : '<b>R</b> (webR)'} is R compiled to WebAssembly, running in your browser. Nothing is installed on your computer, and your code and data are not sent anywhere.</p>
 <ul>
-<li>One R serves all your notebooks. The R console, RStudio and the terminal each have an R of their own: they share your files and the packages installed with <code>install.packages()</code>, but not what is in memory.</li>
-${where ? `<li>R is working in <code>${esc(where)}</code> (<code>getwd()</code>).</li>` : '<li>R has not started yet: it starts when a notebook is open.</li>'}
-<li>Packages installed in this browser: ${pk.length ? pk.map((p) => `<code>${esc(p)}</code>`).join(', ') : 'none yet (R\'s own packages – stats, graphics, utils … – are always there)'}.</li>
+<li>One R session serves all your notebooks. The R console, RStudio and the terminal each have their own R session. They all share your files and the packages installed with <code>install.packages()</code>, but not what is in memory.</li>
+${where ? `<li>R is working in <code>${esc(where)}</code> (<code>getwd()</code>).</li>` : '<li>R has not started yet. It starts when a notebook is opened.</li>'}
+<li>Packages installed in this browser: ${pk.length ? pk.map((p) => `<code>${esc(p)}</code>`).join(', ') : 'none yet (R\'s built-in packages, such as stats, graphics and utils, are always available)'}.</li>
 </ul>
-<p class="muted">With Jupyter on a computer, the R kernel is IRkernel. The notebooks saved here say so, so they open there with R.</p>
+<p class="muted">When you use Jupyter on a computer, its R kernel is called IRkernel. Notebooks saved here say that they use IRkernel, so Jupyter opens them with R.</p>
 </div>`
       );
     }
@@ -1416,7 +1416,7 @@ ${where ? `<li>R is working in <code>${esc(where)}</code> (<code>getwd()</code>)
       if (!v) return;
       if (v.dirty) v.saveNow();
       MG.downloadText(JSON.stringify(v.toIpynb(), null, 1), MG.path.basename(v.path), 'application/x-ipynb+json');
-      toast('Downloaded the notebook. It opens in Jupyter, JupyterLab, VS Code or Google Colab (with an R kernel). If it reads data files, download those too (Files tab) and keep them in the same folders.', null, 7000);
+      toast('The notebook has been downloaded. You can open it in Jupyter, JupyterLab, VS Code or Google Colab (with an R kernel). If it reads data files, download those too (from the Files tab) and keep them in the same folders as here.', null, 7000);
       bus.emit('nb:download', { path: v.path, format: 'ipynb' });
     }
     /** the notebook as an R script: each cell begins with a # %% line (the "percent" format of Jupytext), text cells
@@ -1426,12 +1426,12 @@ ${where ? `<li>R is working in <code>${esc(where)}</code> (<code>getwd()</code>)
       if (!v || v.foreign) return;
       const stem = MG.path.basename(v.path).replace(/\.ipynb$/i, '');
       const comment = (src) => src.split('\n').map((l) => (l ? '# ' + l : '#')).join('\n');
-      const parts = [`# ${stem} – an R notebook from the R workbench, as an R script.\n# "# %%" begins a cell; the text cells are comments.`];
+      const parts = [`# ${stem}: an R notebook from the R workbench, saved as an R script.\n# Each "# %%" line starts a new cell, and the text cells have been turned into comments.`];
       for (const c of v.cells) {
         const src = c.cm.getValue().replace(/\s+$/, '');
         if (c.type === 'markdown') parts.push('# %% [markdown]\n' + comment(src));
         else if (c.type === 'raw') parts.push('# %% [raw]\n' + comment(src));
-        else if (MAGIC.test(src)) parts.push('# %%\n# (this cell is not R: its commands go in the Terminal)\n' + comment(src));
+        else if (MAGIC.test(src)) parts.push('# %%\n# (this cell is not R code: run its commands in the Terminal)\n' + comment(src));
         else parts.push('# %%\n' + src);
       }
       MG.downloadText(parts.join('\n\n') + '\n', stem + '.R', 'text/plain');
@@ -1496,7 +1496,7 @@ img{max-width:100%}table{border-collapse:collapse;font-size:12px}th,td{border-bo
     async insertCode(code, opts = {}) {
       const lang = String(opts.lang || 'r').toLowerCase();
       if (!isR(lang)) {
-        toast(`This is ${esc(langName(lang))} code: the notebooks here run R only.`, 'warn', 5000);
+        toast(`This is ${esc(langName(lang))} code, but the notebooks here run R only.`, 'warn', 5000);
         return null;
       }
       let v = this.view;
@@ -1506,7 +1506,7 @@ img{max-width:100%}table{border-collapse:collapse;font-size:12px}th,td{border-bo
           .find((n) => (n instanceof NotebookView ? !n.foreign : this._langOf(n.path) === 'r'));
         if (other) v = await this.open(other.path);
         else v = await this.newNotebook('r', { stem: 'scratch' });
-        if (v) toast(`The code went into <b>${esc(MG.path.basename(v.path))}</b>, an R notebook.`, null, 3500);
+        if (v) toast(`The code was added to <b>${esc(MG.path.basename(v.path))}</b>, an R notebook.`, null, 3500);
       }
       if (!v) return null;
       return v.insertCode(code, opts);

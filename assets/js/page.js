@@ -1,9 +1,9 @@
 /* =====================================================================
-   The R workbench's set-up: the file system (your files, kept in the
-   browser; the starter files on the first visit), the tabs – each built
-   the first time it is shown –, opening files in the right place, and
-   what the buttons of the instructions do (MG.actions) and what the tasks
-   look for (MG.checks).
+   Setting up the R workbench: the file system (the user's files, which
+   are kept in the browser, and the starter files copied in on the first
+   visit), the tabs (each one is built the first time it is shown),
+   opening files in the right place, what the buttons in the instructions
+   do (MG.actions) and the conditions that tasks can check (MG.checks).
    ===================================================================== */
 (function () {
   'use strict';
@@ -159,7 +159,7 @@
     const type = /\.html?$/i.test(p) ? 'text/html' : /\.pdf$/i.test(p) ? 'application/pdf' : /\.svg$/i.test(p) ? 'image/svg+xml' : /\.png$/i.test(p) ? 'image/png' : 'text/plain';
     const u = URL.createObjectURL(new Blob([blob], { type }));
     const w = window.open(u, '_blank');
-    if (!w) toast('The browser did not open a new tab (pop-ups are blocked?). The file is in the Files tab.', 'warn', 6000);
+    if (!w) toast('The browser didn’t open a new tab, perhaps because pop-ups are blocked. You can find the file in the Files tab.', 'warn', 6000);
     setTimeout(() => URL.revokeObjectURL(u), 60000);
   };
   /* Files edited in the Files tab and in RStudio are saved with Save / Ctrl+S: before the page is left or reloaded
@@ -173,7 +173,7 @@
   });
 
   /* ------------------------------------------------------------------
-     buttons in the instructions
+     Buttons in the instructions and what they do
      data-rcon="code"        type code into the R console (not run)
      data-rcon-run="code"    run code in the R console
      data-rs-open="path"     open a file in RStudio
@@ -223,7 +223,7 @@
     const e = fs.get(path);
     if (e && e.kind !== 'dir') {
       const old = await fs.readText(path);
-      if (old !== text && !(await MG.confirmBox('Replace the file?', `<p><b>${esc(fs.pretty(path))}</b> is there already. Replace what is in it with the version in the instructions?</p>`, 'Replace it'))) return;
+      if (old !== text && !(await MG.confirmBox('Replace the file?', `<p><b>${esc(fs.pretty(path))}</b> already exists. Do you want to replace its contents with the version in the instructions?</p>`, 'Replace it'))) return;
     }
     fs.mkdirp(MG.path.dirname(path));
     fs.writeText(path, text, e && e.mode ? { mode: e.mode } : {});
@@ -231,10 +231,10 @@
     if (btn && btn.dataset.openIn === 'files') return MG.app.editFile(path, { line: 1 });
     return MG.app.openInRStudio(path);
   };
-  MG.actions.copyCode = async (v, btn) => toast((await MG.copyText(codeOf(btn))) ? 'Copied.' : 'Could not copy – select the text and copy it.', null, 1800);
+  MG.actions.copyCode = async (v, btn) => toast((await MG.copyText(codeOf(btn))) ? 'Copied.' : 'The text could not be copied. Please select it and copy it yourself.', null, 1800);
 
   /* ------------------------------------------------------------------
-     what the tasks look at (data-check="name:arg")
+     Conditions that tasks can check (data-check="name:arg")
      ------------------------------------------------------------------ */
   const textOf = (rel) => {
     const e = MG.app.fs && MG.app.fs.get(inHome(rel));
@@ -254,14 +254,14 @@
     MG.modal(
       'How this page works',
       `<ul>
-<li><b>Instructions</b> are on the left, the <b>workbench</b> on the right. Drag the divider to resize; the button at the top left (or <kbd>Ctrl</kbd>+<kbd>\\</kbd>) hides the instructions.</li>
-<li><b>R console</b>: R on its own, as R’s own program shows it. <b>RStudio</b>: an IDE for R in the manner of RStudio – scripts, documents (R Markdown, Quarto), plots, help and files around them. <b>Notebook</b>: Jupyter-style notebooks in R. <b>Terminal</b>: bash, with <code>Rscript</code>, <code>R CMD BATCH</code> and <code>R</code> (type <code>help</code> for the list of programs). <b>Files</b>: your files and an editor. <b>AI</b>: an AI assistant to ask about R.</li>
-<li>Each of them is an R of its own, as on a computer: an object made in one is not in another. They share your files (your home folder, <code>~</code>) and the packages you install. <kbd>Esc</kbd> stops what R is doing.</li>
-<li>R runs in your browser, on this computer: R 4.6, compiled to WebAssembly (webR). It is downloaded the first time a tab needs it (about 30 MB); a package you install is downloaded once and is there for every R of the page.</li>
-<li><b>show me</b> buttons type code for you – press <kbd>Enter</kbd> to run it. The steps of an activity tick themselves when you do them (<b>✓ spotted</b>); you can tick them yourself, too.</li>
-<li><b>Saved in this browser:</b> your ticks and answers, your files and the packages you installed – they are still there after a reload. <b>My answers</b> downloads your answers; <b>My files</b> downloads all your files as a .zip file. Lab computers may clear the browser’s storage when you log out: download your work before you leave.</li>
-<li><b>The AI assistant</b> needs a key of your own (Google Gemini has a free tier). The key stays in this browser tab and is sent only to the AI service you chose. What you send goes to that service – never type personal or patient data into it, or into any AI tool.</li>
-<li>To start again: <b>My answers → Start again</b> clears your ticks and answers; <b>My files → Start afresh</b> deletes your files.</li>
+<li>The <b>instructions</b> are on the left and the <b>workbench</b> is on the right. You can drag the divider between them to change their widths, and the button at the top left (or <kbd>Ctrl</kbd>+<kbd>\\</kbd>) hides the instructions so that the workbench fills the window.</li>
+<li>The workbench has six tabs. <b>R console</b> is the standard R console, as you get it when you install R. <b>RStudio</b> works like the RStudio program, with an editor for scripts and documents (R Markdown and Quarto) and panes for plots, help and files. <b>Notebook</b> has Jupyter-style notebooks in R. <b>Terminal</b> is a bash terminal in which you can run <code>Rscript</code>, <code>R CMD BATCH</code> and <code>R</code> (type <code>help</code> to see the other programs). <b>Files</b> shows your files and has a text editor, and <b>AI</b> is an AI assistant that you can ask about R.</li>
+<li>Each tab has its own R session, just as separate R programs on a computer would, so an object you create in one tab doesn’t exist in the others. They all share your files (your home folder, <code>~</code>) and the packages you install. If R is taking too long, press <kbd>Esc</kbd> to stop it.</li>
+<li>R runs inside your web browser, on this computer. It is R 4.6, compiled to WebAssembly (webR), and it is downloaded the first time a tab needs it (about 30 MB). A package you install is downloaded once and can then be used in every tab.</li>
+<li>The <b>show me</b> buttons in the instructions type code in for you, and you press <kbd>Enter</kbd> to run it. The steps of each activity are ticked automatically when you complete them (they are marked <b>✓ spotted</b>), and you can also tick them yourself.</li>
+<li>Your ticks and answers, your files and the packages you have installed are saved in this browser, so they will still be there if you reload the page. <b>My answers</b> lets you download your answers, and <b>My files</b> downloads all your files as a .zip file. Some lab computers clear the browser’s storage when you log out, so download your work before you leave.</li>
+<li>The <b>AI assistant</b> needs an API key of your own (Google Gemini has a free tier). Your key stays in this browser tab and is only sent to the AI service you chose. Everything you send to the assistant goes to that service, so never type personal or patient data into it, or into any other AI tool.</li>
+<li>To start again, use <b>My answers → Start again</b> to clear your ticks and answers, or <b>My files → Start afresh</b> to delete your files.</li>
 </ul>`
     );
   };

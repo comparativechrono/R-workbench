@@ -89,7 +89,7 @@
       // a folder of that name that is still there (it could not be removed) must not stop every later program
       const there=await look(dest);
       if(there&&there.isDir){await rmtree(cli,dest);if(known)known.delete(dest);}
-      if(e.kind==='virtual')throw MG.shellUtil.userErr('This lab requires actual file bytes; simulated files cannot be processed.');
+      if(e.kind==='virtual')throw MG.shellUtil.userErr('The programs here need the actual bytes of a file, so simulated files cannot be processed.');
       const prior=this.synced.get(abs);
       // a read-only file is read-only for the programs too (they get "Permission denied")
       const locked=!!(e.readonly||e.protected);
@@ -403,7 +403,7 @@
         const tz=ctx.env&&typeof ctx.env.TZ==='string'&&(!(ctx.opts&&ctx.opts.st&&ctx.opts.st.exported)||ctx.opts.st.exported.has('TZ'))?ctx.env.TZ:null;
         let zone=MG.time.zoneOf(ctx);
         if(program==='date'&&dateUTC(args))zone='UTC';
-        if(tz&&!zone)ctx.io.note(`${ctx.name||program}: the time zone ${tz} (TZ) is not known in this browser – the time is that of this computer's zone`);
+        if(tz&&!zone)ctx.io.note(`${ctx.name||program}: the time zone ${tz} (TZ) is not known in this browser, so this computer's own time zone is used instead.`);
         clock={zoneName:true,zone:zone||null};
       }
       // sed in a block whose input is a file ({ sed 1q; cat; } < FILE): what sed did not use is left for the next command.
@@ -469,10 +469,10 @@
       for(const path of created)MG.bus.emit('vfs:created',{path,program,sub:args[0]});
       // (how many changes were put back so far: the agent's run asks, see agentRun – the message may go to /dev/null)
       if(this.denied.length)this.deniedN=(this.deniedN||0)+this.denied.length;
-      const undone=this.denied.map(abs=>`${program}: ${fs.pretty(abs)} is read-only: the change to it was undone\n`).join('')
-        +this.refused.map(abs=>`${program}: ${fs.pretty(abs)} was not kept – nothing new can be written into that folder (it is read-only): write into your home folder instead\n`).join('');
-      const gone=this.gone.map(abs=>`${fs.pretty(abs)}: the contents of this file were lost when the programs were stopped – make it again\n`).join('');this.gone=[];
-      const failure=result.error?(/FS error/.test(result.error)?`${ctx.name||program}: stopped – it could not read or write a file. Check the file names in the command.`:result.error):'';
+      const undone=this.denied.map(abs=>`${program}: ${fs.pretty(abs)} is read-only, so the change to it was undone\n`).join('')
+        +this.refused.map(abs=>`${program}: ${fs.pretty(abs)} was not kept, because nothing new can be written into that folder (it is read-only). Write into your home folder instead.\n`).join('');
+      const gone=this.gone.map(abs=>`${fs.pretty(abs)}: the contents of this file were lost when the programs were stopped, so it needs to be created again\n`).join('');this.gone=[];
+      const failure=result.error?(/FS error/.test(result.error)?`${ctx.name||program}: stopped because it could not read or write a file. Check the file names in the command.`:result.error):'';
       // The two outputs in the order in which the program wrote to them (wc -l a nosuch b: the count of a, the
       // message, the count of b): the run reports that order, and where both go the same way – to the terminal, to
       // the file or the pipe of a block or a script – they are passed on in it (see runReal). parts: [1 or 2,
@@ -725,7 +725,7 @@
   };
   for(const name of ['awk','gawk','grep','egrep','fgrep','sed','diff','cmp',...CORE]){
     const program=name==='awk'?'gawk':name==='egrep'||name==='fgrep'?'grep':name;
-    T[name]={summary:'GNU '+name+' (real WebAssembly executable)',man:`GNU ${name}: use ${name} --help for its supported options. Shell constructs are documented in help.`,run:ctx=>program==='grep'?grepRun(ctx,name):name==='date'?withArgs(ctx,dateArgs(ctx),program):name==='cat'?catRun(ctx):name==='tee'?teeRun(ctx):runReal(ctx,program)};
+    T[name]={summary:'GNU '+name+' (real WebAssembly executable)',man:`This is GNU ${name}. Type  ${name} --help  to see the options it supports, and  help  for an overview of the shell itself.`,run:ctx=>program==='grep'?grepRun(ctx,name):name==='date'?withArgs(ctx,dateArgs(ctx),program):name==='cat'?catRun(ctx):name==='tee'?teeRun(ctx):runReal(ctx,program)};
     delete MG.shellBuiltins[name];
   }
 })();

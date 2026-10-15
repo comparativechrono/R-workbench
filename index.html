@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>R workbench – four ways to use R</title>
-<meta name="description" content="A browser-based workbench for R practicals: the R console, an RStudio-style IDE, Jupyter-style notebooks, R Markdown, R Notebooks and Quarto documents, a terminal with Rscript, files and an AI assistant – R runs in the browser (webR), nothing to install.">
+<meta name="description" content="A browser-based workbench for R practicals, with the R console, an RStudio-style IDE, Jupyter-style notebooks, R Markdown, R Notebooks and Quarto documents, a terminal with Rscript, a file manager and an AI assistant. R runs in the browser (webR), so there is nothing to install.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b2340'/%3E%3Crect x='6' y='6' width='9' height='9' rx='2' fill='%238ec5ff'/%3E%3Crect x='17' y='6' width='9' height='9' rx='2' fill='%23415187'/%3E%3Crect x='6' y='17' width='9' height='9' rx='2' fill='%23415187'/%3E%3Crect x='17' y='17' width='9' height='9' rx='2' fill='%23415187'/%3E%3C/svg%3E">
 <script src="assets/js/isolation.js"></script>
 <link rel="stylesheet" href="assets/vendor/codemirror/codemirror.css">
@@ -21,18 +21,18 @@
 <div class="app">
 
   <header class="topbar">
-    <button class="btn top-toggle" id="tutToggle" type="button" title="Hide the instructions: the workbench fills the window (Ctrl+\)" aria-controls="tut" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M16 10l-2 2 2 2"/></svg></button>
+    <button class="btn top-toggle" id="tutToggle" type="button" title="Hide the instructions so that the workbench fills the window (Ctrl+\)" aria-controls="tut" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M16 10l-2 2 2 2"/></svg></button>
     <a class="brand" href="#start" title="R workbench">
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#26315a"/><rect x="6" y="6" width="9" height="9" rx="2" fill="#8ec5ff"/><path d="M8.6 8.8l2.4 1.7-2.4 1.7" fill="none" stroke="#1b2340" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="6" width="9" height="9" rx="2" fill="#415187"/><path d="M19 9h5M19 12h3" stroke="#a9b4d6" stroke-width="1.4" stroke-linecap="round"/><rect x="6" y="17" width="9" height="9" rx="2" fill="#415187"/><path d="M8 19.5h5v4H8z" fill="none" stroke="#a9b4d6" stroke-width="1.3"/><rect x="17" y="17" width="9" height="9" rx="2" fill="#415187"/><path d="M19 19.5h5M19 22h5M19 24.3h3" stroke="#a9b4d6" stroke-width="1.2" stroke-linecap="round"/></svg>
       <div>
         <div class="brand-title">R workbench</div>
-        <div class="brand-sub">Four ways to use R – console, RStudio, notebooks and documents – in your browser</div>
+        <div class="brand-sub">Four ways of using R in your browser: the console, RStudio, notebooks and documents</div>
       </div>
     </a>
     <div class="spacer"></div>
-    <div class="progress-wrap" title="Activities done and questions answered (saved in this browser)"><span class="progress-label">0% done</span><div class="progress"><i></i></div></div>
-    <span class="store-status" id="storeStatus" title="Your files are kept in this browser, on this computer"></span>
-    <button class="btn" id="userBtn" type="button" title="Your name in the workbench"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="user-name">user</span></button>
+    <div class="progress-wrap" title="The steps you have done and the questions you have answered (saved in this browser)"><span class="progress-label">0% done</span><div class="progress"><i></i></div></div>
+    <span class="store-status" id="storeStatus" title="Your files are saved in this browser, on this computer"></span>
+    <button class="btn" id="userBtn" type="button" title="Your name, as it appears in the workbench"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="user-name">user</span></button>
     <button class="btn" id="projectBtn" type="button" title="Download all your files, add files, or start afresh"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span>My files</span></button>
     <button class="btn" id="answersBtn" type="button"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>My answers</span></button>
     <button class="btn" id="helpBtn" type="button" title="How this page works"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.6-2.8 4M12 17.5h.01"/></svg><span>Help</span></button>
@@ -46,92 +46,92 @@
 <section class="chapter" id="start" data-num="0" data-title="Start here" data-bench="console">
   <h1>Four ways to use R</h1>
   <div class="meta-row"><span class="pill time">≈ 10 min</span></div>
-  <p class="lede">R is a language and a program. How you talk to it – a console, an editor, a document, a command – changes what you can do with it.</p>
+  <p class="lede">R is both a programming language and a program that runs your code. You can work with it in several ways – typing into a console, writing scripts in an editor, writing documents and notebooks, or running commands in a terminal – and the way you choose affects what you can do and what record you keep of your work.</p>
 
-<h2 id="s-what">What is here</h2>
-<p>The workbench on the right has R in four forms. They are all the same R – R 4.6, running in your browser – but each is a different way of working with it, and each has its place:</p>
-<div class="ways"><div class="way"><b>R console</b><span>Type a command, see the answer. R as it comes – quick, and nothing is kept but the history.</span></div><div class="way"><b>RStudio</b><span>Scripts you edit, run and keep, with the environment, plots, help and files around them.</span></div><div class="way"><b>Documents and notebooks</b><span>Text, code and results together: R Markdown, Quarto, R Notebooks and Jupyter.</span></div><div class="way"><b>Terminal</b><span><code>Rscript</code> and <code>R CMD BATCH</code>: R with no window at all, run by commands.</span></div></div>
-<p>In this practical you do a little of the same work in each of them, so that you can see what each way is good for – and what it leaves out. The data are measurements of 344 penguins from three islands of the Palmer Archipelago in Antarctica: you find them in your files as <code>~/data/penguins.csv</code> (and <code>penguins.xlsx</code>), and R 4.6 has them built in, as <code>penguins</code>.</p>
+<h2 id="s-what">What’s in the workbench</h2>
+<p>The workbench on the right gives you four different ways of using R. Behind each of them is the same version of R (R 4.6, running in your web browser), but each one suits a different kind of work:</p>
+<div class="ways"><div class="way"><b>R console</b><span>The standard R console. You type a command and R answers straight away. It is quick, but apart from the history of your commands, nothing is kept.</span></div><div class="way"><b>RStudio</b><span>An editor for scripts that you write, run and keep, with your data, plots, help pages and files alongside.</span></div><div class="way"><b>Documents and notebooks</b><span>R Markdown, Quarto, R Notebooks and Jupyter notebooks, which combine text, code and results in a single file.</span></div><div class="way"><b>Terminal</b><span>Running R from the command line with <code>Rscript</code> or <code>R CMD BATCH</code>, without any window at all.</span></div></div>
+<p>In this practical you will do a small piece of analysis in each of them, so that you can see what each approach is good for and where it falls short. The data are measurements of 344 penguins from three islands in the Palmer Archipelago, Antarctica. You will find them in your files as <code>~/data/penguins.csv</code> (there is also an Excel version, <code>penguins.xlsx</code>), and the same data are built into R 4.6 as a dataset called <code>penguins</code>.</p>
 
 <h2 id="s-how">How this page works</h2>
 <ul>
-<li>The instructions are on the left, the workbench on the right. The tabs at the top of the workbench switch between the ways of using R; <b>Files</b> shows your files, and <b>AI</b> is an AI assistant you can ask about R.</li>
-<li>The steps of an activity tick themselves when you do them (<span class="auto-tag">✓ spotted</span>) – you can also tick them yourself. Buttons such as <button class="do showme" type="button" data-rcon="1 + 1">show me</button> type the code for you; you press <kbd>Enter</kbd>.</li>
-<li>Your answers and your files are kept in this browser, on this computer. <b>My answers</b> downloads your answers; <b>My files</b> downloads all your files as a .zip file. Download them before you clear the browser or move to another computer.</li>
-<li>The first time a tab with R is opened, R is downloaded (about 30 MB) – that takes a moment. Packages you install are downloaded once, too.</li>
+<li>The instructions are on the left and the workbench is on the right. Use the tabs along the top of the workbench to move between the different ways of using R. The <b>Files</b> tab shows your files, and the <b>AI</b> tab has an AI assistant that you can ask about R.</li>
+<li>Each activity is a list of steps. When you complete a step, it is ticked automatically and marked <span class="auto-tag">✓ spotted</span>, but you can also tick steps yourself. Buttons such as <button class="do showme" type="button" data-rcon="1 + 1">show me</button> type the code in for you, and you then press <kbd>Enter</kbd> to run it.</li>
+<li>Your answers and files are saved in this web browser, on this computer. To keep a copy, use <b>My answers</b> to download your answers and <b>My files</b> to download all your files as a .zip file. Do this before you clear your browser’s data or move to a different computer.</li>
+<li>The first time you open a tab that uses R, R itself has to be downloaded (about 30 MB), so it may take a moment to start. Any packages you install are also only downloaded the first time.</li>
 </ul>
 <div class="callout info">
-  <div class="co-t">Every R here is an R of its own</div>
-  <p>As on your own computer, the R console, RStudio, the notebook and each run in the terminal are separate R sessions: an object you make in one is not in another. What they share is your files – the same home folder, <code>~</code> – and the packages you install.</p>
+  <div class="co-t">Each tab has its own R session</div>
+  <p>Just as on your own computer, the R console, RStudio, the notebook and each command you run in the terminal all use separate R sessions. An object you create in one of them doesn’t exist in the others. What they do share is your files (they all use the same home folder, <code>~</code>) and any packages you install.</p>
 </div>
 <div class="callout warn">
   <div class="co-t">AI tools and your data</div>
-  <p>The AI assistant sends what you type (and, if you let it, your code) to an AI company. Never paste personal data – and never patient data – into an AI tool.</p>
+  <p>Anything you type into the AI assistant (and your code, if you allow it) is sent to an AI company. Never paste personal data or patient data into an AI tool.</p>
 </div>
 <div class="activity">
-  <div class="act-t">Look around</div>
+  <div class="act-t">Find your way around</div>
   <ol class="steps">
-    <li data-task="s-console" data-auto="app:bench name=console" data-check="bench:console">Open the <b>R console</b> tab <button class="do showme" type="button" data-bench="console">show me</button> and wait until R shows its prompt, <code>&gt;</code>.</li>
+    <li data-task="s-console" data-auto="app:bench name=console" data-check="bench:console">Open the <b>R console</b> tab <button class="do showme" type="button" data-bench="console">show me</button> and wait until R shows its prompt, <code>&gt;</code>, which means it is ready for a command.</li>
     <li data-task="s-type" data-auto="r:input kind=console line~1">Type <code>1 + 1</code> <button class="do showme" type="button" data-rcon="1 + 1">show me</button> and press <kbd>Enter</kbd>.</li>
-    <li data-task="s-files" data-auto="editor:view path~penguins.csv||editor:open path~penguins.csv">Have a look at the <b>Files</b> tab <button class="do showme" type="button" data-bench="editor">show me</button>: find <code>data/penguins.csv</code> and click it.</li>
+    <li data-task="s-files" data-auto="editor:view path~penguins.csv||editor:open path~penguins.csv">Have a look at the <b>Files</b> tab <button class="do showme" type="button" data-bench="editor">show me</button>. Find <code>data/penguins.csv</code> and click on it to see the data.</li>
   </ol>
 </div>
 
 </section>
 
 <section class="chapter" id="console" data-num="1" data-title="The R console" data-bench="console" hidden>
-  <h1>R's own console</h1>
+  <h1>The R console</h1>
   <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
-  <p class="lede">Type, see the answer, move on: the quickest way to talk to R – and the one that keeps least.</p>
+  <p class="lede">The console is the quickest way to try things out in R, but it is also the way that keeps the least record of what you did.</p>
 
-<p>The <b>R console</b> tab is R as it comes when you install it on a computer: one window, R's console, where you type a command after the prompt <code>&gt;</code> and R answers under it. Plots, help pages and data open in windows of their own.</p>
+<p>The <b>R console</b> tab shows R as you get it when you install it on your own computer. There is a single window, the console, where you type a command after the prompt (<code>&gt;</code>) and R prints its answer underneath. Plots, help pages and data each open in a separate window.</p>
 
 <h2 id="c-talk">Talking to R</h2>
 <div class="activity">
   <div class="act-t">Commands and objects</div>
   <ol class="steps">
-    <li data-task="c-calc" data-auto="r:input kind=console line~mean(x">Type <code>x &lt;- c(3, 8, 1)</code> <button class="do showme" type="button" data-rcon="x &lt;- c(3, 8, 1)">show me</button> – nothing is printed: R made an object, <code>x</code>. Then <code>mean(x)</code> <button class="do showme" type="button" data-rcon="mean(x)">show me</button>.</li>
-    <li data-task="c-up" data-auto="r:input kind=console line~median(x">Press <kbd>↑</kbd> to bring back <code>mean(x)</code>, change it to <code>median(x)</code> and press <kbd>Enter</kbd>.</li>
-    <li data-task="c-plus" data-auto="r:input kind=console line~sum(x">Type <code>sum(x</code> <button class="do showme" type="button" data-rcon="sum(x">show me</button> – with the closing bracket missing – and press <kbd>Enter</kbd>. R shows <code>+</code>: it waits for the rest of the command. Type <code>)</code> and <kbd>Enter</kbd>.</li>
+    <li data-task="c-calc" data-auto="r:input kind=console line~mean(x">Type <code>x &lt;- c(3, 8, 1)</code> <button class="do showme" type="button" data-rcon="x &lt;- c(3, 8, 1)">show me</button>. Nothing is printed, because R has simply created an object called <code>x</code>. Now type <code>mean(x)</code> <button class="do showme" type="button" data-rcon="mean(x)">show me</button> to calculate its mean.</li>
+    <li data-task="c-up" data-auto="r:input kind=console line~median(x">Press <kbd>↑</kbd> to bring back your last command, change <code>mean(x)</code> to <code>median(x)</code> and press <kbd>Enter</kbd>.</li>
+    <li data-task="c-plus" data-auto="r:input kind=console line~sum(x">Type <code>sum(x</code> <button class="do showme" type="button" data-rcon="sum(x">show me</button>, leaving out the closing bracket, and press <kbd>Enter</kbd>. R shows a <code>+</code> instead of the usual prompt, because it is waiting for you to finish the command. Type <code>)</code> and press <kbd>Enter</kbd>.</li>
   </ol>
 </div>
 <div class="callout concept">
   <div class="co-t">Assignment and printing</div>
-  <p><code>x &lt;- value</code> makes (or replaces) an object called <code>x</code>, and prints nothing. A command that is not an assignment prints its result: <code>[1]</code> marks the first value of the result. <kbd>Esc</kbd> stops what R is doing – and gets you out of a <code>+</code> you did not mean.</p>
+  <p><code>x &lt;- value</code> creates an object called <code>x</code> (or replaces it, if it already exists) and doesn’t print anything. A command that isn’t an assignment prints its result. The <code>[1]</code> at the start of a line of output tells you that the line begins with the first value of the result. If R is taking too long, or you get a <code>+</code> prompt by mistake, press <kbd>Esc</kbd> to stop and get back to the normal prompt.</p>
 </div>
 
-<h2 id="c-penguins">The penguins</h2>
+<h2 id="c-penguins">Looking at the penguin data</h2>
 <div class="activity">
   <div class="act-t">Look at the data</div>
   <ol class="steps">
-    <li data-task="c-head" data-auto="r:input kind=console line~summary("><code>head(penguins)</code> <button class="do showme" type="button" data-rcon="head(penguins)">show me</button> prints the first six penguins; <code>summary(penguins$body_mass)</code> <button class="do showme" type="button" data-rcon="summary(penguins$body_mass)">show me</button> summarises one column.</li>
-    <li data-task="c-view" data-auto="r:view kind=console"><code>View(penguins)</code> <button class="do showme" type="button" data-rcon="View(penguins)">show me</button> opens the data in a window of their own: sort by a column, search.</li>
-    <li data-task="c-plot" data-auto="rcon:plot"><code>plot(body_mass ~ flipper_len, data = penguins)</code> <button class="do showme" type="button" data-rcon="plot(body_mass ~ flipper_len, data = penguins)">show me</button> draws a plot in a graphics window. Move the window, resize it.</li>
-    <li data-task="c-help" data-auto="r:help kind=console topic=mean"><code>?mean</code> <button class="do showme" type="button" data-rcon="?mean">show me</button> opens R’s help for <code>mean</code>. Read what <code>na.rm</code> does.</li>
+    <li data-task="c-head" data-auto="r:input kind=console line~summary("><code>head(penguins)</code> <button class="do showme" type="button" data-rcon="head(penguins)">show me</button> prints the first six rows of the data, and <code>summary(penguins$body_mass)</code> <button class="do showme" type="button" data-rcon="summary(penguins$body_mass)">show me</button> summarises a single column.</li>
+    <li data-task="c-view" data-auto="r:view kind=console"><code>View(penguins)</code> <button class="do showme" type="button" data-rcon="View(penguins)">show me</button> opens the data in a separate window, where you can sort the rows by any column or search for a value.</li>
+    <li data-task="c-plot" data-auto="rcon:plot"><code>plot(body_mass ~ flipper_len, data = penguins)</code> <button class="do showme" type="button" data-rcon="plot(body_mass ~ flipper_len, data = penguins)">show me</button> draws a scatter plot in a graphics window. Try moving the window and changing its size.</li>
+    <li data-task="c-help" data-auto="r:help kind=console topic=mean"><code>?mean</code> <button class="do showme" type="button" data-rcon="?mean">show me</button> opens R’s help page for the <code>mean</code> function. Find out what its <code>na.rm</code> argument does.</li>
   </ol>
 </div>
 <div class="q" data-q="c-q-na">
-  <div class="q-text"><code>mean(penguins$body_mass)</code> gives <code>NA</code>. Why, and how do you get the mean of the masses that were measured?</div>
-  <div class="q-model">Two of the penguins have no body mass (<code>NA</code>, a missing value), and the mean of anything with a missing value is unknown. <code>mean(penguins$body_mass, na.rm = TRUE)</code> leaves the missing values out: about 4202 g.</div>
+  <div class="q-text"><code>mean(penguins$body_mass)</code> returns <code>NA</code>. Why is that, and how can you calculate the mean of the masses that were actually measured?</div>
+  <div class="q-model">Two of the penguins have no body mass recorded (<code>NA</code> stands for a missing value), and R treats the mean of a set of numbers that includes a missing value as unknown. <code>mean(penguins$body_mass, na.rm = TRUE)</code> removes the missing values before calculating the mean, which is about 4202 g.</div>
 </div>
 
-<h2 id="c-quit">Quitting – and what is kept</h2>
-<p>When you quit R, everything in its memory – the <em>workspace</em> – goes, unless you save it.</p>
+<h2 id="c-quit">Quitting R, and what is kept</h2>
+<p>Everything you create in R is held in its memory, which is called the <em>workspace</em>. When you quit R, the workspace is lost unless you choose to save it.</p>
 <div class="activity">
   <div class="act-t">Save the workspace</div>
   <ol class="steps">
-    <li data-task="c-q" data-auto="rcon:quit saved=true">Type <code>q()</code> <button class="do showme" type="button" data-rcon="q()">show me</button>. R asks <code>Save workspace image? [y/n/c]:</code> – answer <code>y</code>.</li>
-    <li data-task="c-again" data-auto="rcon:restart">Click <b>Start R again</b> in the console. R says <code>[Previously saved workspace restored]</code>.</li>
-    <li data-task="c-x" data-auto="r:input kind=console line=x">Type <code>x</code> <button class="do showme" type="button" data-rcon="x">show me</button> – your object is back. R saved it in the file <code>~/.RData</code>, and loads that file when it starts.</li>
+    <li data-task="c-q" data-auto="rcon:quit saved=true">Type <code>q()</code> <button class="do showme" type="button" data-rcon="q()">show me</button>. R asks <code>Save workspace image? [y/n/c]:</code>, and you answer <code>y</code> for yes.</li>
+    <li data-task="c-again" data-auto="rcon:restart">Click <b>Start R again</b> in the console. As it starts, R tells you <code>[Previously saved workspace restored]</code>.</li>
+    <li data-task="c-x" data-auto="r:input kind=console line=x">Type <code>x</code> <button class="do showme" type="button" data-rcon="x">show me</button>. Your object is back, because R saved the workspace in a file called <code>~/.RData</code> and loads that file whenever it starts.</li>
   </ol>
 </div>
 <div class="q" data-q="c-q-mcq" data-type="mcq">
-  <div class="q-text">You made <code>x</code>, quit R <em>without</em> saving the workspace, and started R again. What does <code>x</code> give?</div>
-  <div class="mcq"><label data-correct data-why="Right: a new R starts with an empty workspace – unless it finds a saved .RData."><input type="radio"> Error: object 'x' not found</label><label data-why="Not without .RData: the values were only in the old R&#x27;s memory."><input type="radio"> The value you gave x</label><label data-why="R does not know an object that was never made in this session: it says it is not found."><input type="radio"> NULL</label></div>
+  <div class="q-text">You created <code>x</code>, quit R <em>without</em> saving the workspace, and then started R again. What happens when you type <code>x</code>?</div>
+  <div class="mcq"><label data-correct data-why="Correct. A new R session starts with an empty workspace, unless it finds a saved .RData file to load."><input type="radio"> Error: object 'x' not found</label><label data-why="Not without a saved .RData file. The value only existed in the memory of the R session that you quit."><input type="radio"> The value you gave x</label><label data-why="R doesn’t know about an object that hasn’t been created in the current session, so it reports that the object cannot be found."><input type="radio"> NULL</label></div>
 </div>
 <div class="q" data-q="c-q-console">
-  <div class="q-text">What is the console good for? And when you come back next week, what does it <em>not</em> tell you about how you got your results?</div>
-  <div class="q-model">Good for: trying things quickly, checking a value, reading help – an answer straight away. It does not keep a tidy record: the history has every line you typed, mistakes included, and the saved workspace has objects without the commands that made them. Next week you have results you cannot easily make again.</div>
+  <div class="q-text">What is the console good for? And if you come back next week, what will it <em>not</em> be able to tell you about how you got your results?</div>
+  <div class="q-model">The console is good for trying things out quickly, checking a value or reading a help page, because you get an answer straight away. However, it doesn’t keep a tidy record of your work. The history contains every line you typed, mistakes included, and a saved workspace contains objects but not the commands that created them. So next week you may have results that you cannot easily reproduce.</div>
 </div>
 
 </section>
@@ -139,16 +139,16 @@
 <section class="chapter" id="rstudio" data-num="2" data-title="Scripts in RStudio" data-bench="rstudio" hidden>
   <h1>Scripts in RStudio</h1>
   <div class="meta-row"><span class="pill time">≈ 20 min</span></div>
-  <p class="lede">Write your commands in a script, run them as you go – and keep a record that makes your results again.</p>
+  <p class="lede">Writing your commands in a script lets you run them as you go, and gives you a record from which you can reproduce your results at any time.</p>
 
-<p>RStudio is an <em>integrated development environment</em> (IDE) for R: around R's console it puts an editor for your scripts and documents (<b>Source</b>, top left), what is in R's memory (<b>Environment</b>), and your files, plots, packages, help and a viewer for web pages. The <b>RStudio</b> tab of the workbench works as RStudio does.</p>
+<p>RStudio is an <em>integrated development environment</em> (IDE) for R. Alongside R’s console, it gives you an editor for your scripts and documents (the <b>Source</b> pane, at the top left), a list of the objects in R’s memory (the <b>Environment</b> pane), and panes for your files, plots, packages and help pages, as well as a viewer for web pages. The <b>RStudio</b> tab of the workbench is modelled closely on RStudio, so what you learn here also works in the real program.</p>
 <div class="callout info">
-  <div class="co-t">An R of its own</div>
-  <p>RStudio's Console is another R: <code>x</code> from the R console tab is not there. Everything you run in RStudio – a line, a chunk, a whole script – runs in this one R, the one its Console shows.</p>
+  <div class="co-t">A separate R session</div>
+  <p>RStudio’s Console is a different R session from the one in the R console tab, so the <code>x</code> you created there doesn’t exist here. Everything you run in RStudio, whether it is a single line, a chunk or a whole script, runs in the R session shown in RStudio’s Console.</p>
 </div>
 
-<h2 id="r-script">A script</h2>
-<p>A script is a text file of R commands, <code>.R</code>. You write it, run it a line at a time while you work it out – and keep it.</p>
+<h2 id="r-script">Writing a script</h2>
+<p>A script is a plain text file of R commands, saved with the extension <code>.R</code>. While you are working out your analysis, you can run the script one line at a time, and once it works you keep it so that you can run it again whenever you need to.</p>
 <div class="codefile" data-path="scripts/penguins.R"><div class="cf-head"><span class="cf-name">scripts/penguins.R</span><span class="grow"></span><button class="do" type="button" data-file-create="scripts/penguins.R">Create this file</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock"># Penguins: body mass by species
 penguins &lt;- read.csv(&quot;data/penguins.csv&quot;)
 str(penguins)
@@ -158,48 +158,48 @@ mass &lt;- aggregate(body_mass ~ species, data = penguins, FUN = mean)
 mass
 
 boxplot(body_mass ~ species, data = penguins,
-        ylab = &quot;Body mass (g)&quot;, col = &quot;lightblue&quot;)</pre><div class="cf-note"><b>Create this file</b> saves it in your files and opens it in RStudio's Source pane.</div></div>
+        ylab = &quot;Body mass (g)&quot;, col = &quot;lightblue&quot;)</pre><div class="cf-note"><b>Create this file</b> saves the script in your files and opens it in RStudio’s Source pane.</div></div>
 <div class="activity">
   <div class="act-t">Run a script, line by line</div>
   <ol class="steps">
     <li data-task="r-make" data-auto="file:create name=penguins.R">Click <b>Create this file</b> above. The script opens in RStudio.</li>
-    <li data-task="r-line" data-auto="r:input kind=rstudio line~read.csv">Put the cursor on the line with <code>read.csv</code> and press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (on a Mac <kbd>⌘</kbd>+<kbd>Enter</kbd>): the line goes to the Console, and <code>penguins</code> appears in the Environment.</li>
-    <li data-task="r-more" data-auto="rstudio:plot">Go on with <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to the end. A statement over several lines – <code>boxplot(</code> – runs as one. The plot is in the <b>Plots</b> pane.</li>
-    <li data-task="r-env" data-auto="r:view kind=rstudio">In the Environment, click the ▶ next to <code>penguins</code> to see its columns, and the table icon to view it.</li>
+    <li data-task="r-line" data-auto="r:input kind=rstudio line~read.csv">Put the cursor on the line with <code>read.csv</code> and press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd> on a Mac). The line is sent to the Console and run, and <code>penguins</code> appears in the Environment pane.</li>
+    <li data-task="r-more" data-auto="rstudio:plot">Keep pressing <kbd>Ctrl</kbd>+<kbd>Enter</kbd> until you reach the end of the script. A command that spans several lines, such as the <code>boxplot(</code> command, is run as a whole. The plot appears in the <b>Plots</b> pane.</li>
+    <li data-task="r-env" data-auto="r:view kind=rstudio">In the Environment pane, click the ▶ next to <code>penguins</code> to see its columns, and click the table icon to view the data.</li>
   </ol>
 </div>
 
-<h2 id="r-repro">The script is the record</h2>
-<p>Restarting R empties its memory. With a script, that does not matter: run it again, and everything is back – made in the same way.</p>
+<h2 id="r-repro">Your script is a record of your analysis</h2>
+<p>Restarting R clears everything from its memory. If your work is in a script, that doesn’t matter: run the script again and all your objects and plots are recreated, exactly as before.</p>
 <div class="activity">
-  <div class="act-t">Start again from the script</div>
+  <div class="act-t">Start again from your script</div>
   <ol class="steps">
-    <li data-task="r-restart" data-auto="rstudio:restart">Session ▸ <b>Restart R</b> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>). The Environment is empty.</li>
-    <li data-task="r-source" data-auto="rstudio:source path~penguins.R">Click <b>Source</b> at the top of the script: RStudio runs <code>source("~/scripts/penguins.R")</code> – the whole script, in one go.</li>
-    <li data-task="r-edit" data-check="has:scripts/penguins.R|table\(penguins\$species\)">Add a line at the end of the script that counts the penguins of each species, <code>table(penguins$species)</code>. Save the script (<kbd>Ctrl</kbd>+<kbd>S</kbd>) and run the new line.</li>
+    <li data-task="r-restart" data-auto="rstudio:restart">Choose Session ▸ <b>Restart R</b> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>). The Environment pane is now empty.</li>
+    <li data-task="r-source" data-auto="rstudio:source path~penguins.R">Click <b>Source</b> at the top of the script. RStudio runs <code>source("~/scripts/penguins.R")</code>, which runs the whole script in one go.</li>
+    <li data-task="r-edit" data-check="has:scripts/penguins.R|table\(penguins\$species\)">Add a line at the end of the script that counts the penguins of each species: <code>table(penguins$species)</code>. Save the script (<kbd>Ctrl</kbd>+<kbd>S</kbd>) and run the new line.</li>
   </ol>
 </div>
 <div class="callout concept">
-  <div class="co-t">Code that writes code</div>
-  <p>RStudio's <b>Import Dataset</b> (in the Environment pane) reads a file through a dialog – and shows the R code it runs. Copy that code into your script: then the import is part of the record too.</p>
+  <div class="co-t">Let RStudio write the code for you</div>
+  <p>RStudio’s <b>Import Dataset</b> button (in the Environment pane) lets you read in a data file using a dialog, and it shows you the R code that it runs to do so. Copy that code into your script, so that reading in the data becomes part of your script too.</p>
 </div>
 <div class="activity">
   <div class="act-t">Import a dataset</div>
   <ol class="steps">
-    <li data-task="r-import" data-auto="rstudio:import kind=excel">Environment ▸ <b>Import Dataset</b> ▸ <b>From Excel…</b>, Browse to <code>data/penguins.xlsx</code>. Look at the preview and the code – then <b>Import</b> (the first time, RStudio installs the <code>readxl</code> package).</li>
+    <li data-task="r-import" data-auto="rstudio:import kind=excel">In the Environment pane, choose <b>Import Dataset</b> ▸ <b>From Excel…</b> and use <b>Browse…</b> to find <code>data/penguins.xlsx</code>. Look at the preview and at the code underneath it, then click <b>Import</b>. (The first time you do this, RStudio needs to install the <code>readxl</code> package.)</li>
   </ol>
 </div>
 <div class="q" data-q="r-q-why">
-  <div class="q-text">You have a script and a saved workspace (.RData). A colleague finds a mistake in the data file, and you correct it. Which of the two gives you corrected results – and why?</div>
-  <div class="q-model">The script: run it again and every result is made afresh from the corrected file. The saved workspace holds the old results, and nothing in it says how they were made. (This is why RStudio can be set not to save or restore .RData at all: Tools ▸ Global Options.)</div>
+  <div class="q-text">You have both a script and a saved workspace (.RData). A colleague finds a mistake in the data file, and you correct it. Which of the two will give you corrected results, and why?</div>
+  <div class="q-model">The script. When you run it again, every result is recalculated from the corrected file. The saved workspace only holds the old results, and nothing in it tells you how they were produced. (This is why many people set RStudio never to save or restore .RData files, under Tools ▸ Global Options.)</div>
 </div>
 
-<h2 id="r-app">If you have time: an app</h2>
-<p>RStudio also runs <b>Shiny</b> apps – web pages made in R, whose inputs (a slider, a menu) change what R computes and draws. File ▸ New File ▸ <b>Shiny Web App…</b> makes one in a folder of its own; <b>Run App</b> starts it in the Viewer. The Console is busy while the app runs: <b>Stop</b> (or <kbd>Esc</kbd>) ends it.</p>
+<h2 id="r-app">If you have time: a Shiny app</h2>
+<p>RStudio can also run <b>Shiny</b> apps. These are interactive web pages written in R, in which controls such as sliders and menus change what R calculates and plots. File ▸ New File ▸ <b>Shiny Web App…</b> creates an example app in a new folder, and <b>Run App</b> starts it in the Viewer pane. While the app is running the Console is busy, so click <b>Stop</b> (or press <kbd>Esc</kbd>) when you have finished with it.</p>
 <div class="activity">
-  <div class="act-t">A Shiny app</div>
+  <div class="act-t">Run a Shiny app</div>
   <ol class="steps">
-    <li data-task="r-shiny" data-auto="rstudio:shiny running=true">Make a Shiny web app and run it. Move the slider.</li>
+    <li data-task="r-shiny" data-auto="rstudio:shiny running=true">Create a Shiny web app and run it. Move the slider and watch the plot change.</li>
   </ol>
 </div>
 
@@ -208,49 +208,49 @@ boxplot(body_mass ~ species, data = penguins,
 <section class="chapter" id="docs" data-num="3" data-title="Documents" data-bench="rstudio" hidden>
   <h1>Documents: R Markdown and Quarto</h1>
   <div class="meta-row"><span class="pill time">≈ 20 min</span></div>
-  <p class="lede">Text, code and results in one document – made again, from the top, every time you knit it.</p>
+  <p class="lede">An R Markdown or Quarto document keeps your text, code and results together in one file, and the whole document is run again from the beginning every time you knit it.</p>
 
-<p>A report has text, code and results: tables, plots, numbers in sentences. In an <b>R Markdown</b> document (<code>.Rmd</code>) – or its successor <b>Quarto</b> (<code>.qmd</code>) – they are written together: text in Markdown, code in <em>chunks</em>. Knitting runs the code and makes the whole into a web page (or, on a computer with the programs for it, a PDF or Word document).</p>
+<p>A report contains text, code and results, such as tables, plots and numbers quoted in sentences. In an <b>R Markdown</b> document (<code>.Rmd</code>), or in its successor <b>Quarto</b> (<code>.qmd</code>), you write all of these in one file: the text in Markdown, and the code in <em>chunks</em>. When you <em>knit</em> the document, the code is run and the whole thing is turned into a web page. (On a computer with the necessary software installed, it can also produce a PDF or Word document.)</p>
 
-<h2 id="d-rmd">An R Markdown document</h2>
+<h2 id="d-rmd">Writing an R Markdown document</h2>
 <div class="activity">
   <div class="act-t">Write and knit a report</div>
   <ol class="steps">
-    <li data-task="d-new" data-auto="rstudio:new kind=rmd">In RStudio: File ▸ New File ▸ <b>R Markdown…</b>. Title: <i>Penguin report</i>, your name as the author, HTML – <b>OK</b>.</li>
-    <li data-task="d-save" data-check="exists:reports/penguins.Rmd">Save it (<kbd>Ctrl</kbd>+<kbd>S</kbd>) as <code>reports/penguins.Rmd</code> – type <code>reports/penguins.Rmd</code> as the file name.</li>
-    <li data-task="d-chunk" data-auto="rstudio:chunk ok=true">Run a chunk with its green ▶: its output appears under the chunk, in the document.</li>
-    <li data-task="d-knit" data-auto="rstudio:knit output~.html">Click <b>Knit</b>. The first time, RStudio installs <code>knitr</code> and <code>markdown</code>. The report opens in the Viewer – and is saved as <code>reports/penguins.html</code>.</li>
+    <li data-task="d-new" data-auto="rstudio:new kind=rmd">In RStudio, choose File ▸ New File ▸ <b>R Markdown…</b>. Enter <i>Penguin report</i> as the title and your name as the author, leave the output format as HTML, and click <b>OK</b>.</li>
+    <li data-task="d-save" data-check="exists:reports/penguins.Rmd">Save the document (<kbd>Ctrl</kbd>+<kbd>S</kbd>), typing <code>reports/penguins.Rmd</code> as the file name.</li>
+    <li data-task="d-chunk" data-auto="rstudio:chunk ok=true">Run one of the chunks by clicking the green ▶ at the right-hand end of its first line. Its output appears in the document, directly underneath the chunk.</li>
+    <li data-task="d-knit" data-auto="rstudio:knit output~.html">Click <b>Knit</b>. The first time you do this, RStudio needs to install the <code>knitr</code> and <code>markdown</code> packages. The finished report opens in the Viewer pane and is saved as <code>reports/penguins.html</code>.</li>
   </ol>
 </div>
 <div class="callout concept">
-  <div class="co-t">Knitting starts from nothing</div>
-  <p>Knit runs the document in a <em>new</em> R, from the top – not in the R of RStudio's Console. Whatever the report needs, it must make or read itself. That is what makes a knitted report trustworthy: it shows that the code, as written, gives these results.</p>
+  <div class="co-t">Knitting starts with an empty R session</div>
+  <p>When you click Knit, the document is run from the beginning in a brand new R session, not in the R session behind RStudio’s Console. This means the document has to create or read in everything it needs by itself. That is what makes a knitted report trustworthy: it shows that the code, exactly as written, produces the results in the report.</p>
 </div>
 <div class="activity">
-  <div class="act-t">Break it, on purpose</div>
+  <div class="act-t">Break it on purpose</div>
   <ol class="steps">
-    <li data-task="d-obj" data-auto="r:input kind=rstudio line~penguin_colours &lt;-">In RStudio’s Console, make an object <code>penguin_colours</code>: <button class="do" type="button" data-rs-run="penguin_colours &lt;- c(Adelie = &quot;darkorange&quot;, Chinstrap = &quot;purple&quot;, Gentoo = &quot;cyan4&quot;)">make it in the Console</button>.</li>
-    <li data-task="d-use" data-auto="rstudio:chunk ok=true">Add a chunk to the report (the <b>+C</b> button, or <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>) with <code>barplot(table(penguins$species), col = penguin_colours)</code>. Run the chunk with ▶ – it works.</li>
-    <li data-task="d-fail" data-auto="rstudio:knit failed=true">Now <b>Knit</b>. It stops: <code>object &#39;penguin_colours&#39; not found</code> (see <b>Background Jobs</b>). Fix the report so that it makes <code>penguin_colours</code> itself, and knit again.</li>
+    <li data-task="d-obj" data-auto="r:input kind=rstudio line~penguin_colours &lt;-">Create an object called <code>penguin_colours</code> in RStudio’s Console: <button class="do" type="button" data-rs-run="penguin_colours &lt;- c(Adelie = &quot;darkorange&quot;, Chinstrap = &quot;purple&quot;, Gentoo = &quot;cyan4&quot;)">make it in the Console</button>.</li>
+    <li data-task="d-use" data-auto="rstudio:chunk ok=true">Add a new chunk to the report (with the <b>+C</b> button, or <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>) containing <code>barplot(table(penguins$species), col = penguin_colours)</code>. Run the chunk with its ▶ button, and you will see that it works.</li>
+    <li data-task="d-fail" data-auto="rstudio:knit failed=true">Now click <b>Knit</b>. This time knitting stops with the error <code>object &#39;penguin_colours&#39; not found</code>, which you can see in the <b>Background Jobs</b> tab. Fix the report so that it creates <code>penguin_colours</code> itself, and knit it again.</li>
   </ol>
 </div>
 <div class="q" data-q="d-q-fail">
-  <div class="q-text">Running the chunk with ▶ worked, knitting failed. Explain the difference.</div>
-  <div class="q-model">▶ runs the chunk in the R of RStudio's Console, where <code>penguin_colours</code> had been made by hand. Knit runs the whole document in a new, empty R: <code>penguin_colours</code> exists there only if the document makes it. A report that knits contains everything needed to make its results.</div>
+  <div class="q-text">Running the chunk with ▶ worked, but knitting failed. Explain why.</div>
+  <div class="q-model">The ▶ button runs the chunk in the R session behind RStudio’s Console, where you had already created <code>penguin_colours</code> by hand. Knit runs the whole document in a new, empty R session, so <code>penguin_colours</code> only exists if the document itself creates it. A report that knits successfully contains everything needed to produce its results.</div>
 </div>
 
 <h2 id="d-nb">R Notebooks and Quarto</h2>
-<p>An <b>R Notebook</b> is an R Markdown document that you run chunk by chunk, as you work; when you save it, a web page with the text, the code and the outputs <em>as they are</em> is saved next to it (<code>.nb.html</code>) – nothing is run again. <b>Quarto</b> documents are written like R Markdown and <b>Render</b> like Knit; Quarto also works with Python and Julia.</p>
+<p>An <b>R Notebook</b> is an R Markdown document that you run chunk by chunk as you work. Each time you save it, RStudio also saves a web page next to it (<code>.nb.html</code>) containing the text, the code and the outputs exactly as they are at that moment, without running anything again. <b>Quarto</b> documents are written in much the same way as R Markdown, and the <b>Render</b> button does the same job as Knit. Quarto also works with other languages, such as Python and Julia.</p>
 <div class="activity">
-  <div class="act-t">Try them</div>
+  <div class="act-t">Try them both</div>
   <ol class="steps">
-    <li data-task="d-rnb" data-auto="rstudio:preview">File ▸ New File ▸ <b>R Notebook</b>. Run its chunk, save it as <code>reports/notes.Rmd</code>, and click <b>Preview</b>.</li>
-    <li data-task="d-qmd" data-auto="rstudio:knit kind=qmd">File ▸ New File ▸ <b>Quarto Document…</b> – <b>Create</b>, save it as <code>reports/quarto.qmd</code> and <b>Render</b> it.</li>
+    <li data-task="d-rnb" data-auto="rstudio:preview">Choose File ▸ New File ▸ <b>R Notebook</b>. Run its chunk, save the notebook as <code>reports/notes.Rmd</code>, and click <b>Preview</b>.</li>
+    <li data-task="d-qmd" data-auto="rstudio:knit kind=qmd">Choose File ▸ New File ▸ <b>Quarto Document…</b> and click <b>Create</b>. Save the document as <code>reports/quarto.qmd</code> and click <b>Render</b>.</li>
   </ol>
 </div>
 <div class="q" data-q="d-q-mcq" data-type="mcq">
-  <div class="q-text">You ran the chunks of an R Notebook in the order 3, 1, 2 and saved it. What does its .nb.html show?</div>
-  <div class="mcq"><label data-correct data-why="Right: a notebook&#x27;s page shows what you saw. Knitting the same document would run it again, from the top."><input type="radio"> The outputs as they were when you ran the chunks – in the order 3, 1, 2</label><label data-why="That is what Knit (or Render) gives. Preview runs nothing."><input type="radio"> The outputs of a run from the top</label><label data-why="The outputs are in the page, as pictures and text."><input type="radio"> No outputs: they are made when someone opens the page</label></div>
+  <div class="q-text">You ran the chunks of an R Notebook in the order 3, 1, 2 and then saved it. What does its .nb.html file show?</div>
+  <div class="mcq"><label data-correct data-why="Correct. The notebook’s web page shows exactly what you saw on screen. Knitting the same document would run all of it again from the beginning."><input type="radio"> The outputs as they were when you ran the chunks in the order 3, 1, 2</label><label data-why="That is what Knit (or Render) would give you. Preview doesn’t run anything."><input type="radio"> The outputs you would get by running the chunks from the beginning</label><label data-why="The outputs are saved in the page itself, as pictures and text."><input type="radio"> No outputs, because they are generated when someone opens the page</label></div>
 </div>
 
 </section>
@@ -258,60 +258,60 @@ boxplot(body_mass ~ species, data = penguins,
 <section class="chapter" id="notebook" data-num="4" data-title="Jupyter notebooks" data-bench="notebook" hidden>
   <h1>Jupyter notebooks</h1>
   <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
-  <p class="lede">Cells of code with their output, kept in one file – easy to share, easy to run out of order.</p>
+  <p class="lede">A notebook keeps cells of code together with their output in a single file. Notebooks are easy to share, but they are also easy to run in the wrong order.</p>
 
-<p>A <b>Jupyter notebook</b> (<code>.ipynb</code>) is a list of <em>cells</em>: code cells, whose output appears under them, and text cells in Markdown. Jupyter started with Python; with an R kernel – as here – the code is R. The notebook file keeps the outputs, so it can be shared and read without running anything: on GitHub, in JupyterLab, VS Code or Google Colab.</p>
+<p>A <b>Jupyter notebook</b> (<code>.ipynb</code>) is made up of <em>cells</em>. There are code cells, whose output appears underneath them, and text cells written in Markdown. Jupyter started out with Python, but with an R kernel, as here, the code cells contain R. The outputs are saved in the notebook file, so other people can read a notebook without running it, for example on GitHub or in JupyterLab, VS Code or Google Colab.</p>
 <div class="callout info">
-  <div class="co-t">Yet another R</div>
-  <p>The notebook's R is separate from the R console's and RStudio's. All notebooks here share one R – and it starts in the notebook's folder.</p>
+  <div class="co-t">Another separate R session</div>
+  <p>The notebooks use their own R session, which is separate from the ones in the R console tab and in RStudio. All the notebooks in this workbench share that one R session, and its working directory is the folder that the notebook is in.</p>
 </div>
 
-<h2 id="n-cells">Cells</h2>
+<h2 id="n-cells">Running cells</h2>
 <div class="activity">
-  <div class="act-t">Run cells</div>
+  <div class="act-t">Run some cells</div>
   <ol class="steps">
-    <li data-task="n-open" data-auto="app:bench name=notebook">Open the <b>Notebook</b> tab <button class="do showme" type="button" data-bench="notebook">show me</button>. A new notebook is there, in <code>~/notebooks</code>.</li>
-    <li data-task="n-table" data-auto="nb:run ok=true table=true">In the first code cell type <code>head(penguins)</code> and press <kbd>Shift</kbd>+<kbd>Enter</kbd>: the data appear as a table. The number in <code>[1]</code> says this was the first cell R ran.</li>
-    <li data-task="n-plot" data-auto="nb:run ok=true plot=true">In the next cell: <code>hist(penguins$flipper_len, main = "Flipper length", xlab = "mm")</code>, <kbd>Shift</kbd>+<kbd>Enter</kbd>.</li>
-    <li data-task="n-text" data-auto="nb:saved">Add a text cell (<b>+ Text</b>) with a sentence about what the histogram shows. <kbd>Shift</kbd>+<kbd>Enter</kbd> shows it as text.</li>
+    <li data-task="n-open" data-auto="app:bench name=notebook">Open the <b>Notebook</b> tab <button class="do showme" type="button" data-bench="notebook">show me</button>. A new, empty notebook has been created for you in <code>~/notebooks</code>.</li>
+    <li data-task="n-table" data-auto="nb:run ok=true table=true">In the first code cell, type <code>head(penguins)</code> and press <kbd>Shift</kbd>+<kbd>Enter</kbd>. The data appear as a table. The number in <code>[1]</code> next to the cell shows that this was the first cell R ran.</li>
+    <li data-task="n-plot" data-auto="nb:run ok=true plot=true">In the next cell, type <code>hist(penguins$flipper_len, main = "Flipper length", xlab = "mm")</code> and press <kbd>Shift</kbd>+<kbd>Enter</kbd>.</li>
+    <li data-task="n-text" data-auto="nb:saved">Add a text cell (<b>+ Text</b>) and write a sentence about what the histogram shows. Press <kbd>Shift</kbd>+<kbd>Enter</kbd> to display it as formatted text.</li>
   </ol>
 </div>
 
-<h2 id="n-state">Out of order</h2>
-<p>Cells can be run in any order, and a cell can be changed after it ran. Its output then belongs to code that is no longer there.</p>
+<h2 id="n-state">Running cells out of order</h2>
+<p>You can run the cells of a notebook in any order, and you can change a cell after it has run. When you do, the output shown under a cell may come from code that is no longer there.</p>
 <div class="activity">
   <div class="act-t">Hidden state</div>
   <ol class="steps">
-    <li data-task="n-a" data-auto="nb:run ok=true code~n * 2">Make a cell with <code>n <- 10</code> and run it; below it a cell with <code>n * 2</code> – run it: <code>20</code>.</li>
-    <li data-task="n-b">Change the first cell to <code>n <- 1000</code>, but do <em>not</em> run it. Run only the <code>n * 2</code> cell: still <code>20</code> – the notebook now shows code and a result that do not match.</li>
-    <li data-task="n-fix" data-auto="nb:restart runAll=true">Kernel menu (the <b>R</b> button at the top) ▸ <b>Restart R and run all cells</b>: every cell runs again, from the top, in a new R.</li>
-    <li data-task="n-down" data-auto="nb:download format=ipynb"><b>Download</b> ▸ the notebook (.ipynb): it opens in Jupyter, JupyterLab, VS Code or Colab with its outputs.</li>
+    <li data-task="n-a" data-auto="nb:run ok=true code~n * 2">Create a cell containing <code>n &lt;- 10</code> and run it. Below it, create a cell containing <code>n * 2</code> and run that too. The result is <code>20</code>.</li>
+    <li data-task="n-b">Change the first cell to <code>n &lt;- 1000</code>, but do <em>not</em> run it. Run only the <code>n * 2</code> cell. The answer is still <code>20</code>, so the notebook now shows code and a result that don’t match.</li>
+    <li data-task="n-fix" data-auto="nb:restart runAll=true">Open the kernel menu (the <b>R</b> button at the top) and choose <b>Restart R and run all cells</b>. Every cell is run again, from top to bottom, in a new R session.</li>
+    <li data-task="n-down" data-auto="nb:download format=ipynb">Click <b>Download</b> and choose <b>Jupyter notebook (.ipynb)</b>. The downloaded file can be opened, with its outputs, in Jupyter, JupyterLab, VS Code or Colab.</li>
   </ol>
 </div>
 <div class="q" data-q="n-q-state">
-  <div class="q-text">What is the danger of running a notebook's cells out of order – and what is the habit that protects you from it?</div>
-  <div class="q-model">The outputs on the page may not come from the code on the page: a cell's result depends on whatever ran before it, in any order, including cells since changed or deleted. Habit: before you share or trust a notebook, restart R and run all cells from the top (Restart & run all) – the same check that knitting does for an R Markdown document.</div>
+  <div class="q-text">Why is it risky to run a notebook’s cells out of order, and what habit protects you from the problem?</div>
+  <div class="q-model">The outputs in the notebook may not come from the code you can see, because each cell’s result depends on whatever was run before it, in whatever order, including cells that have since been changed or deleted. The habit that protects you is to restart R and run all the cells from the top (<b>Restart R and run all cells</b>) before you share a notebook or rely on its results. This is the same check that knitting does automatically for an R Markdown document.</div>
 </div>
 <div class="q" data-q="n-q-compare">
-  <div class="q-text">An R Markdown document (.Rmd) and a Jupyter notebook (.ipynb) can both hold text, code and results. Name one practical difference between the files.</div>
-  <div class="q-model">A .Rmd file is plain text with no outputs in it: easy to read, compare and keep in version control (Git), and the results come from knitting. An .ipynb file is JSON with the outputs inside (plots as long strings of base64): it shows results without running, but differences between versions are hard to read.</div>
+  <div class="q-text">An R Markdown document (.Rmd) and a Jupyter notebook (.ipynb) can both contain text, code and results. Give one practical difference between the two kinds of file.</div>
+  <div class="q-model">An .Rmd file is plain text and contains no outputs, so it is easy to read, to compare with other versions and to keep under version control (for example with Git); its results are only produced when it is knitted. An .ipynb file is in JSON format, with the outputs stored inside it (plots are stored as long strings of base64 text). This means it shows its results without being run, but the differences between two versions are hard to read.</div>
 </div>
 
 </section>
 
 <section class="chapter" id="terminal" data-num="5" data-title="R in the terminal" data-bench="terminal" hidden>
-  <h1>R without a window</h1>
+  <h1>Running R from the terminal</h1>
   <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
-  <p class="lede">Rscript, R CMD BATCH and R: R started by a command – for servers, clusters, pipelines and anything you run many times.</p>
+  <p class="lede"><code>Rscript</code>, <code>R CMD BATCH</code> and <code>R</code> let you start R with a command. This is how R is used on servers and computing clusters, in pipelines, and for any job that you need to run many times.</p>
 
-<p>R does not need a window. On servers and computing clusters – where long analyses run – there is no screen: R is started by a command, runs a script and ends. The <b>Terminal</b> tab is a Linux terminal (bash) with R's commands: <code>Rscript</code> and <code>R CMD BATCH</code> run scripts, and <code>R</code> starts R's console in the terminal.</p>
+<p>You don’t need a window to use R. Servers and computing clusters, where long analyses are often run, usually have no screen at all: R is started with a command, runs a script and then stops. The <b>Terminal</b> tab is a Linux-style terminal (bash) with R’s commands available: <code>Rscript</code> and <code>R CMD BATCH</code> run scripts, and <code>R</code> starts R’s console inside the terminal.</p>
 
 <h2 id="t-rscript">Rscript</h2>
 <div class="activity">
   <div class="act-t">Run your script</div>
   <ol class="steps">
-    <li data-task="t-open" data-auto="term:command name=ls">Open the <b>Terminal</b> <button class="do showme" type="button" data-bench="terminal">show me</button>. Type <code>ls scripts</code> <button class="do showme" type="button" data-term="ls scripts">show me</button> – the script from RStudio is there: the files are the same everywhere.</li>
-    <li data-task="t-run" data-auto="rscript:done file~penguins.R code=0">Run it: <code>Rscript scripts/penguins.R</code> <button class="do showme" type="button" data-term="Rscript scripts/penguins.R">show me</button>. What it prints comes here; the plot has nowhere to go, so R puts it into <code>Rplots.pdf</code> (<code>ls -l Rplots.pdf</code> <button class="do showme" type="button" data-term="ls -l Rplots.pdf">see it</button>).</li>
+    <li data-task="t-open" data-auto="term:command name=ls">Open the <b>Terminal</b> tab <button class="do showme" type="button" data-bench="terminal">show me</button> and type <code>ls scripts</code> <button class="do showme" type="button" data-term="ls scripts">show me</button>. The script you wrote in RStudio is there, because every tab works with the same files.</li>
+    <li data-task="t-run" data-auto="rscript:done file~penguins.R code=0">Run it with <code>Rscript scripts/penguins.R</code> <button class="do showme" type="button" data-term="Rscript scripts/penguins.R">show me</button>. Anything the script prints appears in the terminal. The plot has no window to go to, so R saves it in a file called <code>Rplots.pdf</code> instead (<code>ls -l Rplots.pdf</code> <button class="do showme" type="button" data-term="ls -l Rplots.pdf">see it</button>).</li>
   </ol>
 </div>
 <div class="codefile" data-path="scripts/count.R"><div class="cf-head"><span class="cf-name">scripts/count.R</span><span class="grow"></span><button class="do" type="button" data-file-create="scripts/count.R">Create this file</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock"># How many penguins of a species? The species comes from the command line:
@@ -321,32 +321,32 @@ species &lt;- if (length(args) &gt; 0) args[1] else &quot;Adelie&quot;
 
 penguins &lt;- read.csv(&quot;data/penguins.csv&quot;)
 n &lt;- sum(penguins$species == species)
-cat(species, &quot;:&quot;, n, &quot;penguins\n&quot;)</pre><div class="cf-note">This script reads the species from its <em>command line</em>, with <code>commandArgs()</code>.</div></div>
+cat(species, &quot;:&quot;, n, &quot;penguins\n&quot;)</pre><div class="cf-note">This script uses <code>commandArgs()</code> to read the name of a species from the <em>command line</em>.</div></div>
 <div class="activity">
   <div class="act-t">Scripts that take arguments</div>
   <ol class="steps">
-    <li data-task="t-make" data-auto="file:create name=count.R">Create <code>scripts/count.R</code> (the button above).</li>
-    <li data-task="t-arg" data-auto="rscript:done file~count.R code=0"><code>Rscript scripts/count.R Gentoo</code> <button class="do showme" type="button" data-term="Rscript scripts/count.R Gentoo">show me</button> – then with <code>Chinstrap</code>.</li>
-    <li data-task="t-loop" data-auto="term:command line~for s in">All three species with one line of bash: <code>for s in Adelie Chinstrap Gentoo; do Rscript scripts/count.R $s; done</code> <button class="do showme" type="button" data-term="for s in Adelie Chinstrap Gentoo; do Rscript scripts/count.R $s; done">show me</button></li>
-    <li data-task="t-err" data-auto="term:command line~exit status">An error stops a script, and the exit status says so: <code>Rscript -e &#x27;mean(no_such_thing)&#x27;; echo &quot;exit status: $?&quot;</code> <button class="do showme" type="button" data-term="Rscript -e &#x27;mean(no_such_thing)&#x27;; echo &quot;exit status: $?&quot;">show me</button></li>
+    <li data-task="t-make" data-auto="file:create name=count.R">Create <code>scripts/count.R</code> with the button above.</li>
+    <li data-task="t-arg" data-auto="rscript:done file~count.R code=0">Run <code>Rscript scripts/count.R Gentoo</code> <button class="do showme" type="button" data-term="Rscript scripts/count.R Gentoo">show me</button>, then try it again with <code>Chinstrap</code> instead of <code>Gentoo</code>.</li>
+    <li data-task="t-loop" data-auto="term:command line~for s in">Count all three species with a single line of bash: <code>for s in Adelie Chinstrap Gentoo; do Rscript scripts/count.R $s; done</code> <button class="do showme" type="button" data-term="for s in Adelie Chinstrap Gentoo; do Rscript scripts/count.R $s; done">show me</button></li>
+    <li data-task="t-err" data-auto="term:command line~exit status">When a script hits an error it stops, and its <em>exit status</em> tells you that something went wrong: <code>Rscript -e &#x27;mean(no_such_thing)&#x27;; echo &quot;exit status: $?&quot;</code> <button class="do showme" type="button" data-term="Rscript -e &#x27;mean(no_such_thing)&#x27;; echo &quot;exit status: $?&quot;">show me</button></li>
   </ol>
 </div>
 <div class="callout concept">
   <div class="co-t">Exit status</div>
-  <p>Every program tells the shell how it ended: 0 for success, anything else for failure (<code>$?</code> holds it). A pipeline of scripts can stop at the first failure (<code>set -e</code>) – instead of carrying on with results that were never made.</p>
+  <p>Every program tells the shell how it finished by returning a number called its exit status: 0 means success, and anything else means that something failed. In bash, <code>$?</code> holds the exit status of the last command. A script that runs several steps can be told to stop at the first failure (with <code>set -e</code>), rather than carrying on with results that were never produced.</p>
 </div>
 
 <h2 id="t-batch">R CMD BATCH and R</h2>
 <div class="activity">
-  <div class="act-t">A record of the run</div>
+  <div class="act-t">Keep a record of a run</div>
   <ol class="steps">
-    <li data-task="t-batch" data-auto="rbatch:done code=0"><code>R CMD BATCH scripts/penguins.R</code> <button class="do showme" type="button" data-term="R CMD BATCH scripts/penguins.R">show me</button> prints nothing: everything – the commands, their output, how long it took – goes into <code>penguins.Rout</code>. Look: <code>cat penguins.Rout</code> <button class="do showme" type="button" data-term="cat penguins.Rout">show me</button>.</li>
-    <li data-task="t-r" data-auto="rterm:start"><code>R -q</code> <button class="do showme" type="button" data-term="R -q">show me</button> starts R’s console in the terminal. Try <code>summary(penguins$bill_len)</code>, then <code>q()</code>.</li>
+    <li data-task="t-batch" data-auto="rbatch:done code=0"><code>R CMD BATCH scripts/penguins.R</code> <button class="do showme" type="button" data-term="R CMD BATCH scripts/penguins.R">show me</button> doesn’t print anything in the terminal. Instead, everything (the commands, their output and how long the run took) is written to a file called <code>penguins.Rout</code>. Have a look at it with <code>cat penguins.Rout</code> <button class="do showme" type="button" data-term="cat penguins.Rout">show me</button>.</li>
+    <li data-task="t-r" data-auto="rterm:start"><code>R -q</code> <button class="do showme" type="button" data-term="R -q">show me</button> starts R’s console inside the terminal (<code>-q</code> leaves out the welcome message). Try <code>summary(penguins$bill_len)</code>, then quit with <code>q()</code> and answer <code>n</code> when R asks whether to save the workspace.</li>
   </ol>
 </div>
 <div class="q" data-q="t-q-when">
-  <div class="q-text">Give two situations in which you would run R with <code>Rscript</code> rather than in RStudio.</div>
-  <div class="q-model">For example: on a server or a computing cluster with no screen (a job submitted to a queue); a long analysis that runs overnight; the same script for many inputs (a loop over files or species); a step in a pipeline or a scheduled job that runs without anyone there; checking that a script runs on its own, from the top, in a fresh R.</div>
+  <div class="q-text">Describe two situations in which you would run R with <code>Rscript</code> rather than in RStudio.</div>
+  <div class="q-model">For example: on a server or computing cluster that has no screen, such as a job submitted to a queue; for a long analysis that runs overnight; to run the same script on many inputs, such as a loop over files or species; as one step in a pipeline, or a scheduled job that runs without anyone watching; or simply to check that a script runs on its own, from start to finish, in a fresh R session.</div>
 </div>
 
 </section>
@@ -354,41 +354,41 @@ cat(species, &quot;:&quot;, n, &quot;penguins\n&quot;)</pre><div class="cf-note"
 <section class="chapter" id="compare" data-num="6" data-title="Which way, when?" data-bench="rstudio" hidden>
   <h1>Which way, when?</h1>
   <div class="meta-row"><span class="pill time">≈ 10 min</span></div>
-  <p class="lede">The same R, five ways to work with it – and how they fit together.</p>
+  <p class="lede">The same R can be used in five different ways. This chapter compares them and shows how they fit together.</p>
 
-<p>Each way of using R keeps something different, and suits a different job. In practice you will move between them: try a command in the console, put it in a script, knit the analysis into a report, run it on a server with <code>Rscript</code>.</p>
-<div class="table"><table class="compare"><thead><tr><th>Way</th><th>What is kept</th><th>Good for</th></tr></thead><tbody><tr><td>R console</td><td>nothing – only the history and, if saved, a workspace</td><td>trying things, quick checks, help</td></tr><tr><td>Script in RStudio</td><td>the script: the commands that make the results</td><td>analyses you will run again; most of your work</td></tr><tr><td>R Markdown / Quarto</td><td>a document that makes its results when knitted</td><td>reports, papers, theses; sharing methods with results</td></tr><tr><td>Jupyter notebook</td><td>code with the outputs of the last runs</td><td>exploring and showing; teaching; mixing languages</td></tr><tr><td>Rscript / R CMD BATCH</td><td>the script; a log of the run (.Rout); output files</td><td>servers, clusters, pipelines, scheduled and repeated runs</td></tr></tbody></table></div>
+<p>Each way of using R keeps a different kind of record, and each suits a different kind of job. In practice you will often move between them: you might try out a command in the console, add it to a script, knit the analysis into a report, and finally run it on a server with <code>Rscript</code>.</p>
+<div class="table"><table class="compare"><thead><tr><th>Way of using R</th><th>What is kept</th><th>Good for</th></tr></thead><tbody><tr><td>R console</td><td>Nothing, apart from the command history and, if you save it, the workspace</td><td>Trying things out, quick checks and reading help pages</td></tr><tr><td>Script in RStudio</td><td>The script, which contains the commands that produce your results</td><td>Analyses you will run again, which is most of your work</td></tr><tr><td>R Markdown / Quarto</td><td>A document that produces its own results each time it is knitted</td><td>Reports, papers and theses, where your methods are shared along with your results</td></tr><tr><td>Jupyter notebook</td><td>The code, together with the output from the last time each cell was run</td><td>Exploring data and showing your work, teaching, and projects that mix languages</td></tr><tr><td>Rscript / R CMD BATCH</td><td>The script, a log of the run (.Rout) and any output files</td><td>Servers, clusters, pipelines, and jobs that are scheduled or repeated</td></tr></tbody></table></div>
 <div class="q" data-q="w-q-choose">
-  <div class="q-text">You are starting a project: the analysis of a lab's measurements, written up as a report for your supervisor, run again when new measurements come in. Which ways of using R would you use, and for what?</div>
-  <div class="q-model">For example: the console to look at the data and try things; the analysis in R scripts (in RStudio) or directly in an R Markdown/Quarto report, so that the report is made again from the data each time it is knitted; possibly Rscript to re-run the analysis automatically when new data arrive. A notebook could serve for exploring – restarted and run from the top before anything is shared.</div>
+  <div class="q-text">You are starting a project to analyse a lab’s measurements. The analysis will be written up as a report for your supervisor, and it will need to be run again whenever new measurements come in. Which ways of using R would you use, and for what?</div>
+  <div class="q-model">For example, you could use the console to look at the data and try things out, and write the analysis in R scripts (in RStudio) or directly in an R Markdown or Quarto report, so that the report is rebuilt from the data each time it is knitted. You might also use <code>Rscript</code> to run the analysis again automatically when new data arrive. A notebook would work well for exploring the data, as long as you restart it and run it from the top before you share anything from it.</div>
 </div>
 
 <h2 id="w-ai">Asking the AI assistant</h2>
-<p>The <b>AI</b> tab is an AI model that knows about this workbench. It can explain an error, a function or an idea – it does not always get things right, so check what it says, and run the code yourself. After an error in a console a button offers to ask it about the error.</p>
+<p>The <b>AI</b> tab gives you an AI assistant that knows about this workbench. It can explain an error message, a function or an idea, but it doesn’t always get things right, so check what it tells you and run any code yourself. When you get an error in one of the consoles, a button appears underneath it that lets you ask the assistant about the error.</p>
 <div class="prompt-card"><div class="pc-head"><span class="pc-t">A prompt for the assistant</span><span class="grow"></span><button class="do ask" type="button" data-prompt="Explain the difference between running an R Markdown chunk in RStudio and knitting the whole document. Keep it short and give an example of something that works in one and fails in the other." data-tab="chat">Put it in the chat box</button></div><div class="pc-text">Explain the difference between running an R Markdown chunk in RStudio and knitting the whole document. Keep it short and give an example of something that works in one and fails in the other.</div></div>
 <div class="callout warn">
-  <div class="co-t">Your data stay yours</div>
-  <p>Never paste personal data – and never patient data – into an AI tool.</p>
+  <div class="co-t">Keep your data private</div>
+  <p>Never paste personal data or patient data into an AI tool.</p>
 </div>
 <div class="q" data-q="w-q-reflect">
-  <div class="q-text">Which way of using R would you choose for your own next piece of work – and why?</div>
-  <div class="q-model">Your own answer: any way is right if the reasons fit the work. Look for whether the work needs a record (script, document), whether others will read the results (document, notebook), and whether it runs unattended or many times (Rscript).</div>
+  <div class="q-text">Which way of using R would you choose for your next piece of work, and why?</div>
+  <div class="q-model">There is no single right answer: any choice is fine if your reasons fit the work. Think about whether the work needs a record of how the results were produced (a script or a document), whether other people will read the results (a document or a notebook), and whether it will run unattended or many times (Rscript).</div>
 </div>
 
 </section>
 <!--/CHAPTERS-->
     </aside>
 
-    <div class="splitter" role="separator" aria-orientation="vertical" title="Drag to resize · double-click to reset"></div>
+    <div class="splitter" role="separator" aria-orientation="vertical" title="Drag to resize, or double-click to reset"></div>
 
     <section class="bench" aria-label="Workbench">
       <div class="wb-tabs" role="tablist">
         <button class="wb-tab rail-btn" type="button" id="tutRail" title="Show the instructions (Ctrl+\)" hidden><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/></svg><span>Instructions</span></button>
-        <button class="wb-tab on" type="button" role="tab" data-wb="console" title="R console – R on its own"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10l3 2-3 2M12 15h5"/></svg><span class="lbl">R console</span><span class="dot"></span></button>
-        <button class="wb-tab" type="button" role="tab" data-wb="rstudio" title="RStudio – an IDE for R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h18"/></svg><span class="lbl">RStudio</span><span class="dot"></span></button>
-        <button class="wb-tab" type="button" role="tab" data-wb="notebook" title="Notebook – Jupyter-style, in R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 8h4M12 12h4"/></svg><span class="lbl">Notebook</span><span class="dot"></span></button>
-        <button class="wb-tab" type="button" role="tab" data-wb="terminal" title="Terminal – bash, with Rscript"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17l6-5-6-5M12 19h8"/></svg><span class="lbl">Terminal</span><span class="dot"></span></button>
-        <button class="wb-tab" type="button" role="tab" data-wb="editor" title="Files – your files and a text editor"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span class="lbl">Files</span><span class="dot"></span></button>
+        <button class="wb-tab on" type="button" role="tab" data-wb="console" title="The standard R console"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10l3 2-3 2M12 15h5"/></svg><span class="lbl">R console</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="rstudio" title="RStudio, an integrated development environment for R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h18"/></svg><span class="lbl">RStudio</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="notebook" title="Jupyter-style notebooks in R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 8h4M12 12h4"/></svg><span class="lbl">Notebook</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="terminal" title="A bash terminal, with Rscript and R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17l6-5-6-5M12 19h8"/></svg><span class="lbl">Terminal</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="editor" title="Your files and a text editor"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span class="lbl">Files</span><span class="dot"></span></button>
         <button class="wb-tab" type="button" role="tab" data-wb="assistant" title="AI assistant"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l2 5.5L19.5 10 14 12l-2 5.5L10 12l-5.5-2L10 8.5z"/><path d="M19 17l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span class="lbl">AI</span><span class="dot"></span></button>
         <button class="bench-close" type="button" aria-label="Back to the instructions">✕ Instructions</button>
       </div>

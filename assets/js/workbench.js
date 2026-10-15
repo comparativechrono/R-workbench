@@ -99,7 +99,7 @@
     const t = $('#tutToggle');
     if (t) {
       t.setAttribute('aria-expanded', open ? 'true' : 'false');
-      t.title = open ? 'Hide the instructions: the workbench fills the window (Ctrl+\\)' : 'Show the instructions (Ctrl+\\)';
+      t.title = open ? 'Hide the instructions so that the workbench fills the window (Ctrl+\\)' : 'Show the instructions (Ctrl+\\)';
       t.innerHTML = MG.icon(open ? 'sidebarClose' : 'sidebarOpen');
     }
     const rail = $('#tutRail');
@@ -137,7 +137,7 @@
     const label = () => {
       const on = !!document.fullscreenElement;
       full.innerHTML = MG.icon(on ? 'shrink' : 'expand') + `<span>${on ? 'Exit full screen' : 'Full screen'}</span>`;
-      full.title = on ? 'Leave full screen (Esc)' : 'Full screen: the workbench fills the whole screen';
+      full.title = on ? 'Leave full screen (Esc)' : 'Make the workbench fill the whole screen';
     };
     if (!document.documentElement.requestFullscreen) full.hidden = true;
     full.addEventListener('click', async () => {
@@ -232,10 +232,10 @@
   function filesInfo() {
     MG.modal(
       'Where your files are kept',
-      `<p>Your files – scripts, R Markdown documents, notebooks, data, what R writes – are kept <b>in this browser, on this computer</b> (the browser's storage for this site). They are there next time you open the workbench in the same browser on the same computer.</p>
-       <ul><li>Another computer or browser does not have them: use <b>My files → Download all my files</b>, and <b>Add files</b> there.</li>
-       <li>A private window, or a computer that clears the browser when you log out, forgets them: download your work before you leave.</li>
-       <li>Nothing is sent to a server. The packages that you install with <code>install.packages()</code> are kept too (the browser keeps the downloads).</li></ul>`
+      `<p>Your files (scripts, R Markdown documents, notebooks, data and anything that R writes) are kept <b>in this browser, on this computer</b>, in the storage that the browser sets aside for this site. They will still be there the next time you open the workbench in the same browser on the same computer.</p>
+       <ul><li>They are not available on another computer or in another browser. To take them with you, use <b>My files → Download all my files</b> here, and then <b>Add files</b> in the other browser.</li>
+       <li>A private window, or a computer that clears the browser when you log out, will forget them, so download your work before you leave.</li>
+       <li>Nothing is sent to a server. The packages that you install with <code>install.packages()</code> are kept too, because the browser keeps the files it downloaded.</li></ul>`
     );
   }
   /** a file picker that puts what is chosen into a folder */
@@ -258,7 +258,7 @@
   function startAfresh() {
     const m = MG.modal(
       'Start afresh?',
-      `<p>This deletes <b>every file</b> in your home folder (${esc(MG.app.fs.pretty(MG.app.HOME))}) – scripts, documents, notebooks, data, results – from this browser, and forgets the packages you installed. It cannot be undone. (Your ticks and answers stay: <b>My answers → Start again</b> clears those.)</p>
+      `<p>This deletes <b>every file</b> in your home folder (${esc(MG.app.fs.pretty(MG.app.HOME))}) from this browser, including scripts, documents, notebooks, data and results, and it also forgets the packages you have installed. It cannot be undone. (Your ticks and answers are not affected. To clear those, use <b>My answers → Start again</b>.)</p>
        <p>Download your files first if you want to keep any of them.</p>
        <p><label class="check"><input type="checkbox" data-x="sure"> I have downloaded what I want to keep</label></p>
        <div class="prompt-actions"><button class="btn" data-x="dl" type="button">${MG.icon('zip')}<span>Download all my files</span></button><span class="grow"></span><button class="btn" data-x="no" type="button">Cancel</button><button class="btn danger" data-x="yes" type="button" disabled>Delete everything</button></div>`
@@ -299,8 +299,8 @@
     const show = () => {
       const n = MG.user.name(), plain = n === MG.user.DEFAULT;
       if (label) label.textContent = n;
-      btn.title = plain ? 'Put your name into the workbench: the terminal and R show it in place of user' : `Your name in the workbench: ${n} – click to change it`;
-      btn.setAttribute('aria-label', plain ? 'Your name in the workbench: user (click to put in yours)' : `Your name in the workbench: ${n}`);
+      btn.title = plain ? 'Set your name in the workbench, so that the terminal and R show it instead of “user”' : `Your name in the workbench: ${n} (click to change it)`;
+      btn.setAttribute('aria-label', plain ? 'Your name in the workbench: user (click to set your own)' : `Your name in the workbench: ${n}`);
     };
     show();
     bus.on('user:name', show);
@@ -318,7 +318,7 @@
     const cancel = h('button.btn', { type: 'button' }, 'Cancel');
     const form = h(
       'form.user-form',
-      h('p', 'The terminal shows your name in its prompt, in place of ', h('code', D), '; ', h('code', 'whoami'), ', ', h('code', '$USER'), ', ', h('code', 'ls -l'), ' and R’s ', h('code', 'Sys.getenv("USER")'), ' use it too (an R that is already running keeps the name it started with). It is kept in this browser only. Your home folder stays ', h('code', MG.app.HOME || '/home/user'), '.'),
+      h('p', 'The terminal shows your name in its prompt instead of ', h('code', D), ', and ', h('code', 'whoami'), ', ', h('code', '$USER'), ', ', h('code', 'ls -l'), ' and R’s ', h('code', 'Sys.getenv("USER")'), ' use it too. (An R session that is already running keeps the name it started with.) Your name is kept in this browser only, and your home folder stays ', h('code', MG.app.HOME || '/home/user'), '.'),
       h('label.user-label', { for: 'userNameIn' }, 'Your name'),
       input,
       h('p.user-prev', h('span.muted', 'The prompt: '), preview),
@@ -331,9 +331,9 @@
       const v = input.value.trim();
       const n = v === '' ? D : v === 'root' ? '' : MG.user.valid(v) ? v : MG.user.suggest(v);
       note.classList.toggle('bad', !n);
-      if (v === 'root') note.textContent = 'root is the name of the administrator here: choose another name.';
-      else if (!n) note.textContent = 'A name here begins with a letter and has letters, digits, dots, hyphens or underscores – no spaces: ada, ada.lovelace or a_lovelace, for example.';
-      else if (v && n !== v) note.textContent = `A name here has no spaces or other signs: it will be ${n}.`;
+      if (v === 'root') note.textContent = 'root is the name of the administrator here, so please choose another name.';
+      else if (!n) note.textContent = 'A name must begin with a letter and can contain only letters, digits, dots, hyphens and underscores (no spaces), for example ada, ada.lovelace or a_lovelace.';
+      else if (v && n !== v) note.textContent = `A name can’t contain spaces or other special characters, so it will be ${n}.`;
       else note.textContent = '';
       chosen = n;
       preview.textContent = `${n || '…'}@${host}:~$`;
@@ -345,7 +345,7 @@
       e.preventDefault();
       if (!chosen || !MG.user.set(chosen)) return;
       m.close();
-      toast(chosen === D ? `The terminal shows <b>${D}</b> again.` : `Saved: the terminal shows <b>${esc(chosen)}</b>@${esc(host)}.`, 'ok', 3500);
+      toast(chosen === D ? `The terminal shows <b>${D}</b> again.` : `Saved. The terminal now shows <b>${esc(chosen)}</b>@${esc(host)}.`, 'ok', 3500);
     });
     reset.addEventListener('click', () => {
       input.value = '';
@@ -371,10 +371,10 @@
       if (title) el.title = title;
     };
     if (!MG.project.ok) {
-      set('off', 'Not kept', 'This browser does not let the workbench keep files (private window?). Download your work before you close the page.');
+      set('off', 'Not kept', 'This browser does not let the workbench keep your files (perhaps this is a private window). Download your work before you close the page.');
       return;
     }
-    const OK_TITLE = 'Your files are kept in this browser on this computer. Use My files → Download to take them elsewhere.';
+    const OK_TITLE = 'Your files are kept in this browser on this computer. To take them elsewhere, use My files → Download all my files.';
     let warned = false;
     const saved = () => {
       const limit = Number(MG.config.storageWarnMB) || 0;
@@ -382,10 +382,10 @@
       if (limit && MG.app.fs) for (const [p, e] of MG.app.fs.entries) if (e.kind !== 'dir' && p.startsWith(MG.app.HOME + '/')) bytes += MG.app.fs.size(e) || 0;
       if (!limit || bytes <= limit * 1048576) return set('ok', 'Saved in this browser', OK_TITLE);
       const much = MG.humanSize(bytes) + 'B';
-      set('busy', `Saved · ${much}`, `Your files take ${much} in this browser. Download what you want to keep, and delete large files you no longer need.`);
+      set('busy', `Saved · ${much}`, `Your files take up ${much} in this browser. Download what you want to keep, and delete any large files you no longer need.`);
       if (!warned) {
         warned = true;
-        toast(`Your files take <b>${much}</b> in this browser – more than ${limit} MB. Download what you want to keep, and delete large files you no longer need: browsers limit how much a site may keep.`, 'warn', 12000);
+        toast(`Your files now take up <b>${much}</b> in this browser, which is more than ${limit} MB. Browsers limit how much a site can store, so download what you want to keep and delete any large files you no longer need.`, 'warn', 12000);
       }
     };
     saved();
@@ -395,7 +395,7 @@
       clearTimeout(t);
       t = setTimeout(saved, 250);
     });
-    bus.on('files:notsaved', () => set('off', 'Not saved', 'The browser has no room left: download your files and delete some.'));
+    bus.on('files:notsaved', () => set('off', 'Not saved', 'The browser has run out of space. Download your files, and then delete some of them.'));
   }
 
   /* the title and subtitle of config.js */
@@ -428,7 +428,7 @@
     let bar = null, closed = false;
     const show = () => {
       if (others.size && !bar && !closed) {
-        bar = h('div.tabs-warning', { role: 'alert', html: '<b>The R workbench is open in another tab or window of this browser.</b> Work in one of them only: both keep files in the same place, and each can overwrite what the other saved.' });
+        bar = h('div.tabs-warning', { role: 'alert', html: '<b>The R workbench is open in another tab or window of this browser.</b> Please work in only one of them. Both keep their files in the same place, so each can overwrite what the other has saved.' });
         const b = h('button.btn.small', { type: 'button' }, 'Close this note');
         b.addEventListener('click', () => {
           closed = true;

@@ -165,9 +165,9 @@
     _askPassword(answer, why) {
       if (this.dead) return;
       const wrong = why === (this.L && this.L.PasswordResponses.INCORRECT_PASSWORD);
-      const input = h('input', { type: 'password', autocomplete: 'off', 'aria-label': 'Password of the PDF' });
+      const input = h('input', { type: 'password', autocomplete: 'off', 'aria-label': 'Password for the PDF' });
       const go = h('button.btn.small.primary', { type: 'submit' }, 'Open');
-      const form = h('form.pdfv-pass', h('p', wrong ? 'That password does not open it. Try again:' : `${this.name} is protected with a password.`), h('div', input, go));
+      const form = h('form.pdfv-pass', h('p', wrong ? 'That password is not correct. Please try again:' : `${this.name} is protected with a password. Enter the password to open it:`), h('div', input, go));
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         this.msg.textContent = 'Opening the PDF…';
@@ -181,10 +181,10 @@
       const name = (e && e.name) || '';
       let text;
       if (name === 'InvalidPDFException' || /Invalid PDF|no pdf header|not a pdf/i.test((e && e.message) || ''))
-        text = `${this.name} cannot be read as a PDF: it is damaged, it is not a PDF, or the program that writes it has not finished it. A plot that is still open is not finished yet – in R, close it with dev.off(); in Python, save the figure with plt.savefig() or close the PdfPages file.`;
+        text = `${this.name} cannot be read as a PDF. It may be damaged or not a PDF at all, or the program that is writing it may not have finished it yet. A plot is not finished while it is still open. In R, close it with dev.off(). In Python, save the figure with plt.savefig() or close the PdfPages file.`;
       else if (name === 'PasswordException') text = `${this.name} is protected with a password.`;
       else text = `${this.name} could not be shown: ${(e && e.message) || e}`;
-      this.msg.replaceChildren(h('b', 'This PDF cannot be shown'), h('p', text), h('p.muted', 'Download it (the button above) to open it with another program.'));
+      this.msg.replaceChildren(h('b', 'This PDF cannot be shown'), h('p', text), h('p.muted', 'You can download it with the button above and open it in another program.'));
       if (!this.msg.isConnected) this.list.replaceChildren(this.msg);
       this.bar.hidden = true;
     }
@@ -210,7 +210,7 @@
         if (e.key === 'Enter') this.goTo(Math.round(+this.pageIn.value) || 1);
       });
       this.zoomEl = h('span.pdfv-zoom', { 'aria-live': 'polite' });
-      this.fitBtn = btn('maximize', 'Fit width', 'Pages as wide as the pane', () => this.setZoom('fit'));
+      this.fitBtn = btn('maximize', 'Fit width', 'Make the pages as wide as the pane', () => this.setZoom('fit'));
       this.bar.replaceChildren(
         h('label.pdfv-pg', 'Page ', this.pageIn, h('span', ` of ${n}`)),
         h('span.pdfv-sep'),
@@ -439,7 +439,7 @@
         let link;
         if (a.url) link = h('a.pdfv-link', { href: a.url, target: '_blank', rel: 'noopener noreferrer', title: a.url, style });
         else {
-          link = h('a.pdfv-link', { href: '#', title: 'Go to the place in this PDF', style });
+          link = h('a.pdfv-link', { href: '#', title: 'Go to the linked page in this PDF', style });
           link.addEventListener('click', (e) => {
             e.preventDefault();
             this._goDest(a.dest);

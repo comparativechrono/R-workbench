@@ -80,7 +80,8 @@
 
   /** ask the terminal's own R session, if there is one, to stop; and say what was asked */
   function notes(ctx, o) {
-    if (o.ignored.some((x) => /^--(verbose|interactive)$/.test(x))) ctx.io.note(`${o.ignored.filter((x) => /^--(verbose|interactive)$/.test(x)).join(' ')}: accepted, and of no consequence here.`);
+    const idle = Array.from(new Set(o.ignored.filter((x) => /^--(verbose|interactive)$/.test(x))));
+    if (idle.length) ctx.io.note(`${idle.join(' and ')} ${idle.length > 1 ? 'are' : 'is'} accepted, but ${idle.length > 1 ? 'they have' : 'it has'} no effect here.`);
   }
 
   /** what an R that runs without a person reads: the lines of a script, fed to it one by one → the exit status.
@@ -191,8 +192,8 @@
     get version() {
       return ver();
     },
-    summary: 'Runs an R script (or R code given with -e) in a new R, and ends: its output comes to the terminal',
-    man: 'Rscript – R, running a script\n\nRscript script.R                 run the script in a new R; what it prints comes here\nRscript script.R a b             … with arguments: commandArgs(trailingOnly = TRUE) gives "a" "b"\nRscript -e \'mean(1:10)\'         run a line of R\nRscript -e \'x <- 1:3\' -e \'x * 2\'  several lines\n\nAn error stops the script ("Execution halted", exit status 1). Plots go to Rplots.pdf in the folder (or to the file of png(), pdf() …). What the script makes in memory is gone when it ends: write results to files.',
+    summary: 'Runs an R script (or R code given with -e) in a new R session, prints its output in the terminal and then ends',
+    man: 'Rscript – run an R script from the terminal\n\nRscript script.R                 run the script in a new R session; its output appears here\nRscript script.R a b             … with arguments: commandArgs(trailingOnly = TRUE) gives "a" "b"\nRscript -e \'mean(1:10)\'          run a line of R\nRscript -e \'x <- 1:3\' -e \'x * 2\'  run several lines\n\nAn error stops the script ("Execution halted", exit status 1). Plots are saved to Rplots.pdf in the current folder (or to the file you name in png(), pdf() and so on). Anything the script creates in memory is lost when it ends, so write your results to files.',
     async run(ctx) {
       const o = parseArgs(ctx.args, true);
       if (o.version) {
@@ -227,8 +228,8 @@
     get version() {
       return ver();
     },
-    summary: "R's console in the terminal (q() to quit); R CMD BATCH script.R keeps a record of a run in script.Rout",
-    man: "R – the R console, in the terminal\n\nR                              R's console: type R code, q() to quit (it asks whether to save the workspace)\nR -q                           … without the banner\nR CMD BATCH script.R           run the script; the commands and their output go to script.Rout, the workspace to .RData\nR CMD BATCH --no-save script.R out.txt    … without saving the workspace; the record in out.txt\nR -e 'summary(1:10)'           run a line of R (with the banner and the commands shown)\nR --no-save < script.R         the commands of a script, as if typed\nR --version\n\nHere R's plots go to Rplots.pdf (the terminal has no window for them): to see plots as you work, use the R console or RStudio tab.",
+    summary: "Starts R's console in the terminal (type q() to quit); R CMD BATCH script.R saves a record of a run in script.Rout",
+    man: "R – the R console in the terminal\n\nR                              start R's console: type R code, and q() to quit (R asks whether to save the workspace)\nR -q                           … without the banner\nR CMD BATCH script.R           run the script, writing the commands and their output to script.Rout and the workspace to .RData\nR CMD BATCH --no-save script.R out.txt    … without saving the workspace, and with the record in out.txt\nR -e 'summary(1:10)'           run a line of R (the banner and the commands are shown as well)\nR --no-save < script.R         run the commands of a script as if they were typed\nR --version\n\nIn the terminal, R's plots are saved to Rplots.pdf, because the terminal has no window to show them in. To see plots as you work, use the R console or RStudio tab.",
     async run(ctx) {
       const o = parseArgs(ctx.args, false);
       if (o.cmd) return rcmd(ctx, o.cmd);
@@ -237,7 +238,7 @@
         return 0;
       }
       if (o.help) {
-        ctx.out(`Usage: R [options] [< infile] [> outfile]\n   or: R CMD command [arguments]\n\nStart R, a system for statistical computation and graphics, with the\nspecified options, or invoke an R tool via the 'R CMD' interface.\n\nOptions:\n  -h, --help            Print short help message and exit\n  --version             Print version info and exit\n  --save                Do save workspace at the end of the session\n  --no-save             Don't save it\n  --no-restore          Don't restore previously saved objects\n  --vanilla             Combine --no-save, --no-restore and others\n  -q, --quiet           Don't print startup message\n  --silent              Same as --quiet\n  --no-echo             Make R run as quietly as possible\n  --args                Skip the rest of the command line\n  -f FILE, --file=FILE  Take input from 'FILE'\n  -e EXPR               Execute 'EXPR' and exit\n\nCommands (R CMD …): BATCH – run R non-interactively with input from infile and\nplace output (stdout/stderr) in another file. (The other commands of R CMD –\nINSTALL, build, check … – are not available here: packages are installed with\ninstall.packages() inside R.)\n`);
+        ctx.out(`Usage: R [options] [< infile] [> outfile]\n   or: R CMD command [arguments]\n\nStart R, a system for statistical computation and graphics, with the\nspecified options, or invoke an R tool via the 'R CMD' interface.\n\nOptions:\n  -h, --help            Print short help message and exit\n  --version             Print version info and exit\n  --save                Do save workspace at the end of the session\n  --no-save             Don't save it\n  --no-restore          Don't restore previously saved objects\n  --vanilla             Combine --no-save, --no-restore and others\n  -q, --quiet           Don't print startup message\n  --silent              Same as --quiet\n  --no-echo             Make R run as quietly as possible\n  --args                Skip the rest of the command line\n  -f FILE, --file=FILE  Take input from 'FILE'\n  -e EXPR               Execute 'EXPR' and exit\n\nCommands (R CMD …): BATCH – run R non-interactively with input from infile and\nplace output (stdout/stderr) in another file. (The other R CMD commands, such\nas INSTALL, build and check, are not available here. Install packages with\ninstall.packages() inside R.)\n`);
         return 0;
       }
       if (o.bad) ctx.err(o.bad + '\n');
@@ -294,7 +295,7 @@
             ctx.out('\n');
             return;
           }
-          if (!S.interrupt()) term.note('R cannot be interrupted in this browser (the page is not cross-origin isolated). Wait until it has finished – or reload the page.');
+          if (!S.interrupt()) term.note("R can't be interrupted in this browser, because the page is not cross-origin isolated. Wait until it has finished, or reload the page.");
         },
         complete: (line, cursor) => (S.idle ? S.complete(line, cursor) : null)
       };
@@ -336,12 +337,12 @@
   async function rcmd(ctx, args) {
     const sub = args[0];
     if (!sub) {
-      ctx.err('R CMD: a command is needed – here: R CMD BATCH script.R\n');
+      ctx.err('R CMD: a command is needed. The only one available here is BATCH, as in R CMD BATCH script.R\n');
       return 1;
     }
     if (sub !== 'BATCH') {
       ctx.err(`R CMD ${sub}: not available in this terminal.\n`);
-      ctx.io.note(/^(INSTALL|build|check|REMOVE)$/.test(sub) ? 'Packages are installed from inside R here: install.packages("NAME") – in any R of the workbench (the console, RStudio, a notebook, or R in this terminal).' : 'Of the tools of R CMD, BATCH is here: R CMD BATCH script.R runs a script and keeps a record of the run in script.Rout.');
+      ctx.io.note(/^(INSTALL|build|check|REMOVE)$/.test(sub) ? 'Here, packages are installed from inside R with install.packages("NAME"). You can do this in any of the R sessions in the workbench: the console, RStudio, a notebook, or R in this terminal.' : 'The only R CMD tool available here is BATCH. R CMD BATCH script.R runs a script and keeps a record of the run in script.Rout.');
       return 1;
     }
     // R CMD BATCH [options] infile [outfile]

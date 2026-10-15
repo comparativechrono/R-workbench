@@ -260,7 +260,7 @@ ${t.body}
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="generator" content="knitr and markdown, in the R workbench (in the manner of Quarto)">
+<meta name="generator" content="knitr and markdown, in the R workbench (styled like a Quarto page)">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title || 'Document')}</title>
 <style>${QMD_CSS}</style>
@@ -325,9 +325,9 @@ ${t.body}
     const out = outputOf(path, text);
     const log = (t, s) => opts.onLog && opts.onLog(t, s || 'out');
     if (out.kind === 'rmd' && out.format !== 'html_document') {
-      log(`The output format ${out.format} needs pandoc (and LaTeX for PDF, Word for .docx), which are not available in the browser: the document is knitted to HTML (html_document) instead.\n\n`, 'err');
+      log(`The output format ${out.format} needs pandoc (and, for a PDF, LaTeX as well). These programs are not available in the browser, so the document will be knitted to HTML (html_document) instead.\n\n`, 'err');
     }
-    if (out.kind === 'quarto' && !/^html/.test(out.format)) log(`The format ${out.format} needs Quarto's programs, which are not available in the browser: the document is rendered to HTML instead.\n\n`, 'err');
+    if (out.kind === 'quarto' && !/^html/.test(out.format)) log(`The format ${out.format} needs Quarto's own programs, which are not available in the browser, so the document will be rendered to HTML instead.\n\n`, 'err');
     const dir = MG.path.dirname(path);
     const name = MG.path.basename(path);
     const stem = name.replace(/\.[^.]+$/, '');
@@ -368,7 +368,7 @@ ${t.body}
       const html = out.kind === 'quarto' ? pageQmd(body, y) : pageRmd(body, y, out.opts || {});
       output = dir + '/' + stem + '.html';
       fs.writeText(output, html);
-      log(`\n(the Markdown is made into HTML by R's markdown package – pandoc is not available in the browser)\n\n`);
+      log(`\n(R's markdown package was used to turn the Markdown into HTML, because pandoc is not available in the browser.)\n\n`);
       log(`Output created: ${stem}.html\n`, 'done');
     }
     S.close(true);
@@ -425,7 +425,7 @@ ${t.body}
 <body>
 <div class="container-fluid main-container">
 <div id="header"><h1 class="title toc-ignore">${esc(title)}</h1>${asList(y.author).map((a) => `<h4 class="author">${esc(a)}</h4>`).join('')}${y.date != null ? `<h4 class="date">${esc(y.date)}</h4>` : ''}</div>
-<p class="nb-note">An R Notebook: the outputs are those of the chunks as they were last run in RStudio – not run again when this file was made.</p>
+<p class="nb-note">This is an R Notebook. The outputs shown are from the last time each chunk was run in RStudio. No code was run again to make this file.</p>
 ${html}
 </div>
 <div id="rmd-source-code" style="display:none">${b64(text)}</div>
